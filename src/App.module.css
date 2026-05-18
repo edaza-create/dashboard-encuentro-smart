@@ -1,0 +1,80 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+  background: var(--layout-main-bg);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.mainScroll {
+  flex: 1;
+  overflow: auto;
+  padding: 0 28px 40px;
+}
+
+.shell {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 8px;
+}
+
+.loadingBar {
+  height: 3px;
+  margin: 0;
+  width: 100%;
+  border-radius: 0;
+  background: linear-gradient(90deg, var(--color-primary-soft), var(--color-primary), var(--color-primary-soft));
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.error {
+  margin: 16px 28px;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 14px 18px;
+  background: #fff0f2;
+  border: 1px solid rgba(237, 85, 101, 0.35);
+  border-radius: var(--radius-card);
+  color: var(--color-danger);
+  font-size: 14px;
+}
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(26, 29, 38, 0.06);
+}
+
+@media (max-width: 900px) {
+  .mainScroll {
+    padding: 0 16px 32px;
+  }
+
+  .error {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+}
