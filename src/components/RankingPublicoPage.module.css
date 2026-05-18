@@ -1,0 +1,547 @@
+/* =============================================================================
+ * Ranking Board v2 — Encuentro Smart Cyber
+ * Adaptado del design handoff "Ranking Board v2.html" (sistema Tennis Hero v2).
+ * Tokens: sky cielo + lime neon + ink + Space Grotesk/Inter.
+ * ===========================================================================*/
+
+.root {
+  --sky: #3b8ef5;
+  --sky-2: #5ba4ff;
+  --sky-3: #2b7ae0;
+  --lime: #ccfa3f;
+  --lime-2: #d8ff55;
+  --ink: #0b0f1a;
+  --bone: #faf8f3;
+  --clay: #ff7a3d;
+  --shadow-card: 0 10px 30px rgba(11, 15, 26, 0.18), 0 1px 0 rgba(11, 15, 26, 0.04);
+  --shadow-lime: 0 14px 36px rgba(204, 250, 63, 0.35);
+
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  color: #fff;
+  background: var(--sky);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.root *,
+.root *::before,
+.root *::after {
+  box-sizing: border-box;
+}
+
+/* ── ambient field ──────────────────────────────────────────────────────── */
+.field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 80% at 50% 0%, var(--sky-2) 0%, var(--sky) 45%, var(--sky-3) 100%);
+}
+.fieldSpot {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(closest-side, rgba(204, 250, 63, 0.3) 0%, rgba(204, 250, 63, 0) 70%) no-repeat 78% 18% / 55vmin
+      55vmin,
+    radial-gradient(closest-side, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 70%) no-repeat 8% 95% / 48vmin
+      48vmin;
+  filter: blur(8px);
+}
+.courtGrid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* ── layout shell ───────────────────────────────────────────────────────── */
+.shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 24px 80px;
+}
+
+@media (min-width: 768px) {
+  .shell {
+    padding: 20px 48px 96px;
+  }
+}
+
+/* ── topbar ─────────────────────────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 8px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  text-decoration: none;
+}
+.brandName {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-size: 18px;
+}
+.brandSub {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+.refreshBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+.refreshBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ── eyebrow + header ───────────────────────────────────────────────────── */
+.eyebrow {
+  margin-top: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--lime);
+  display: inline-block;
+}
+.muted {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.title {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.025em;
+  line-height: 0.92;
+  font-size: clamp(48px, 8vw, 120px);
+  margin: 18px 0 0;
+}
+.chip {
+  display: inline-block;
+  background: var(--lime);
+  color: var(--ink);
+  border-radius: 18px;
+  padding: 0 0.22em 0.04em;
+  font-style: italic;
+  font-weight: 600;
+  transform: rotate(-1.5deg);
+  box-shadow: var(--shadow-lime);
+  line-height: 1;
+}
+
+.lede {
+  margin: 22px 0 0;
+  max-width: 52ch;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+/* ── controls ───────────────────────────────────────────────────────────── */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 36px 0 18px;
+}
+.season {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+}
+.seasonLabel {
+  color: rgba(255, 255, 255, 0.65);
+}
+.seasonValue {
+  font-weight: 700;
+}
+.seasonChev {
+  color: var(--lime);
+}
+
+.filters {
+  display: inline-flex;
+  gap: 4px;
+  padding: 6px;
+  background: var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 8px 30px rgba(11, 15, 26, 0.35);
+}
+.filter {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font: 600 12px/1 "Inter", sans-serif;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.7);
+  transition: background 0.15s, color 0.15s;
+}
+.filter:hover {
+  color: #fff;
+}
+.filterActive {
+  background: var(--lime);
+  color: var(--ink);
+}
+
+/* ── table head ─────────────────────────────────────────────────────────── */
+.tableHead {
+  display: grid;
+  grid-template-columns: 64px 88px 1fr 140px 140px 160px;
+  padding: 0 22px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.7);
+}
+.col {
+  padding: 0 8px;
+}
+.colNum {
+  text-align: center;
+}
+.colRight {
+  text-align: right;
+}
+.colCenter {
+  text-align: center;
+}
+
+/* ── rows ───────────────────────────────────────────────────────────────── */
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 64px 88px 1fr 140px 140px 160px;
+  align-items: stretch;
+  background: #fff;
+  color: var(--ink);
+  border-radius: 22px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 44px rgba(11, 15, 26, 0.22), 0 2px 0 rgba(11, 15, 26, 0.04);
+}
+.rowTop1 {
+  background: var(--ink);
+  color: #fff;
+  box-shadow: 0 14px 36px rgba(11, 15, 26, 0.35);
+}
+
+.rankCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 0;
+}
+.rankNum {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.rowTop1 .rankNum {
+  color: var(--lime);
+}
+.rankLabel {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(11, 15, 26, 0.45);
+}
+.rowTop1 .rankLabel {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.portraitCell {
+  padding: 10px 0 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playerCell {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+.seedTag {
+  align-self: flex-start;
+  background: var(--lime);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  margin-bottom: 4px;
+}
+.playerName {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.playerMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(11, 15, 26, 0.55);
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.rowTop1 .playerMeta {
+  color: rgba(255, 255, 255, 0.6);
+}
+.playerMeta .sep {
+  color: rgba(11, 15, 26, 0.25);
+}
+.rowTop1 .playerMeta .sep {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.statCell {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+}
+.statValue {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.rowTop1 .statValue {
+  color: #fff;
+}
+.statLabel {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(11, 15, 26, 0.5);
+}
+.rowTop1 .statLabel {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.totalCell {
+  padding: 14px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(204, 250, 63, 0.1);
+  border-left: 1px solid rgba(11, 15, 26, 0.06);
+}
+.rowTop1 .totalCell {
+  background: var(--lime);
+  color: var(--ink);
+  border-left: 1px solid rgba(11, 15, 26, 0.2);
+}
+.totalValue {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.totalLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: rgba(11, 15, 26, 0.5);
+  margin-top: 6px;
+}
+.rowTop1 .totalValue {
+  color: var(--ink);
+}
+.rowTop1 .totalLabel {
+  color: rgba(11, 15, 26, 0.55);
+}
+
+/* ── states ─────────────────────────────────────────────────────────────── */
+.stateBox {
+  position: relative;
+  z-index: 1;
+  margin-top: 24px;
+  padding: 24px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 15px;
+}
+.stateError {
+  background: rgba(255, 122, 61, 0.15);
+  border-color: rgba(255, 122, 61, 0.4);
+}
+
+.empty {
+  margin-top: 16px;
+  text-align: center;
+  padding: 48px 24px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ── footer ─────────────────────────────────────────────────────────────── */
+.footer {
+  margin-top: 36px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+@media (min-width: 768px) {
+  .footer {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+.footer .right {
+  text-align: right;
+}
+.footerKey {
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.18em;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+}
+.footerVal {
+  color: #fff;
+  font-weight: 500;
+}
+.footerLime {
+  color: var(--lime);
+}
+
+/* ── huerfanos (warn card flotante, bottom) ────────────────────────────── */
+.huerfanos {
+  margin-top: 24px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: rgba(255, 122, 61, 0.15);
+  border: 1px solid rgba(255, 122, 61, 0.4);
+  color: #fff;
+  font-size: 13px;
+}
+.huerfanosTitle {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+}
+
+/* ── responsive collapse ────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .tableHead,
+  .row {
+    grid-template-columns: 56px 80px 1fr 110px 110px 140px;
+  }
+  .playerName {
+    font-size: 20px;
+  }
+  .rankNum {
+    font-size: 30px;
+  }
+  .totalValue {
+    font-size: 26px;
+  }
+  .statValue {
+    font-size: 18px;
+  }
+}
+@media (max-width: 860px) {
+  .tableHead {
+    display: none;
+  }
+  .row {
+    grid-template-columns: 56px 1fr 130px;
+  }
+  .portraitCell,
+  .statCell {
+    display: none;
+  }
+  .totalCell {
+    border-radius: 0 22px 22px 0;
+  }
+}

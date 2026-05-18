@@ -21,3 +21,8 @@ Thumbs.db
 
 # Vite
 *.local
+
+# Data fuente (sensible: emails internos). Se regenera src/data/asesores-bp.json
+# corriendo `pnpm run sync:asesores`.
+Lista Asesores Activos*.xlsx
+.snapshots/
