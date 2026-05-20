@@ -1,6 +1,8 @@
 import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams'
 import { reservaMatchesBroker } from './brokerReservaMatch'
 import { aggregateManualIndividualPorEquipo } from './competenciaIndividualToEquipo'
+import { compareRankingPorPuntosYUf } from './rankingCompare.js'
+import { ufMontoPlanillaReserva } from './ufNormalize'
 
 /** Reglas oficiales de la competencia Capital Open. */
 export const SCORING = {
@@ -26,6 +28,17 @@ export function allNombresPlataformaForEquipo(equipo) {
 export function cuentaReservasEquipo(reservas, equipo) {
   if (!reservas?.length || !equipo?.brokers?.length) return 0
   return reservas.filter((r) => equipo.brokers.some((b) => reservaMatchesBroker(r, b))).length
+}
+
+/** Suma UF de reservas del equipo (mismo criterio que cartera por asesor). */
+export function ufTotalReservasEquipo(reservas, equipo) {
+  if (!reservas?.length || !equipo?.brokers?.length) return 0
+  let sum = 0
+  for (const r of reservas) {
+    if (!equipo.brokers.some((b) => reservaMatchesBroker(r, b))) continue
+    sum += ufMontoPlanillaReserva(r)
+  }
+  return Math.round(sum * 100) / 100
 }
 
 export function puntosReservaAuto(reservas, equipo) {
@@ -73,9 +86,13 @@ export function equiposOrdenadosPorPuntos(reservas, manualByTeamId, individualMa
         manualByTeamId[String(equipo.id)],
         individualManual
       ),
+      ufTotal: ufTotalReservasEquipo(reservas, equipo),
+      display: equipo.label,
     }))
     .sort((a, b) => {
-      if (b.total !== a.total) return b.total - a.total
+      const cmp = compareRankingPorPuntosYUf(a, b)
+      if (cmp !== 0) return cmp
       return a.equipo.id - b.equipo.id
     })
+    .map(({ equipo, total, ufTotal }) => ({ equipo, total, ufTotal }))
 }

@@ -3,14 +3,16 @@
  * Lee promesas y escrituras desde caché remota (Supabase) o localStorage del dashboard admin.
  */
 
-import asesoresBP from '../data/asesores-bp.json'
 import { pickAvatarSrc } from './buildRanking.js'
+import { lookupAsesorBp } from './asesorBpPlataforma.js'
+import { miembroPorNombre } from './equipoComercialInterno.js'
 import { mapReservaPublica } from './mapReserva.js'
 import {
   listAsesoresCompetenciaIndividual,
   puntosManualIndividual,
   totalIndividual,
 } from './competenciaCapitalOpenIndividual.js'
+import { compareRankingPorPuntosYUf } from './rankingCompare.js'
 import {
   equiposOrdenadosPorPuntos,
   cuentaReservasEquipo,
@@ -19,8 +21,6 @@ import {
   SCORING,
 } from './competenciaCapitalOpenScore.js'
 import { loadIndividualManualSaved, loadTeamManualSaved } from './competenciaStorage.js'
-
-const SIN_BP_SLUG = 'sin-bp'
 
 function normalizeEmail(email) {
   if (typeof email !== 'string') return null
@@ -41,19 +41,20 @@ function buildFotoByEmail(reservasPublicas) {
   return map
 }
 
+function reservaTieneBpAsignado(r) {
+  const email = normalizeEmail(r.asesor_email)
+  if (email && lookupAsesorBp(email).bp_slug) return true
+  if (miembroPorNombre(r.asesor_nombre)) return true
+  return false
+}
+
 function buildHuerfanos(reservasPublicas) {
-  const emailToBp = new Map()
-  for (const a of asesoresBP.asesores) {
-    emailToBp.set(a.email.toLowerCase(), a.bp_slug)
-  }
   const porEmail = new Map()
   for (const r of reservasPublicas ?? []) {
-    const email = normalizeEmail(r.asesor_email)
-    if (!email) continue
-    const slug = emailToBp.get(email) ?? SIN_BP_SLUG
-    if (slug !== SIN_BP_SLUG) continue
+    if (reservaTieneBpAsignado(r)) continue
+    const email = normalizeEmail(r.asesor_email) ?? `nombre:${String(r.asesor_nombre ?? '').trim().toLowerCase()}`
     if (!porEmail.has(email)) {
-      porEmail.set(email, { email, nombre: r.asesor_nombre ?? null, total: 0 })
+      porEmail.set(email, { email: normalizeEmail(r.asesor_email) ?? email, nombre: r.asesor_nombre ?? null, total: 0 })
     }
     porEmail.get(email).total += 1
   }
@@ -92,13 +93,10 @@ export function buildRankingCompetencia(reservasPublicas) {
         foto_urls: foto?.foto_urls ?? null,
       }
     })
-    .sort((x, y) => {
-      if (y.totalPuntos !== x.totalPuntos) return y.totalPuntos - x.totalPuntos
-      return x.nombre.localeCompare(y.nombre, 'es', { sensitivity: 'base' })
-    })
+    .sort(compareRankingPorPuntosYUf)
 
   const rankingEquipos = equiposOrdenadosPorPuntos(reservas, teamManual, indManual)
-  const bps = rankingEquipos.map(({ equipo, total }) => {
+  const bps = rankingEquipos.map(({ equipo, total, ufTotal }) => {
     const id = String(equipo.id)
     const teamOnly = teamManual[id] || {
       actividadOnlineCount: 0,
@@ -120,6 +118,7 @@ export function buildRankingCompetencia(reservasPublicas) {
       puntosEscrituras: pm.escrituras,
       puntosActividades: pm.actividades,
       totalPuntos: total,
+      ufTotal: ufTotal ?? 0,
     }
   })
 

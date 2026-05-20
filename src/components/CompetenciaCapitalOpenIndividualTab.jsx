@@ -8,6 +8,7 @@ import {
   puntosManualIndividual,
   totalIndividual,
 } from '../utils/competenciaCapitalOpenIndividual'
+import { compareRankingPorPuntosYUf } from '../utils/rankingCompare'
 import { SCORING } from '../utils/competenciaCapitalOpenScore'
 import { formatUF } from '../utils/format'
 import styles from './CompetenciaCapitalOpenIndividualTab.module.css'
@@ -28,10 +29,7 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
         const total = totalIndividual(s, a.reservas)
         return { ...a, total, pm }
       })
-      .sort((x, y) => {
-        if (y.total !== x.total) return y.total - x.total
-        return x.etiqueta.localeCompare(y.etiqueta, 'es', { sensitivity: 'base' })
-      })
+      .sort(compareRankingPorPuntosYUf)
   }, [asesoresBase, saved])
 
   const totales = useMemo(() => {

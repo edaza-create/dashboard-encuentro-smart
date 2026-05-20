@@ -4,6 +4,7 @@ import { pickAvatarSrc } from "../utils/buildRankingCompetencia.js";
 import { SCORING } from "../utils/competenciaCapitalOpenScore.js";
 import { formatUF } from "../utils/format.js";
 import Avatar from "./ranking/Avatar.jsx";
+import styles from "./RankingPublicoPage.module.css";
 
 function medalRowClass(styles, index) {
   if (index === 0) return styles.rowGold;
@@ -11,7 +12,10 @@ function medalRowClass(styles, index) {
   if (index === 2) return styles.rowBronze;
   return "";
 }
-import styles from "./RankingPublicoPage.module.css";
+
+function avatarDarkForMedal(medalClass, styles) {
+  return medalClass === styles.rowBronze;
+}
 
 const AVATAR_SIZE = 72;
 
@@ -241,18 +245,20 @@ export default function RankingPublicoPage() {
         {status === "ready" ? (
           <>
             <div
-              className={`${styles.tableHead} ${styles.tableCompetencia} ${
+              className={`${styles.tableHead} ${
                 tab === "individual" ? styles.tableWithUf : ""
               }`}
+              aria-hidden="true"
             >
-              <div className={`${styles.col} ${styles.colNum}`}>RK</div>
-              <div className={styles.col} aria-hidden="true" />
-              <div className={styles.col}>{tab === "bp" ? "EQUIPO" : "ASESOR"}</div>
-              <div className={`${styles.col} ${styles.colRight}`}>RES</div>
-              <div className={`${styles.col} ${styles.colRight}`}>PROM</div>
-              <div className={`${styles.col} ${styles.colRight}`}>ESC</div>
-              {tab === "individual" ? <div className={`${styles.col} ${styles.colRight}`}>UF</div> : null}
-              <div className={`${styles.col} ${styles.colRight}`}>PTS ▌</div>
+              <div className={styles.headRank}>RK</div>
+              <div className={styles.headIdentity}>{tab === "bp" ? "EQUIPO" : "ASESOR"}</div>
+              <div className={styles.headMetrics}>
+                <span>RESERVAS</span>
+                <span>PROMESAS</span>
+                <span>ESCRITURAS</span>
+                {tab === "individual" ? <span>CARTERA UF</span> : null}
+              </div>
+              <div className={styles.headScore}>PUNTOS</div>
             </div>
 
             {lista.length === 0 ? (
@@ -263,79 +269,105 @@ export default function RankingPublicoPage() {
               <div className={styles.rows}>
                 {lista.map((item, i) => {
                   const medalClass = medalRowClass(styles, i);
+                  const showUf = tab === "individual";
 
                   return (
-                  <article
-                    key={item.key}
-                    className={`${styles.row} ${styles.rowCompetencia} ${medalClass} ${
-                      tab === "individual" ? styles.rowWithUf : ""
-                    }`}
-                  >
-                    <div className={styles.rankCell}>
-                      <div className={styles.rankNum}>{String(item.rank).padStart(2, "0")}</div>
-                      <div className={styles.rankLabel}>RANK</div>
-                    </div>
-                    <div className={styles.portraitCell}>
-                      <Avatar
-                        name={item.nombre}
-                        seed={item.seed}
-                        src={item.avatarSrc}
-                        size={AVATAR_SIZE}
-                      />
-                    </div>
-                    <div className={styles.playerCell}>
-                      <span className={styles.seedTag}>
-                        {tab === "bp" ? "TEAM" : "SEED"} {String(item.rank).padStart(2, "0")}
-                      </span>
-                      <div className={styles.playerName} title={item.nombre}>
-                        {item.nombre}
+                    <article
+                      key={item.key}
+                      className={`${styles.row} ${medalClass} ${
+                        showUf ? styles.rowWithUf : ""
+                      }`}
+                    >
+                      <div className={styles.rowGrid}>
+                        <div className={styles.rankZone}>
+                          <span className={styles.rankNum}>
+                            {String(item.rank).padStart(2, "0")}
+                          </span>
+                          <span className={styles.rankLabel}>RANK</span>
+                        </div>
+
+                        <div className={styles.identityZone}>
+                          <div className={styles.avatarFrame}>
+                            <Avatar
+                              name={item.nombre}
+                              seed={item.seed}
+                              src={item.avatarSrc}
+                              size={AVATAR_SIZE}
+                              dark={avatarDarkForMedal(medalClass, styles)}
+                            />
+                          </div>
+                          <div className={styles.identityCopy}>
+                            <span className={styles.seedTag}>
+                              {tab === "bp" ? "TEAM" : "SEED"}{" "}
+                              {String(item.rank).padStart(2, "0")}
+                            </span>
+                            <h2 className={styles.playerName} title={item.nombre}>
+                              {item.nombre}
+                            </h2>
+                            {(item.metaTop || item.metaBottom) ? (
+                              <p className={styles.playerMeta}>
+                                {item.metaTop ? <span>{item.metaTop}</span> : null}
+                                {item.metaTop && item.metaBottom ? (
+                                  <span className={styles.metaSep} aria-hidden="true">
+                                    ·
+                                  </span>
+                                ) : null}
+                                {item.metaBottom ? <span>{item.metaBottom}</span> : null}
+                              </p>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        <div className={styles.metricsZone}>
+                          <div
+                            className={`${styles.metricsPanel} ${
+                              showUf ? styles.metricsPanelWithUf : ""
+                            }`}
+                          >
+                            <div className={styles.metricItem}>
+                              <span className={styles.metricValue}>
+                                {item.reservasCount}
+                              </span>
+                              <span className={styles.metricLabel}>Reservas</span>
+                            </div>
+                            <div className={styles.metricItem}>
+                              <span className={styles.metricValue}>
+                                {item.promesasCount}
+                              </span>
+                              <span className={styles.metricLabel}>Promesas</span>
+                            </div>
+                            <div className={styles.metricItem}>
+                              <span className={styles.metricValue}>
+                                {item.escriturasCount}
+                              </span>
+                              <span className={styles.metricLabel}>Escrituras</span>
+                            </div>
+                            {showUf ? (
+                              <div className={`${styles.metricItem} ${styles.metricItemUf}`}>
+                                <span className={styles.metricValueUf}>
+                                  {formatUf(item.ufTotal)}
+                                </span>
+                                <span className={styles.metricLabel}>Cartera UF</span>
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        <div className={styles.scoreZone}>
+                          <span className={styles.scoreValue}>
+                            {formatPts(item.totalPuntos)}
+                          </span>
+                          <span className={styles.scoreLabel}>PTS · TOTAL</span>
+                          <span
+                            className={styles.scoreBreakdown}
+                            title="Reserva + promesas + escrituras (+ actividades en equipos)"
+                          >
+                            {ptsBreakdown(item)}
+                          </span>
+                        </div>
+
                       </div>
-                      <div className={styles.playerMeta}>
-                        {item.metaTop ? <span>{item.metaTop}</span> : null}
-                        {item.metaTop && item.metaBottom ? (
-                          <span className="sep">·</span>
-                        ) : null}
-                        {item.metaBottom ? <span>{item.metaBottom}</span> : null}
-                      </div>
-                      <div className={styles.mobileStats}>
-                        {item.reservasCount} res · {item.promesasCount} prom · {item.escriturasCount} esc
-                        {tab === "individual" ? (
-                          <>
-                            {" "}
-                            · {formatUf(item.ufTotal)}
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
-                    <div className={styles.statCell}>
-                      <div className={styles.statValue}>{item.reservasCount}</div>
-                      <div className={styles.statLabel}>RESERVAS</div>
-                    </div>
-                    <div className={styles.statCell}>
-                      <div className={styles.statValue}>{item.promesasCount}</div>
-                      <div className={styles.statLabel}>PROMESAS</div>
-                    </div>
-                    <div className={styles.statCell}>
-                      <div className={styles.statValue}>{item.escriturasCount}</div>
-                      <div className={styles.statLabel}>ESCRITURAS</div>
-                    </div>
-                    {tab === "individual" ? (
-                      <div className={styles.statCell}>
-                        <div className={styles.statValue}>{formatUf(item.ufTotal)}</div>
-                        <div className={styles.statLabel}>CARTERA UF</div>
-                      </div>
-                    ) : null}
-                    <div className={styles.totalCell}>
-                      <div className={styles.totalValue}>{formatPts(item.totalPuntos)}</div>
-                      <div className={styles.totalLabel}>PTS · TOTAL</div>
-                      <div
-                        className={styles.ptsHint}
-                        title="Reserva + promesas + escrituras (+ actividades en equipos)"
-                      >
-                        {ptsBreakdown(item)}
-                      </div>
-                    </div>
-                  </article>
+                    </article>
                   );
                 })}
               </div>
@@ -347,8 +379,9 @@ export default function RankingPublicoPage() {
                   {huerfanos.length} asesor{huerfanos.length === 1 ? "" : "es"} sin BP asignado
                 </div>
                 <div>
-                  Tienen reservas pero no matchean ninguna hoja del xlsx. Resync con{" "}
-                  <code>pnpm run sync:asesores</code> si actualizaste el archivo.
+                  Tienen reservas pero no están en el xlsx de BPs ni en el roster de Equipo
+                  Comercial Interno. Resync con <code>npm run sync:asesores</code> o revisa{" "}
+                  <code>src/data/equipoComercialInterno.js</code>.
                 </div>
               </div>
             ) : null}

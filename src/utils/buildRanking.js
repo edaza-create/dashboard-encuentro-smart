@@ -10,6 +10,9 @@
  */
 
 import asesoresBP from "../data/asesores-bp.json";
+import { lookupAsesorBp } from "./asesorBpPlataforma.js";
+import { BP_SLUG_EQUIPO_INTERNO, NIVEL_PLATAFORMA_EQUIPO_INTERNO } from "../data/equipoComercialInterno.js";
+import { miembroPorNombre } from "./equipoComercialInterno.js";
 
 const SIN_BP_SLUG = "sin-bp";
 const SIN_BP_DISPLAY = "Sin BP asignado";
@@ -20,7 +23,21 @@ function buildBpIndex() {
     map.set(bp.slug, bp);
   }
   map.set(SIN_BP_SLUG, { slug: SIN_BP_SLUG, display: SIN_BP_DISPLAY, label_origen: null });
+  map.set(BP_SLUG_EQUIPO_INTERNO, {
+    slug: BP_SLUG_EQUIPO_INTERNO,
+    display: NIVEL_PLATAFORMA_EQUIPO_INTERNO,
+    label_origen: null,
+  });
   return map;
+}
+
+function bpSlugForReserva(email, nombre) {
+  const mapping = email ? ASESOR_INDEX.get(email) : null;
+  if (mapping?.bp_slug) return mapping.bp_slug;
+  const lookup = lookupAsesorBp(email ?? "");
+  if (lookup.bp_slug) return lookup.bp_slug;
+  if (miembroPorNombre(nombre)) return BP_SLUG_EQUIPO_INTERNO;
+  return SIN_BP_SLUG;
 }
 
 function buildAsesorIndex() {
@@ -93,7 +110,7 @@ export function buildRanking(reservas) {
     if (!email) continue;
 
     const mapping = ASESOR_INDEX.get(email);
-    const bpSlug = mapping?.bp_slug ?? SIN_BP_SLUG;
+    const bpSlug = bpSlugForReserva(email, r.asesor_nombre);
     const bp = BP_INDEX.get(bpSlug);
     const uf = toNum(r.monto_uf);
 
