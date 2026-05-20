@@ -10,12 +10,19 @@ const TITLES = {
   'Competencia Capital Open Individual': 'Competencia Capital Open Individual',
 }
 
+const SOURCE_LABELS = {
+  ored: 'API ored',
+  supabase: 'En vivo',
+  mock: 'Mock local',
+}
+
 export default function MainHeader({
   tab,
   lastUpdated,
   onRefresh,
   loading,
   isLive,
+  dataSource = 'ored',
 }) {
   return (
     <header className={styles.header}>
@@ -28,9 +35,13 @@ export default function MainHeader({
               En vivo
             </span>
           ) : (
-            <span className={styles.offline}>
-              <WifiOff size={14} aria-hidden />
-              Local
+            <span className={dataSource === 'ored' ? styles.live : styles.offline}>
+              {dataSource === 'ored' ? (
+                <Wifi size={14} aria-hidden />
+              ) : (
+                <WifiOff size={14} aria-hidden />
+              )}
+              {SOURCE_LABELS[dataSource] ?? 'Local'}
             </span>
           )}
           {lastUpdated && (

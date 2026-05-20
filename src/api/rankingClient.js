@@ -39,6 +39,8 @@
 const DEFAULT_BASE_URL = "https://ored.cl";
 
 function getBaseUrl() {
+  // Desarrollo: mismo origen vía proxy Vite (vite.config.js → ored.cl).
+  if (import.meta.env.DEV) return "";
   const raw = import.meta.env.VITE_API_BASE_URL;
   if (!raw || typeof raw !== "string") return DEFAULT_BASE_URL;
   return raw.replace(/\/$/, "");

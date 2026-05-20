@@ -503,6 +503,16 @@
   color: var(--color-text);
 }
 
+.indRollupNote {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-muted, #64748b);
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.04);
+}
+
 .manualForm {
   display: flex;
   flex-direction: column;

@@ -233,7 +233,7 @@
 /* ── table head ─────────────────────────────────────────────────────────── */
 .tableHead {
   display: grid;
-  grid-template-columns: 64px 88px 1fr 140px 140px 160px;
+  grid-template-columns: 64px 88px 1fr 72px 72px 72px 120px;
   padding: 0 22px 12px;
   font-size: 10px;
   font-weight: 600;
@@ -253,6 +253,11 @@
   text-align: center;
 }
 
+.tableWithUf,
+.rowWithUf {
+  grid-template-columns: 64px 88px 1fr 72px 72px 72px 72px 120px;
+}
+
 /* ── rows ───────────────────────────────────────────────────────────────── */
 .rows {
   display: flex;
@@ -262,7 +267,7 @@
 
 .row {
   display: grid;
-  grid-template-columns: 64px 88px 1fr 140px 140px 160px;
+  grid-template-columns: 64px 88px 1fr 72px 72px 72px 120px;
   align-items: stretch;
   background: #fff;
   color: var(--ink);
@@ -276,10 +281,42 @@
   transform: translateY(-2px);
   box-shadow: 0 18px 44px rgba(11, 15, 26, 0.22), 0 2px 0 rgba(11, 15, 26, 0.04);
 }
-.rowTop1 {
-  background: var(--ink);
-  color: #fff;
-  box-shadow: 0 14px 36px rgba(11, 15, 26, 0.35);
+/* ── podio: oro / plata / bronce ─────────────────────────────────────────── */
+.rowGold {
+  background: linear-gradient(118deg, #5c4208 0%, #a67c00 22%, #e8c547 52%, #fff4c2 78%, #d4af37 100%);
+  color: #2a1f06;
+  box-shadow:
+    0 14px 40px rgba(139, 105, 20, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 228, 140, 0.65);
+}
+
+.rowSilver {
+  background: linear-gradient(
+    118deg,
+    #4a5568 0%,
+    #64748b 16%,
+    #94a3b8 38%,
+    #c5d0dc 58%,
+    #a8b8ca 78%,
+    #6b7c94 100%
+  );
+  color: #0f172a;
+  box-shadow:
+    0 14px 36px rgba(51, 65, 85, 0.48),
+    0 0 0 2px rgba(148, 163, 184, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -1px 0 rgba(71, 85, 105, 0.25);
+  border: 2px solid #8fa3bc;
+}
+
+.rowBronze {
+  background: linear-gradient(118deg, #4a2c12 0%, #8b4513 26%, #cd7f32 52%, #e8b88a 78%, #b87333 100%);
+  color: #fff8f0;
+  box-shadow:
+    0 12px 32px rgba(107, 68, 35, 0.4),
+    inset 0 1px 0 rgba(255, 220, 180, 0.25);
+  border: 1px solid rgba(232, 184, 138, 0.55);
 }
 
 .rankCell {
@@ -298,8 +335,19 @@
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
-.rowTop1 .rankNum {
-  color: var(--lime);
+.rowGold .rankNum {
+  color: #3d2e0a;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.rowSilver .rankNum {
+  color: #1e293b;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.rowBronze .rankNum {
+  color: #fff4e6;
+  text-shadow: 0 1px 2px rgba(42, 20, 6, 0.45);
 }
 .rankLabel {
   font-size: 9px;
@@ -307,8 +355,16 @@
   letter-spacing: 0.18em;
   color: rgba(11, 15, 26, 0.45);
 }
-.rowTop1 .rankLabel {
-  color: rgba(255, 255, 255, 0.55);
+.rowGold .rankLabel {
+  color: rgba(42, 31, 6, 0.65);
+}
+
+.rowSilver .rankLabel {
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.rowBronze .rankLabel {
+  color: rgba(255, 248, 240, 0.7);
 }
 
 .portraitCell {
@@ -316,6 +372,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .playerCell {
@@ -357,14 +414,48 @@
   margin-top: 4px;
   flex-wrap: wrap;
 }
-.rowTop1 .playerMeta {
-  color: rgba(255, 255, 255, 0.6);
+.rowGold .playerMeta {
+  color: rgba(42, 31, 6, 0.72);
 }
+
+.rowSilver .playerMeta {
+  color: rgba(30, 41, 59, 0.68);
+}
+
+.rowBronze .playerMeta {
+  color: rgba(255, 248, 240, 0.78);
+}
+
 .playerMeta .sep {
   color: rgba(11, 15, 26, 0.25);
 }
-.rowTop1 .playerMeta .sep {
-  color: rgba(255, 255, 255, 0.25);
+
+.rowGold .playerMeta .sep {
+  color: rgba(42, 31, 6, 0.35);
+}
+
+.rowSilver .playerMeta .sep {
+  color: rgba(30, 41, 59, 0.3);
+}
+
+.rowBronze .playerMeta .sep {
+  color: rgba(255, 248, 240, 0.35);
+}
+
+.rowGold .seedTag {
+  background: #3d2e0a;
+  color: #fff4c2;
+}
+
+.rowSilver .seedTag {
+  background: #334155;
+  color: #e2e8f0;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.rowBronze .seedTag {
+  background: #3d2210;
+  color: #fde8d0;
 }
 
 .statCell {
@@ -383,7 +474,12 @@
   color: var(--ink);
   letter-spacing: -0.01em;
 }
-.rowTop1 .statValue {
+.rowGold .statValue,
+.rowSilver .statValue {
+  color: inherit;
+}
+
+.rowBronze .statValue {
   color: #fff;
 }
 .statLabel {
@@ -392,8 +488,16 @@
   letter-spacing: 0.18em;
   color: rgba(11, 15, 26, 0.5);
 }
-.rowTop1 .statLabel {
-  color: rgba(255, 255, 255, 0.55);
+.rowGold .statLabel {
+  color: rgba(42, 31, 6, 0.62);
+}
+
+.rowSilver .statLabel {
+  color: rgba(30, 41, 59, 0.58);
+}
+
+.rowBronze .statLabel {
+  color: rgba(255, 248, 240, 0.65);
 }
 
 .totalCell {
@@ -405,10 +509,19 @@
   background: rgba(204, 250, 63, 0.1);
   border-left: 1px solid rgba(11, 15, 26, 0.06);
 }
-.rowTop1 .totalCell {
-  background: var(--lime);
-  color: var(--ink);
-  border-left: 1px solid rgba(11, 15, 26, 0.2);
+.rowGold .totalCell {
+  background: rgba(61, 46, 10, 0.22);
+  border-left: 1px solid rgba(61, 46, 10, 0.28);
+}
+
+.rowSilver .totalCell {
+  background: rgba(51, 65, 85, 0.22);
+  border-left: 2px solid rgba(51, 65, 85, 0.35);
+}
+
+.rowBronze .totalCell {
+  background: rgba(42, 20, 6, 0.28);
+  border-left: 1px solid rgba(255, 248, 240, 0.2);
 }
 .totalValue {
   font-family: "Space Grotesk", system-ui, sans-serif;
@@ -426,13 +539,61 @@
   color: rgba(11, 15, 26, 0.5);
   margin-top: 6px;
 }
-.rowTop1 .totalValue {
-  color: var(--ink);
-}
-.rowTop1 .totalLabel {
-  color: rgba(11, 15, 26, 0.55);
+.rowGold .totalValue,
+.rowGold .totalLabel {
+  color: #2a1f06;
 }
 
+.rowSilver .totalValue,
+.rowSilver .totalLabel {
+  color: #1e293b;
+}
+
+.rowBronze .totalValue,
+.rowBronze .totalLabel {
+  color: #fff8f0;
+}
+
+.ptsHint {
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(11, 15, 26, 0.45);
+  font-variant-numeric: tabular-nums;
+}
+.rowGold .ptsHint {
+  color: rgba(42, 31, 6, 0.58);
+}
+
+.rowSilver .ptsHint {
+  color: rgba(30, 41, 59, 0.55);
+}
+
+.rowBronze .ptsHint {
+  color: rgba(255, 248, 240, 0.65);
+}
+
+.rowGold .mobileStats {
+  color: rgba(42, 31, 6, 0.65);
+}
+
+.rowSilver .mobileStats {
+  color: rgba(30, 41, 59, 0.62);
+}
+
+.rowBronze .mobileStats {
+  color: rgba(255, 248, 240, 0.75);
+}
+
+.mobileStats {
+  display: none;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(11, 15, 26, 0.5);
+  letter-spacing: 0.02em;
+}
 /* ── states ─────────────────────────────────────────────────────────────── */
 .stateBox {
   position: relative;
@@ -494,6 +655,13 @@
 .footerLime {
   color: var(--lime);
 }
+.footerPoll {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.35;
+}
 
 /* ── huerfanos (warn card flotante, bottom) ────────────────────────────── */
 .huerfanos {
@@ -515,7 +683,11 @@
 @media (max-width: 1100px) {
   .tableHead,
   .row {
-    grid-template-columns: 56px 80px 1fr 110px 110px 140px;
+    grid-template-columns: 56px 80px 1fr 64px 64px 64px 100px;
+  }
+  .tableWithUf,
+  .rowWithUf {
+    grid-template-columns: 56px 80px 1fr 64px 64px 64px 64px 100px;
   }
   .playerName {
     font-size: 20px;
@@ -539,6 +711,12 @@
   }
   .portraitCell,
   .statCell {
+    display: none;
+  }
+  .mobileStats {
+    display: block;
+  }
+  .ptsHint {
     display: none;
   }
   .totalCell {

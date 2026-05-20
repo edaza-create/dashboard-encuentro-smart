@@ -1,13 +1,21 @@
 import { useMemo, useState } from "react";
 import { useRankingPublico } from "../hooks/useRankingPublico.js";
-import { pickAvatarSrc } from "../utils/buildRanking.js";
+import { pickAvatarSrc } from "../utils/buildRankingCompetencia.js";
+import { SCORING } from "../utils/competenciaCapitalOpenScore.js";
 import { formatUF } from "../utils/format.js";
 import Avatar from "./ranking/Avatar.jsx";
+
+function medalRowClass(styles, index) {
+  if (index === 0) return styles.rowGold;
+  if (index === 1) return styles.rowSilver;
+  if (index === 2) return styles.rowBronze;
+  return "";
+}
 import styles from "./RankingPublicoPage.module.css";
 
 const AVATAR_SIZE = 72;
 
-const eventoNombre = import.meta.env.VITE_EVENTO_NOMBRE ?? "Encuentro Smart";
+const eventoNombre = import.meta.env.VITE_EVENTO_NOMBRE ?? "Capital Open";
 const eventoSubtitulo = import.meta.env.VITE_EVENTO_SUBTITULO ?? "Cyber";
 
 const TABS = [
@@ -29,6 +37,22 @@ function formatActualizadoCorto(iso) {
   }
 }
 
+function formatPts(n) {
+  return Number(n ?? 0).toLocaleString("es-CL");
+}
+
+function formatUf(n) {
+  return formatUF(Math.round(Number(n ?? 0)));
+}
+
+function formatPollInterval(ms) {
+  if (ms >= 60_000 && ms % 60_000 === 0) {
+    const min = ms / 60_000;
+    return `cada ${min} min`;
+  }
+  return `cada ${Math.round(ms / 1000)} s`;
+}
+
 function temporadaFromPeriodo(periodo) {
   if (!periodo?.desde) return "2026";
   try {
@@ -39,8 +63,20 @@ function temporadaFromPeriodo(periodo) {
 }
 
 export default function RankingPublicoPage() {
-  const { status, error, asesores, bps, huerfanos, updatedAt, periodo, refetch } =
-    useRankingPublico();
+  const {
+    status,
+    error,
+    asesores,
+    bps,
+    huerfanos,
+    updatedAt,
+    periodo,
+    refetch,
+    pollIntervalMs,
+    manualRemoteEnabled,
+    manualPollIntervalMs,
+    lastManualSyncAt,
+  } = useRankingPublico();
   const [tab, setTab] = useState("individual");
 
   const lista = useMemo(() => {
@@ -50,17 +86,23 @@ export default function RankingPublicoPage() {
         rank: i + 1,
         seed: bp.slug,
         nombre: bp.display,
-        metaTop: `${bp.asesores_activos} asesor${bp.asesores_activos === 1 ? "" : "es"} activo${bp.asesores_activos === 1 ? "" : "s"}`,
+        metaTop: `${bp.reservasCount} reserva${bp.reservasCount === 1 ? "" : "s"} en competencia`,
         metaBottom: null,
         avatarSrc: null,
-        total: bp.total,
-        montoUf: bp.monto_uf_total
+        reservasCount: bp.reservasCount,
+        promesasCount: bp.promesasCount,
+        escriturasCount: bp.escriturasCount,
+        puntosReserva: bp.puntosReserva,
+        puntosPromesas: bp.puntosPromesas,
+        puntosEscrituras: bp.puntosEscrituras,
+        puntosActividades: bp.puntosActividades ?? 0,
+        totalPuntos: bp.totalPuntos
       }));
     }
     return asesores.map((a, i) => ({
-      key: a.email,
+      key: a.email || a.nombre || String(i),
       rank: i + 1,
-      seed: a.email,
+      seed: a.email || a.nombre,
       nombre: a.nombre ?? a.email,
       metaTop: a.bp_display,
       metaBottom: a.email,
@@ -68,10 +110,28 @@ export default function RankingPublicoPage() {
         { asesor_foto_url: a.foto_url, asesor_foto_urls: a.foto_urls },
         AVATAR_SIZE
       ),
-      total: a.total,
-      montoUf: a.monto_uf_total
+      reservasCount: a.reservasCount,
+      promesasCount: a.promesasCount,
+      escriturasCount: a.escriturasCount,
+      puntosReserva: a.puntosReserva,
+      puntosPromesas: a.puntosPromesas,
+      puntosEscrituras: a.puntosEscrituras,
+      totalPuntos: a.totalPuntos,
+      ufTotal: a.ufTotal ?? 0
     }));
   }, [tab, asesores, bps]);
+
+  const ptsBreakdown = (item) => {
+    const parts = [
+      formatPts(item.puntosReserva),
+      formatPts(item.puntosPromesas),
+      formatPts(item.puntosEscrituras)
+    ];
+    if (tab === "bp" && item.puntosActividades) {
+      parts.push(formatPts(item.puntosActividades));
+    }
+    return parts.join(" + ");
+  };
 
   return (
     <div className={styles.root}>
@@ -121,7 +181,15 @@ export default function RankingPublicoPage() {
           <span className={styles.dot} />
           RANKING · CYBER
           <span className={styles.muted}>
-            TEMPORADA {temporadaFromPeriodo(periodo)} · ACTUALIZADO {formatActualizadoCorto(updatedAt)}
+            TEMPORADA {temporadaFromPeriodo(periodo)} · RESERVAS {formatActualizadoCorto(updatedAt)}
+            {manualRemoteEnabled && (
+              <>
+                {' '}
+                · MANUAL {formatActualizadoCorto(lastManualSyncAt)}
+                {' '}
+                ({formatPollInterval(manualPollIntervalMs)})
+              </>
+            )}
           </span>
         </div>
 
@@ -131,8 +199,11 @@ export default function RankingPublicoPage() {
         </h1>
 
         <p className={styles.lede}>
-          Reservas acumuladas por asesor y por equipo (BP) en el Cyber del Encuentro Smart.
-          Suma de reservas reales y UF transada al cierre de la jornada.
+          <strong>Reservas</strong> en plataforma de competencia: {SCORING.reservaPorRegistro} pts ·{" "}
+          <strong>Promesas</strong>: {SCORING.promesaPorRegistro} pts c/u ·{" "}
+          <strong>Escrituras</strong>: {SCORING.escrituraPorRegistro} pts c/u.{" "}
+          <strong>Cartera UF</strong> por asesor según sus reservas (mismo criterio que el dashboard).
+          El ranking se ordena por puntos totales.
         </p>
 
         <div className={styles.controls}>
@@ -159,7 +230,7 @@ export default function RankingPublicoPage() {
         </div>
 
         {status === "loading" ? (
-          <div className={styles.stateBox}>Cargando reservas del Cyber…</div>
+          <div className={styles.stateBox}>Cargando ranking del Cyber…</div>
         ) : null}
         {status === "error" ? (
           <div className={`${styles.stateBox} ${styles.stateError}`}>
@@ -169,23 +240,36 @@ export default function RankingPublicoPage() {
 
         {status === "ready" ? (
           <>
-            <div className={styles.tableHead}>
+            <div
+              className={`${styles.tableHead} ${styles.tableCompetencia} ${
+                tab === "individual" ? styles.tableWithUf : ""
+              }`}
+            >
               <div className={`${styles.col} ${styles.colNum}`}>RK</div>
               <div className={styles.col} aria-hidden="true" />
               <div className={styles.col}>{tab === "bp" ? "EQUIPO" : "ASESOR"}</div>
-              <div className={`${styles.col} ${styles.colRight}`}>RESERVAS</div>
-              <div className={`${styles.col} ${styles.colRight}`}>UF</div>
-              <div className={`${styles.col} ${styles.colRight}`}>TOTAL ▌</div>
+              <div className={`${styles.col} ${styles.colRight}`}>RES</div>
+              <div className={`${styles.col} ${styles.colRight}`}>PROM</div>
+              <div className={`${styles.col} ${styles.colRight}`}>ESC</div>
+              {tab === "individual" ? <div className={`${styles.col} ${styles.colRight}`}>UF</div> : null}
+              <div className={`${styles.col} ${styles.colRight}`}>PTS ▌</div>
             </div>
 
             {lista.length === 0 ? (
-              <div className={styles.empty}>Aún no hay reservas registradas en el periodo.</div>
+              <div className={styles.empty}>
+                Aún no hay asesores con reservas en competencia en este periodo.
+              </div>
             ) : (
               <div className={styles.rows}>
-                {lista.map((item, i) => (
+                {lista.map((item, i) => {
+                  const medalClass = medalRowClass(styles, i);
+
+                  return (
                   <article
                     key={item.key}
-                    className={`${styles.row} ${i === 0 ? styles.rowTop1 : ""}`}
+                    className={`${styles.row} ${styles.rowCompetencia} ${medalClass} ${
+                      tab === "individual" ? styles.rowWithUf : ""
+                    }`}
                   >
                     <div className={styles.rankCell}>
                       <div className={styles.rankNum}>{String(item.rank).padStart(2, "0")}</div>
@@ -213,21 +297,47 @@ export default function RankingPublicoPage() {
                         ) : null}
                         {item.metaBottom ? <span>{item.metaBottom}</span> : null}
                       </div>
+                      <div className={styles.mobileStats}>
+                        {item.reservasCount} res · {item.promesasCount} prom · {item.escriturasCount} esc
+                        {tab === "individual" ? (
+                          <>
+                            {" "}
+                            · {formatUf(item.ufTotal)}
+                          </>
+                        ) : null}
+                      </div>
                     </div>
                     <div className={styles.statCell}>
-                      <div className={styles.statValue}>{item.total}</div>
+                      <div className={styles.statValue}>{item.reservasCount}</div>
                       <div className={styles.statLabel}>RESERVAS</div>
                     </div>
                     <div className={styles.statCell}>
-                      <div className={styles.statValue}>{formatUF(item.montoUf)}</div>
-                      <div className={styles.statLabel}>TRANSADA</div>
+                      <div className={styles.statValue}>{item.promesasCount}</div>
+                      <div className={styles.statLabel}>PROMESAS</div>
                     </div>
+                    <div className={styles.statCell}>
+                      <div className={styles.statValue}>{item.escriturasCount}</div>
+                      <div className={styles.statLabel}>ESCRITURAS</div>
+                    </div>
+                    {tab === "individual" ? (
+                      <div className={styles.statCell}>
+                        <div className={styles.statValue}>{formatUf(item.ufTotal)}</div>
+                        <div className={styles.statLabel}>CARTERA UF</div>
+                      </div>
+                    ) : null}
                     <div className={styles.totalCell}>
-                      <div className={styles.totalValue}>{item.total}</div>
-                      <div className={styles.totalLabel}>RESERVAS · TOTAL</div>
+                      <div className={styles.totalValue}>{formatPts(item.totalPuntos)}</div>
+                      <div className={styles.totalLabel}>PTS · TOTAL</div>
+                      <div
+                        className={styles.ptsHint}
+                        title="Reserva + promesas + escrituras (+ actividades en equipos)"
+                      >
+                        {ptsBreakdown(item)}
+                      </div>
                     </div>
                   </article>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -251,10 +361,13 @@ export default function RankingPublicoPage() {
             <span className={styles.footerVal}>
               Brekto Live Feed <span className={styles.footerLime}>v1.0</span>
             </span>
+            <span className={styles.footerPoll}>
+              Actualización automática {formatPollInterval(pollIntervalMs)}
+            </span>
           </div>
           <div>
-            <span className={styles.footerKey}>RANKING</span>
-            <span className={styles.footerVal}>Individual · Por equipo (BP)</span>
+            <span className={styles.footerKey}>PUNTOS</span>
+            <span className={styles.footerVal}>Capital Open · Individual / equipos</span>
           </div>
           <div className="right">
             <span className={styles.footerKey}>ÚLT. ACTUALIZACIÓN</span>

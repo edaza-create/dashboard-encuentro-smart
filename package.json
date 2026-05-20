@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "sync:asesores": "node scripts/sync-asesores-bp.mjs"
+    "sync:asesores": "node scripts/sync-asesores-bp.mjs",
+    "test": "node --test src/features/resumen/hooks/useResumenMetrics.test.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

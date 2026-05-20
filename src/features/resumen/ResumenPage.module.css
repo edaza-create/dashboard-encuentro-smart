@@ -1,0 +1,890 @@
+/* Hoja de Resumen — refactor PRD */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 0 -4px;
+}
+
+/* ── Barra de contexto ───────────────────────────────────────────────────── */
+.contextBar {
+  background: #fff;
+  border: 1px solid #e8ecf4;
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 12px rgba(26, 29, 38, 0.04);
+}
+
+.contextMain {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.contextIcon {
+  color: #5d9cec;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.contextTitle {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8b92a5;
+}
+
+.contextDates {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1d26;
+  margin-top: 2px;
+}
+
+.contextSep {
+  margin: 0 6px;
+  color: #a8b0c2;
+}
+
+.contextMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #5d6b82;
+}
+
+.contextCount strong {
+  color: #1a1d26;
+}
+
+.contextHint {
+  font-size: 12px;
+  color: #8b92a5;
+}
+
+.contextUpdated {
+  font-size: 12px;
+  color: #8b92a5;
+  margin-left: auto;
+}
+
+.contextNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f6f8fc;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #5d6b82;
+}
+
+.contextNote code {
+  font-size: 11px;
+  background: #eef2f8;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* ── Zonas de layout ─────────────────────────────────────────────────────── */
+.zonePulse {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.4fr) repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.zoneMain {
+  display: grid;
+  grid-template-columns: 1.35fr minmax(260px, 0.85fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.zoneComposition {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.zoneHealth {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.9fr) 1.1fr;
+  gap: 18px;
+}
+
+@media (max-width: 1200px) {
+  .zonePulse {
+    grid-template-columns: 1fr 1fr;
+  }
+  .zonePulse > :first-child {
+    grid-column: 1 / -1;
+  }
+  .zoneMain {
+    grid-template-columns: 1fr;
+  }
+  .zoneComposition {
+    grid-template-columns: 1fr 1fr;
+  }
+  .zoneHealth {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .zonePulse,
+  .zoneComposition,
+  .zoneHealth {
+    grid-template-columns: 1fr;
+  }
+  .contextUpdated {
+    margin-left: 0;
+  }
+}
+
+/* ── Tarjeta base ─────────────────────────────────────────────────────────── */
+.card {
+  background: #ffffff;
+  border: 1px solid #e8ecf4;
+  border-radius: 18px;
+  padding: 20px 22px 22px;
+  box-shadow: 0 2px 12px rgba(26, 29, 38, 0.04);
+  transition: box-shadow 0.2s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.card:hover {
+  box-shadow: 0 8px 28px rgba(26, 29, 38, 0.08);
+}
+
+.cardFeatured {
+  background: linear-gradient(152deg, #5d9cec 0%, #4a86d4 48%, #3d78c8 100%);
+  border: none;
+  color: #fff;
+  box-shadow: 0 10px 32px rgba(93, 156, 236, 0.35);
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.cardHeadText {
+  min-width: 0;
+}
+
+.titleIcon {
+  margin-right: 6px;
+  vertical-align: -2px;
+  opacity: 0.7;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8b92a5;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.cardFeatured .title {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.sub {
+  font-size: 11px;
+  font-weight: 500;
+  color: #a8b0c2;
+  margin-top: 3px;
+}
+
+.cardFeatured .sub {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.metricRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin: 12px 0 4px;
+}
+
+.metricValue {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: #1a1d26;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.cardFeatured .metricValue {
+  font-size: 44px;
+  color: #fff;
+}
+
+.metricValueSm {
+  font-size: 28px;
+}
+
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.deltaUp {
+  background: #e6f7ed;
+  color: #27ae60;
+}
+
+.deltaDown {
+  background: #fdecea;
+  color: #c0392b;
+}
+
+.deltaNeutral {
+  background: #f4f6f9;
+  color: #8b92a5;
+}
+
+.cardFeatured .deltaUp,
+.cardFeatured .deltaNeutral {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #e6f7ed;
+  color: #27ae60;
+  align-self: flex-start;
+}
+
+.cardFooter {
+  margin-top: auto;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.14);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.45;
+}
+
+.miniFoot {
+  margin-top: auto;
+  padding-top: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8b92a5;
+}
+
+.sparkBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 56px;
+  margin-top: 14px;
+}
+
+.sparkBar {
+  flex: 1;
+  min-width: 4px;
+  border-radius: 6px 6px 2px 2px;
+  background: linear-gradient(180deg, #8ec0ff 0%, #5d9cec 100%);
+  transition: height 0.2s;
+}
+
+.cardFeatured .sparkBar {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.55) 100%);
+}
+
+.sparkLabels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── Goal card (azul + donut) ─────────────────────────────────────────────── */
+.goalCard {
+  position: relative;
+  overflow: hidden;
+}
+
+.goalBody {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex: 1;
+}
+
+.goalLeft {
+  flex: 1;
+  min-width: 0;
+}
+
+.goalFrac {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 6px;
+}
+
+.goalDonut {
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+}
+
+.goalFooter {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.18);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── Weekly bars ──────────────────────────────────────────────────────────── */
+.weekBars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  height: 120px;
+  margin-top: 12px;
+  padding: 0 4px;
+}
+
+.weekCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.weekCheck {
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #27ae60;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.weekBar {
+  width: 100%;
+  max-width: 36px;
+  border-radius: 8px 8px 4px 4px;
+  background: #e8ecf4;
+  min-height: 8px;
+  transition: height 0.2s;
+}
+
+.weekBarDone {
+  background: linear-gradient(180deg, #6ee7a8 0%, #27ae60 100%);
+}
+
+.weekBarToday {
+  background: linear-gradient(180deg, #8ec0ff 0%, #5d9cec 100%);
+}
+
+.weekLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8b92a5;
+}
+
+.weekLabelToday {
+  color: #5d9cec;
+}
+
+/* ── Ranked list (inmobiliarias) ──────────────────────────────────────────── */
+.rankList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  flex: 1;
+  list-style: none;
+  padding: 0;
+}
+
+.rankRowBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 12px;
+  background: #f6f8fc;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.rankRowBtn:hover {
+  background: #eef2f8;
+}
+
+.rankRowBtn:focus-visible {
+  outline: 2px solid #5d9cec;
+  outline-offset: 2px;
+}
+
+.rankNum {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #e8ecf4;
+  color: #5d6b82;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rankNumGold {
+  background: linear-gradient(135deg, #ffd54f, #ffb300);
+  color: #5d4200;
+}
+
+.rankNumSilver {
+  background: linear-gradient(135deg, #e0e4ea, #b8c0cc);
+  color: #3d4550;
+}
+
+.rankNumBronze {
+  background: linear-gradient(135deg, #e8b48a, #cd7f32);
+  color: #4a3018;
+}
+
+.rankName {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1d26;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rankVal {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1d26;
+  font-variant-numeric: tabular-nums;
+}
+
+.rankDelta {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.rankDeltaUp {
+  background: #e6f7ed;
+  color: #27ae60;
+}
+
+.rankDeltaDown {
+  background: #fdecea;
+  color: #c0392b;
+}
+
+/* ── Pills / categorías ───────────────────────────────────────────────────── */
+.categoryPills {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.categoryPill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #f4f6f9;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1d26;
+}
+
+.categoryPill span:last-child {
+  color: #5d9cec;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Barra apilada horizontal (estados) ───────────────────────────────────── */
+.stackBar {
+  display: flex;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 14px;
+  background: #e8ecf4;
+}
+
+.stackSeg {
+  height: 100%;
+  min-width: 2px;
+  transition: width 0.3s;
+}
+
+.stackLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 14px;
+}
+
+.stackLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5d6b82;
+}
+
+.stackLegendBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 8px;
+  background: #f6f8fc;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5d6b82;
+  cursor: pointer;
+}
+
+.stackLegendBtn:hover {
+  background: #eef2f8;
+}
+
+.stackLegendBtn:focus-visible {
+  outline: 2px solid #5d9cec;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* ── Tipología bar apilada ────────────────────────────────────────────────── */
+.chartShort {
+  width: 100%;
+  height: 56px;
+  margin-top: 12px;
+}
+
+.stackLegendRows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* ── Gráficos grandes ───────────────────────────────────────────────────────── */
+.chartH {
+  width: 100%;
+  height: 220px;
+  margin-top: 10px;
+  flex: 1;
+  min-height: 200px;
+}
+
+.monthPieWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  flex: 1;
+  min-height: 168px;
+}
+
+.monthPieChart {
+  flex: 1;
+  min-width: 0;
+  height: 168px;
+}
+
+.monthPieLegend {
+  flex: 0 0 46%;
+  min-width: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 168px;
+  overflow-y: auto;
+}
+
+.monthPieLegendItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: #f6f8fc;
+}
+
+.monthPieLegendItemActive {
+  background: #eef5ff;
+  outline: 1px solid rgba(93, 156, 236, 0.35);
+}
+
+.monthPieLegendLeft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.monthPieLegendVal {
+  color: #5d9cec;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.chartArea {
+  width: 100%;
+  height: 260px;
+  margin-top: 8px;
+}
+
+.areaMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px 20px;
+  margin-top: 8px;
+}
+
+.areaTotal {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #1a1d26;
+}
+
+.areaSub {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b92a5;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill {
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid #e8ecf4;
+  background: #fff;
+  color: #8b92a5;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pill:hover {
+  border-color: #5d9cec;
+  color: #5d9cec;
+}
+
+.pillActive {
+  border-color: #5d9cec;
+  background: #eef5ff;
+  color: #4a86d4;
+}
+
+.empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: #8b92a5;
+  font-size: 13px;
+  font-weight: 500;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tooltip {
+  background: #fff;
+  border: 1px solid #e8ecf4;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(26, 29, 38, 0.1);
+}
+
+.tooltipLabel {
+  color: #8b92a5;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ── Tendencia unificada ──────────────────────────────────────────────────── */
+.trendCard {
+  min-height: 360px;
+}
+
+.trendHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.trendTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1d26;
+  letter-spacing: -0.02em;
+}
+
+.trendControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.trendTabs {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: #f4f6f9;
+  border: 1px solid #e8ecf4;
+}
+
+.trendTab {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #8b92a5;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.trendTab:hover {
+  color: #5d9cec;
+}
+
+.trendTabActive {
+  background: #fff;
+  color: #4a86d4;
+  box-shadow: 0 1px 4px rgba(26, 29, 38, 0.08);
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  background: #fff;
+  border: 1px dashed #d5dbe8;
+  border-radius: 18px;
+  min-height: 280px;
+}
+
+.emptyStateIcon {
+  color: #a8b0c2;
+  margin-bottom: 16px;
+}
+
+.emptyStateTitle {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1d26;
+}
+
+.emptyStateText {
+  margin: 0;
+  max-width: 420px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #5d6b82;
+}
+
+.emptyStateText code {
+  font-size: 12px;
+  background: #f4f6f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+}

@@ -5,12 +5,17 @@ import {
   etiquetaBrokerPlataforma,
   cuentaReservasBroker,
 } from '../data/competenciaCapitalOneTeams'
+import { brokerTieneMapeo } from '../utils/brokerReservaMatch'
+import CompetenciaRemoteSyncBanner from './CompetenciaRemoteSyncBanner'
 import { useCompetenciaManualPoints } from '../hooks/useCompetenciaManualPoints'
+import { useIndividualManualSaved } from '../hooks/useIndividualManualSaved'
 import { useAuth } from '../context/AuthContext'
+import { aggregateManualIndividualPorEquipo } from '../utils/competenciaIndividualToEquipo'
 import {
   SCORING,
   cuentaReservasEquipo,
   equiposOrdenadosPorPuntos,
+  manualEfectivoEquipo,
   puntosManualEquipo,
   puntosReservaAuto,
   totalPuntosEquipo,
@@ -19,16 +24,25 @@ import styles from './CompetenciaCapitalOneTab.module.css'
 
 export default function CompetenciaCapitalOneTab({ reservas = [] }) {
   const { canEditCompetencia, adminLockActive, session } = useAuth()
-  const { savedTeams, draftTeams, patchDraft, saveTeam, resetManual, hydrated, isTeamDirty } =
+  const { savedTeams, draftTeams, patchDraft, saveTeam, resetManual, hydrated, isTeamDirty, remotePush } =
     useCompetenciaManualPoints()
+  const indManual = useIndividualManualSaved()
 
-  const ranking = useMemo(() => equiposOrdenadosPorPuntos(reservas, savedTeams), [reservas, savedTeams])
+  const indPorEquipo = useMemo(
+    () => aggregateManualIndividualPorEquipo(reservas, indManual),
+    [reservas, indManual]
+  )
+
+  const ranking = useMemo(
+    () => equiposOrdenadosPorPuntos(reservas, savedTeams, indManual),
+    [reservas, savedTeams, indManual]
+  )
 
   const handleResetManual = () => {
     if (!canEditCompetencia) return
     if (
       !window.confirm(
-        '¿Reiniciar promesas, escrituras y actividades guardadas de todos los equipos? Las reservas automáticas no cambian.'
+        '¿Reiniciar las actividades guardadas de todos los equipos? Las reservas y las promesas/escrituras de asesores no se modifican.'
       )
     ) {
       return
@@ -45,6 +59,12 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
             : 'La edición de competencia está restringida. En el encabezado, solicita un enlace de acceso con un correo autorizado.'}
         </p>
       )}
+
+      <CompetenciaRemoteSyncBanner
+        canEdit={canEditCompetencia}
+        hasSession={Boolean(session)}
+        remotePush={remotePush}
+      />
 
       <section className={styles.rulesCard} aria-labelledby="reglas-puntos-titulo">
         <div className={styles.rulesHeader}>
@@ -100,18 +120,20 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
           </button>
         </div>
         <p className={styles.intro}>
-          Edita promesas y escrituras, o marca una actividad para este guardado, y pulsa <strong>Guardar</strong>.
-          Las casillas de actividad no quedan fijas: al guardar suman un evento y se desmarcan para el próximo.
-          Hasta guardar, el ranking usa la última versión guardada en este navegador.
+          Las <strong>promesas</strong> y <strong>escrituras</strong> se suman automáticamente desde la competencia
+          individual (cada asesor se asigna al equipo según su BP). Aquí solo registras{' '}
+          <strong>actividades</strong> del equipo y pulsas <strong>Guardar</strong>.
         </p>
         <div className={styles.scoreGrid}>
           {ranking.map(({ equipo, total }, index) => {
             const id = String(equipo.id)
             const saved = savedTeams[id] || defaultSavedFallback()
             const draft = draftTeams[id] || defaultDraftFallback()
+            const fromInd = indPorEquipo[id] || { promesasCount: 0, escriturasCount: 0 }
+            const efectivo = manualEfectivoEquipo(reservas, equipo, saved, indManual)
             const nRes = cuentaReservasEquipo(reservas, equipo)
             const ptsRes = puntosReservaAuto(reservas, equipo)
-            const pm = puntosManualEquipo(saved)
+            const pm = puntosManualEquipo(efectivo)
             const ptsOnline = (saved.actividadOnlineCount || 0) * SCORING.actividadOnline
             const ptsPres = (saved.actividadPresencialCount || 0) * SCORING.actividadPresencial
             const rank = index + 1
@@ -157,11 +179,15 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
                     <strong>{ptsRes.toLocaleString('es-CL')} pts</strong>
                   </div>
                   <div className={styles.breakLine}>
-                    <span>Promesas</span>
+                    <span>
+                      Promesas ({fromInd.promesasCount} desde asesores) × {SCORING.promesaPorRegistro}
+                    </span>
                     <strong>{pm.promesas.toLocaleString('es-CL')} pts</strong>
                   </div>
                   <div className={styles.breakLine}>
-                    <span>Escrituras</span>
+                    <span>
+                      Escrituras ({fromInd.escriturasCount} desde asesores) × {SCORING.escrituraPorRegistro}
+                    </span>
                     <strong>{pm.escrituras.toLocaleString('es-CL')} pts</strong>
                   </div>
                   <div className={styles.breakLine}>
@@ -180,38 +206,10 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
                 </div>
 
                 <div className={styles.manualForm}>
-                  <label className={styles.field}>
-                    <span className={styles.fieldLabel}>Promesas · {SCORING.promesaPorRegistro} pts c/u</span>
-                    <input
-                      type="number"
-                      min={0}
-                      max={9999}
-                      className={styles.inputNum}
-                      value={draft.promesasCount}
-                      disabled={!canEditCompetencia}
-                      onChange={(e) =>
-                        patchDraft(equipo.id, {
-                          promesasCount: Math.max(0, Math.min(9999, parseInt(e.target.value, 10) || 0)),
-                        })
-                      }
-                    />
-                  </label>
-                  <label className={styles.field}>
-                    <span className={styles.fieldLabel}>Escrituras · {SCORING.escrituraPorRegistro} pts c/u</span>
-                    <input
-                      type="number"
-                      min={0}
-                      max={9999}
-                      className={styles.inputNum}
-                      value={draft.escriturasCount}
-                      disabled={!canEditCompetencia}
-                      onChange={(e) =>
-                        patchDraft(equipo.id, {
-                          escriturasCount: Math.max(0, Math.min(9999, parseInt(e.target.value, 10) || 0)),
-                        })
-                      }
-                    />
-                  </label>
+                  <p className={styles.indRollupNote}>
+                    Promesas y escrituras: {fromInd.promesasCount} / {fromInd.escriturasCount} registros
+                    sumados desde competencia individual.
+                  </p>
                   <label className={styles.checkRow}>
                     <input
                       type="checkbox"
@@ -264,18 +262,19 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
               <UsersRound size={18} strokeWidth={2} aria-hidden />
               {equipo.label}
               <span className={styles.equipoPtsHint} title="Puntos totales del equipo">
-                {totalPuntosEquipo(reservas, equipo, savedTeams[String(equipo.id)]).toLocaleString('es-CL')} pts
+                {totalPuntosEquipo(reservas, equipo, savedTeams[String(equipo.id)], indManual).toLocaleString(
+                  'es-CL'
+                )}{' '}
+                pts
               </span>
             </h2>
             <ul className={styles.list}>
               {equipo.brokers.map((broker) => {
-                const tienePlataforma = broker.nombresPlataforma?.length > 0
+                const tienePlataforma = brokerTieneMapeo(broker)
                 const principal = etiquetaBrokerPlataforma(broker)
                 const extraNombres =
-                  tienePlataforma && broker.nombresPlataforma.length > 1
-                    ? broker.nombresPlataforma.slice(1)
-                    : []
-                const n = cuentaReservasBroker(reservas, broker.nombresPlataforma)
+                  broker.nombresPlataforma?.length > 1 ? broker.nombresPlataforma.slice(1) : []
+                const n = cuentaReservasBroker(reservas, broker)
 
                 return (
                   <li key={`${equipo.id}-${broker.referenciaLista}`} className={styles.item}>
@@ -296,8 +295,8 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
                     )}
                     {!tienePlataforma && (
                       <div className={styles.sinCoincidencia}>
-                        Lista competencia: «{broker.referenciaLista}» — sin nombre equivalente en{' '}
-                        <code>nivel_jerarquia_nombre</code> del extracto actual; revisar en plataforma.
+                        Lista competencia: «{broker.referenciaLista}» — sin mapeo en plataforma ni en planilla
+                        Mayo; revisar nombre o email del asesor.
                       </div>
                     )}
                   </li>

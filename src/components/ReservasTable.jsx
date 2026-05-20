@@ -85,7 +85,11 @@ export default function ReservasTable({ reservas }) {
                   </span>
                 </td>
                 <td className={styles.td}>
-                  <span className={styles.bp}>{r.nivel_jerarquia_nombre}</span>
+                  <span className={styles.bp}>
+                    {r.miembro_equipo_interno
+                      ? `${r.nivel_jerarquia_nombre} · ${r.miembro_equipo_interno}`
+                      : r.nivel_jerarquia_nombre}
+                  </span>
                 </td>
                 <td className={styles.td}>
                   <button className={styles.viewBtn} onClick={e => { e.stopPropagation(); setSelected(r) }}>

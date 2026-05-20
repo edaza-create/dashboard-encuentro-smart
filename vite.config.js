@@ -11,5 +11,14 @@ export default defineConfig({
     // sorpresas de CORS en dev).
     port: 5173,
     strictPort: true,
+    // En dev, /api/* se reenvía a ored — evita "Failed to fetch" si abres con
+    // 127.0.0.1 u otro origen distinto de localhost.
+    proxy: {
+      '/api': {
+        target: 'https://ored.cl',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
 })
