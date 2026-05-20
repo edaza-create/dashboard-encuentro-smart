@@ -1,4 +1,4 @@
-import asesoresBP from '../data/asesores-bp.json'
+import asesoresBP from '../data/asesores-bp.json' with { type: 'json' }
 import { lookupEquipoInternoBp } from './equipoComercialInterno.js'
 import { NIVEL_PLATAFORMA_EQUIPO_INTERNO, BP_SLUG_EQUIPO_INTERNO } from '../data/equipoComercialInterno.js'
 

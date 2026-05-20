@@ -9,7 +9,7 @@
  * no perderlos del conteo y para detectar mappings faltantes en QA.
  */
 
-import asesoresBP from "../data/asesores-bp.json";
+import asesoresBP from "../data/asesores-bp.json" with { type: "json" };
 import { lookupAsesorBp } from "./asesorBpPlataforma.js";
 import { BP_SLUG_EQUIPO_INTERNO, NIVEL_PLATAFORMA_EQUIPO_INTERNO } from "../data/equipoComercialInterno.js";
 import { miembroPorNombre } from "./equipoComercialInterno.js";

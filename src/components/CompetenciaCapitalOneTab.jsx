@@ -98,11 +98,12 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
             <ul className={styles.rulesList}>
               <li>
                 <strong>Online:</strong> +{SCORING.actividadOnline} pts por evento cumplido ≥80% asistencia — se
-                suma al guardar con la casilla marcada; acumulable.
+                suma al guardar con la casilla marcada o automáticamente vía Google Forms (pestaña Asistencia
+                reuniones); acumulable.
               </li>
               <li>
                 <strong>Presencial:</strong> +{SCORING.actividadPresencial} pts por evento ≥50% asistencia — se
-                suma al guardar con la casilla marcada; acumulable.
+                suma al guardar con la casilla marcada o automáticamente vía Google Forms; acumulable.
               </li>
             </ul>
           </div>

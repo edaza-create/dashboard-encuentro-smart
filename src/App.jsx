@@ -8,6 +8,7 @@ import DateRangeFilter from './components/DateRangeFilter'
 import Filters from './components/Filters'
 import CompetenciaCapitalOneTab from './components/CompetenciaCapitalOneTab'
 import CompetenciaCapitalOpenIndividualTab from './components/CompetenciaCapitalOpenIndividualTab'
+import AsistenciaPage from './features/asistencia/AsistenciaPage.jsx'
 import RankingsTab from './components/RankingsTab'
 import ReservasTable from './components/ReservasTable'
 import { capitalOpenConfig } from './config/capitalOpen'
@@ -148,6 +149,7 @@ export default function App() {
                   <RankingsTab reservas={filtered} />
                 </>
               )}
+              {tab === 'Asistencia reuniones' && <AsistenciaPage />}
               {tab === 'Competencia Capital Open Equipos' && (
                 <CompetenciaCapitalOneTab reservas={reservasEnRango} />
               )}
