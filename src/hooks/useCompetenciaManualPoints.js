@@ -89,6 +89,12 @@ export function useCompetenciaManualPoints() {
   const [hydrated, setHydrated] = useState(false)
   const [remotePush, setRemotePush] = useState({ status: 'idle', message: null })
   const readyToPushRef = useRef(false)
+  // Espejo de draftTeams para que saveTeam pueda leerlo sin anidar setState.
+  // Anidar setSavedTeams dentro del updater de setDraftTeams hacia que en
+  // StrictMode (o batching futuro de React) el updater corriera 2 veces y
+  // los contadores de actividad se incrementaran al doble.
+  const draftRef = useRef(draftTeams)
+  useEffect(() => { draftRef.current = draftTeams }, [draftTeams])
 
   useEffect(() => {
     let cancelled = false
@@ -164,11 +170,12 @@ export function useCompetenciaManualPoints() {
 
   const saveTeam = useCallback((teamId) => {
     const id = String(teamId)
-    setDraftTeams((d) => {
-      const draft = { ...(d[id] || defaultDraftEntry()) }
-      setSavedTeams((s) => {
-        const prev = s[id] || defaultSavedEntry()
-        const next = {
+    const draft = draftRef.current[id] || defaultDraftEntry()
+    setSavedTeams((s) => {
+      const prev = s[id] || defaultSavedEntry()
+      return {
+        ...s,
+        [id]: {
           promesasCount: 0,
           escriturasCount: 0,
           actividadOnlineCount: Math.min(
@@ -179,19 +186,18 @@ export function useCompetenciaManualPoints() {
             999,
             (prev.actividadPresencialCount || 0) + (draft.registrarPresencial ? 1 : 0)
           ),
-        }
-        return { ...s, [id]: next }
-      })
-      return {
-        ...d,
-        [id]: {
-          promesasCount: 0,
-          escriturasCount: 0,
-          registrarOnline: false,
-          registrarPresencial: false,
         },
       }
     })
+    setDraftTeams((d) => ({
+      ...d,
+      [id]: {
+        promesasCount: 0,
+        escriturasCount: 0,
+        registrarOnline: false,
+        registrarPresencial: false,
+      },
+    }))
   }, [])
 
   const resetManual = useCallback(() => {
