@@ -287,6 +287,69 @@
   gap: 10px;
 }
 
+.moreBlock {
+  margin-top: 14px;
+}
+
+.moreBlock[open] .moreChev {
+  transform: rotate(180deg);
+}
+
+.moreSummary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: rgba(11, 15, 26, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.moreSummary::-webkit-details-marker {
+  display: none;
+}
+
+.moreSummary::marker {
+  content: "";
+}
+
+.moreSummary:hover {
+  background: rgba(11, 15, 26, 0.48);
+}
+
+.moreSummaryLabel {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+
+.moreSummaryMeta {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.moreChev {
+  margin-left: auto;
+  color: var(--lime);
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.moreBlock > .rows {
+  margin-top: 10px;
+}
+
 .row {
   color: var(--rk-text);
   border-radius: 20px;

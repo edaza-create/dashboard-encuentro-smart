@@ -6,7 +6,10 @@ import { formatUF } from "../utils/format.js";
 import Avatar from "./ranking/Avatar.jsx";
 import styles from "./RankingPublicoPage.module.css";
 
-function medalRowClass(styles, index) {
+const TOP_INDIVIDUAL = 10;
+
+function medalRowClass(styles, rankOneBased) {
+  const index = rankOneBased - 1;
   if (index === 0) return styles.rowGold;
   if (index === 1) return styles.rowSilver;
   if (index === 2) return styles.rowBronze;
@@ -135,6 +138,114 @@ export default function RankingPublicoPage() {
       parts.push(formatPts(item.puntosActividades));
     }
     return parts.join(" + ");
+  };
+
+  const listaTop =
+    tab === "individual" ? lista.slice(0, TOP_INDIVIDUAL) : lista;
+  const listaRest =
+    tab === "individual" ? lista.slice(TOP_INDIVIDUAL) : [];
+
+  const renderRow = (item) => {
+    const medalClass = medalRowClass(styles, item.rank);
+    const showUf = tab === "individual";
+
+    return (
+      <article
+        key={item.key}
+        className={`${styles.row} ${medalClass} ${
+          showUf ? styles.rowWithUf : ""
+        }`}
+      >
+        <div className={styles.rowGrid}>
+          <div className={styles.rankZone}>
+            <span className={styles.rankNum}>
+              {String(item.rank).padStart(2, "0")}
+            </span>
+            <span className={styles.rankLabel}>RANK</span>
+          </div>
+
+          <div className={styles.identityZone}>
+            <div className={styles.avatarFrame}>
+              <Avatar
+                name={item.nombre}
+                seed={item.seed}
+                src={item.avatarSrc}
+                size={AVATAR_SIZE}
+                dark={avatarDarkForMedal(medalClass, styles)}
+              />
+            </div>
+            <div className={styles.identityCopy}>
+              <span className={styles.seedTag}>
+                {tab === "bp" ? "TEAM" : "SEED"}{" "}
+                {String(item.rank).padStart(2, "0")}
+              </span>
+              <h2 className={styles.playerName} title={item.nombre}>
+                {item.nombre}
+              </h2>
+              {(item.metaTop || item.metaBottom) ? (
+                <p className={styles.playerMeta}>
+                  {item.metaTop ? <span>{item.metaTop}</span> : null}
+                  {item.metaTop && item.metaBottom ? (
+                    <span className={styles.metaSep} aria-hidden="true">
+                      ·
+                    </span>
+                  ) : null}
+                  {item.metaBottom ? <span>{item.metaBottom}</span> : null}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className={styles.metricsZone}>
+            <div
+              className={`${styles.metricsPanel} ${
+                showUf ? styles.metricsPanelWithUf : ""
+              }`}
+            >
+              <div className={styles.metricItem}>
+                <span className={styles.metricValue}>
+                  {item.reservasCount}
+                </span>
+                <span className={styles.metricLabel}>Reservas</span>
+              </div>
+              <div className={styles.metricItem}>
+                <span className={styles.metricValue}>
+                  {item.promesasCount}
+                </span>
+                <span className={styles.metricLabel}>Promesas</span>
+              </div>
+              <div className={styles.metricItem}>
+                <span className={styles.metricValue}>
+                  {item.escriturasCount}
+                </span>
+                <span className={styles.metricLabel}>Escrituras</span>
+              </div>
+              {showUf ? (
+                <div className={`${styles.metricItem} ${styles.metricItemUf}`}>
+                  <span className={styles.metricValueUf}>
+                    {formatUf(item.ufTotal)}
+                  </span>
+                  <span className={styles.metricLabel}>Cartera UF</span>
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className={styles.scoreZone}>
+            <span className={styles.scoreValue}>
+              {formatPts(item.totalPuntos)}
+            </span>
+            <span className={styles.scoreLabel}>PTS · TOTAL</span>
+            <span
+              className={styles.scoreBreakdown}
+              title="Reserva + promesas + escrituras (+ actividades en equipos)"
+            >
+              {ptsBreakdown(item)}
+            </span>
+          </div>
+        </div>
+      </article>
+    );
   };
 
   return (
@@ -266,111 +377,27 @@ export default function RankingPublicoPage() {
                 Aún no hay asesores con reservas en competencia en este periodo.
               </div>
             ) : (
-              <div className={styles.rows}>
-                {lista.map((item, i) => {
-                  const medalClass = medalRowClass(styles, i);
-                  const showUf = tab === "individual";
+              <>
+                <div className={styles.rows}>{listaTop.map(renderRow)}</div>
 
-                  return (
-                    <article
-                      key={item.key}
-                      className={`${styles.row} ${medalClass} ${
-                        showUf ? styles.rowWithUf : ""
-                      }`}
-                    >
-                      <div className={styles.rowGrid}>
-                        <div className={styles.rankZone}>
-                          <span className={styles.rankNum}>
-                            {String(item.rank).padStart(2, "0")}
-                          </span>
-                          <span className={styles.rankLabel}>RANK</span>
-                        </div>
-
-                        <div className={styles.identityZone}>
-                          <div className={styles.avatarFrame}>
-                            <Avatar
-                              name={item.nombre}
-                              seed={item.seed}
-                              src={item.avatarSrc}
-                              size={AVATAR_SIZE}
-                              dark={avatarDarkForMedal(medalClass, styles)}
-                            />
-                          </div>
-                          <div className={styles.identityCopy}>
-                            <span className={styles.seedTag}>
-                              {tab === "bp" ? "TEAM" : "SEED"}{" "}
-                              {String(item.rank).padStart(2, "0")}
-                            </span>
-                            <h2 className={styles.playerName} title={item.nombre}>
-                              {item.nombre}
-                            </h2>
-                            {(item.metaTop || item.metaBottom) ? (
-                              <p className={styles.playerMeta}>
-                                {item.metaTop ? <span>{item.metaTop}</span> : null}
-                                {item.metaTop && item.metaBottom ? (
-                                  <span className={styles.metaSep} aria-hidden="true">
-                                    ·
-                                  </span>
-                                ) : null}
-                                {item.metaBottom ? <span>{item.metaBottom}</span> : null}
-                              </p>
-                            ) : null}
-                          </div>
-                        </div>
-
-                        <div className={styles.metricsZone}>
-                          <div
-                            className={`${styles.metricsPanel} ${
-                              showUf ? styles.metricsPanelWithUf : ""
-                            }`}
-                          >
-                            <div className={styles.metricItem}>
-                              <span className={styles.metricValue}>
-                                {item.reservasCount}
-                              </span>
-                              <span className={styles.metricLabel}>Reservas</span>
-                            </div>
-                            <div className={styles.metricItem}>
-                              <span className={styles.metricValue}>
-                                {item.promesasCount}
-                              </span>
-                              <span className={styles.metricLabel}>Promesas</span>
-                            </div>
-                            <div className={styles.metricItem}>
-                              <span className={styles.metricValue}>
-                                {item.escriturasCount}
-                              </span>
-                              <span className={styles.metricLabel}>Escrituras</span>
-                            </div>
-                            {showUf ? (
-                              <div className={`${styles.metricItem} ${styles.metricItemUf}`}>
-                                <span className={styles.metricValueUf}>
-                                  {formatUf(item.ufTotal)}
-                                </span>
-                                <span className={styles.metricLabel}>Cartera UF</span>
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-
-                        <div className={styles.scoreZone}>
-                          <span className={styles.scoreValue}>
-                            {formatPts(item.totalPuntos)}
-                          </span>
-                          <span className={styles.scoreLabel}>PTS · TOTAL</span>
-                          <span
-                            className={styles.scoreBreakdown}
-                            title="Reserva + promesas + escrituras (+ actividades en equipos)"
-                          >
-                            {ptsBreakdown(item)}
-                          </span>
-                        </div>
-
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
+                {listaRest.length > 0 ? (
+                  <details className={styles.moreBlock}>
+                    <summary className={styles.moreSummary}>
+                      <span className={styles.moreSummaryLabel}>
+                        Ver posiciones {TOP_INDIVIDUAL + 1}–{lista.length}
+                      </span>
+                      <span className={styles.moreSummaryMeta}>
+                        {listaRest.length} asesor
+                        {listaRest.length === 1 ? "" : "es"} más
+                      </span>
+                      <span className={styles.moreChev} aria-hidden="true">
+                        ▾
+                      </span>
+                    </summary>
+                    <div className={styles.rows}>{listaRest.map(renderRow)}</div>
+                  </details>
+                ) : null}
+              </>
             )}
 
             {huerfanos.length > 0 ? (

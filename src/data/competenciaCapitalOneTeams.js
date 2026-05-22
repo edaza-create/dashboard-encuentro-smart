@@ -88,7 +88,11 @@ export const EQUIPOS_CAPITAL_ONE = [
         nombresPlataforma: ['BP Vanema Inversiones', 'MBP Vanema Inversiones'],
         bpSlugs: ['vanema'],
       },
-      { referenciaLista: 'IRC Inversiones', nombresPlataforma: ['BP IRC Inversiones Inmobiliarias'] },
+      {
+        referenciaLista: 'IRC Inversiones',
+        nombresPlataforma: ['BP IRC Inversiones Inmobiliarias'],
+        bpSlugs: ['irc-inversiones'],
+      },
       { referenciaLista: 'Trama Gestión', nombresPlataforma: ['Trama Gestion'] },
     ],
   },

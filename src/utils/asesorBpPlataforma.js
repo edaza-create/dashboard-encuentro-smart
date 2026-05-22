@@ -15,6 +15,7 @@ const BP_SLUG_TO_PLATAFORMA = {
   'servicios-integrales': 'BP Greca',
   skala: 'BP Skala',
   'marisio-inversiones': 'BP Marisio Inversiones',
+  'irc-inversiones': 'BP IRC Inversiones Inmobiliarias',
 }
 
 const emailToAsesor = new Map()

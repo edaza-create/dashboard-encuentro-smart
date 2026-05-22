@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-20T21:51:58.265Z",
+  "generated_at": "2026-05-22T17:54:41.147Z",
   "index": {
     "aaguilera@capitalinteligente.cl": {
       "asesor_id": "email:aaguilera@capitalinteligente.cl",
@@ -1304,6 +1304,14 @@
       "subgrupo": "Mendoza",
       "equipo_id": "5",
       "equipo": "Team Sabalenka"
+    },
+    "mrodriguezc@capitalinteligente.cl": {
+      "asesor_id": "email:mrodriguezc@capitalinteligente.cl",
+      "email": "mrodriguezc@capitalinteligente.cl",
+      "nombre": "Marcelo Rodriguez",
+      "subgrupo": "IRC Inversiones",
+      "equipo_id": null,
+      "equipo": null
     },
     "mrodriguez@capitalinteligente.cl": {
       "asesor_id": "email:mrodriguez@capitalinteligente.cl",

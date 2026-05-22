@@ -8,6 +8,11 @@
       "label_origen": "Equipo Forza Capital"
     },
     {
+      "slug": "irc-inversiones",
+      "display": "IRC Inversiones",
+      "label_origen": "BP IRC Inversiones Inmobiliarias"
+    },
+    {
       "slug": "marisio-inversiones",
       "display": "Marisio Inversiones",
       "label_origen": "Areli Marisio / Inversion 360"
@@ -1048,6 +1053,12 @@
       "bp_slug": "mendoza"
     },
     {
+      "email": "mrodriguezc@capitalinteligente.cl",
+      "nombre": "Marcelo Rodriguez",
+      "estado": "ACTIVO",
+      "bp_slug": "irc-inversiones"
+    },
+    {
       "email": "mrodriguez@capitalinteligente.cl",
       "nombre": "Marcelo Rodríguez",
       "estado": "ACTIVO",
@@ -1511,9 +1522,9 @@
     }
   ],
   "stats": {
-    "total_bps": 7,
-    "total_asesores": 245,
-    "activos": 240,
+    "total_bps": 8,
+    "total_asesores": 246,
+    "activos": 241,
     "eliminados": 5,
     "conflictos_email": 1
   }
