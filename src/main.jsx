@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import RankingPublicoPage from './components/RankingPublicoPage.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
+import LoginGate from './components/LoginGate.jsx'
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -51,7 +52,9 @@ function Root() {
   }
   return (
     <AuthProvider>
-      <App />
+      <LoginGate>
+        <App />
+      </LoginGate>
     </AuthProvider>
   )
 }
