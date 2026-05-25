@@ -1,0 +1,202 @@
+import { useState, useEffect } from 'react'
+import { fetchReunionPublica, deriveEstado, insertAsistencia } from '../api/asistenciaRegistros.js'
+import { resolveAsesorMaestra } from '../utils/asesorMaestra.js'
+import { useCountdown } from '../hooks/useCountdown.js'
+import styles from './AsistenciaFormPage.module.css'
+
+function getReunionId() {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('reunion')
+}
+
+const VALID_DOMAIN = '@capitalinteligente.cl'
+
+export default function AsistenciaFormPage() {
+  const reunionId = getReunionId()
+  const [reunion, setReunion] = useState(null)
+  const [estado, setEstado] = useState(null)
+  const [loadingReunion, setLoadingReunion] = useState(true)
+
+  const [email, setEmail] = useState('')
+  const [modalidad, setModalidad] = useState('Presencial')
+  const [submitting, setSubmitting] = useState(false)
+  const [result, setResult] = useState(null)
+  const [error, setError] = useState(null)
+
+  const countdown = useCountdown(reunion?.closes_at)
+
+  useEffect(() => {
+    if (!reunionId) { setLoadingReunion(false); return }
+    fetchReunionPublica(reunionId).then((r) => {
+      setReunion(r)
+      if (r) setEstado(deriveEstado(r))
+      setLoadingReunion(false)
+    })
+  }, [reunionId])
+
+  useEffect(() => {
+    if (countdown.expired && estado === 'activa') {
+      setEstado('cerrada')
+    }
+  }, [countdown.expired, estado])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError(null)
+    setResult(null)
+
+    const trimmed = email.trim().toLowerCase()
+    if (!trimmed.endsWith(VALID_DOMAIN)) {
+      setError(`Solo se aceptan emails ${VALID_DOMAIN}`)
+      return
+    }
+
+    const asesor = resolveAsesorMaestra(trimmed)
+    if (!asesor.ok) {
+      setError('Email no encontrado en el registro de asesores activos')
+      return
+    }
+
+    setSubmitting(true)
+    const res = await insertAsistencia({
+      reunion_id: reunionId,
+      email: trimmed,
+      nombre: asesor.nombre,
+      bp_slug: asesor.bp_slug,
+      equipo_id: asesor.equipo_id ? Number(asesor.equipo_id) : null,
+      equipo_label: asesor.equipo,
+      modalidad,
+    })
+    setSubmitting(false)
+
+    if (!res.ok) {
+      if (res.reason === 'duplicate') {
+        setResult({ type: 'duplicate', nombre: asesor.nombre })
+      } else {
+        setError(res.reason)
+      }
+      return
+    }
+
+    setResult({ type: 'success', nombre: asesor.nombre, equipo: asesor.equipo, modalidad })
+  }
+
+  if (loadingReunion) {
+    return (
+      <div className={styles.root}>
+        <div className={styles.card}>
+          <p className={styles.loading}>Cargando reunión...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!reunionId || !reunion) {
+    return (
+      <div className={styles.root}>
+        <div className={styles.card}>
+          <h1 className={styles.title}>Reunión no encontrada</h1>
+          <p className={styles.subtitle}>El enlace no es válido o la reunión fue eliminada.</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (estado !== 'activa') {
+    return (
+      <div className={styles.root}>
+        <div className={styles.card}>
+          <div className={styles.statusIcon}>🔴</div>
+          <h1 className={styles.title}>{reunion.nombre}</h1>
+          <p className={styles.subtitle}>
+            {estado === 'borrador'
+              ? 'Esta reunión aún no ha sido activada.'
+              : 'Esta reunión ya cerró y no acepta más registros.'}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (result) {
+    return (
+      <div className={styles.root}>
+        <div className={styles.card}>
+          <div className={styles.statusIcon}>
+            {result.type === 'duplicate' ? '✅' : '🎉'}
+          </div>
+          <h1 className={styles.title}>
+            {result.type === 'duplicate' ? 'Ya registrado' : '¡Asistencia registrada!'}
+          </h1>
+          <p className={styles.subtitle}>
+            {result.type === 'duplicate'
+              ? `${result.nombre ?? 'Tu asistencia'} ya fue registrada en esta reunión.`
+              : `${result.nombre ?? 'Asistencia'} — ${result.modalidad} — ${result.equipo ?? ''}`}
+          </p>
+          <p className={styles.reunionName}>{reunion.nombre}</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={styles.root}>
+      <div className={styles.card}>
+        <div className={styles.header}>
+          <span className={styles.liveIndicator}>EN VIVO</span>
+          <span className={styles.countdown}>{countdown.remaining}</span>
+        </div>
+
+        <h1 className={styles.title}>{reunion.nombre}</h1>
+        <p className={styles.subtitle}>Registra tu asistencia</p>
+
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <label className={styles.label}>
+            Email corporativo
+            <input
+              className={styles.input}
+              type="email"
+              placeholder="tu.nombre@capitalinteligente.cl"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              autoFocus
+              inputMode="email"
+            />
+          </label>
+
+          <fieldset className={styles.fieldset}>
+            <legend className={styles.legend}>Modalidad</legend>
+            <div className={styles.toggleGroup}>
+              <button
+                type="button"
+                className={`${styles.toggle} ${modalidad === 'Presencial' ? styles.toggleActive : ''}`}
+                onClick={() => setModalidad('Presencial')}
+              >
+                🏢 Presencial
+              </button>
+              <button
+                type="button"
+                className={`${styles.toggle} ${modalidad === 'Online' ? styles.toggleActive : ''}`}
+                onClick={() => setModalidad('Online')}
+              >
+                🖥 Online
+              </button>
+            </div>
+          </fieldset>
+
+          {error && <p className={styles.error}>{error}</p>}
+
+          <button
+            type="submit"
+            className={styles.submitBtn}
+            disabled={submitting || !email.trim()}
+          >
+            {submitting ? 'Registrando...' : 'Registrar asistencia'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}

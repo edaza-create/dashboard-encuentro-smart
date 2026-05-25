@@ -10,6 +10,7 @@ import CompetenciaCapitalOneTab from './components/CompetenciaCapitalOneTab'
 import CompetenciaCapitalOpenIndividualTab from './components/CompetenciaCapitalOpenIndividualTab'
 import RankingsTab from './components/RankingsTab'
 import ReservasTable from './components/ReservasTable'
+import AsistenciaAdminPage from './features/asistenciaAdmin/AsistenciaAdminPage'
 import { capitalOpenConfig } from './config/capitalOpen'
 import { useReservas } from './hooks/useReservas'
 import { filtrarReservasPorFecha } from './utils/reservaFecha'
@@ -107,6 +108,9 @@ export default function App() {
               )}
               {tab === 'Competencia Capital Open Individual' && (
                 <CompetenciaCapitalOpenIndividualTab reservas={reservasEnRango} />
+              )}
+              {tab === 'Asistencia reuniones' && (
+                <AsistenciaAdminPage />
               )}
             </div>
           </div>

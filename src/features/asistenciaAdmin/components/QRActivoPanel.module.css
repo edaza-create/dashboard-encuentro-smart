@@ -1,0 +1,264 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(26, 29, 38, 0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 780px;
+  box-shadow: 0 24px 48px rgba(26, 29, 38, 0.15);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--color-border);
+  gap: 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.countdown {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.countdownBar {
+  height: 4px;
+  background: var(--color-border);
+}
+
+.countdownFill {
+  height: 100%;
+  background: linear-gradient(90deg, #48cfad, #5d9cec);
+  transition: width 1s linear;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0;
+}
+
+.qrSection {
+  padding: 24px;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.qrActions {
+  display: flex;
+  gap: 8px;
+}
+
+.qrBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.qrBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.statsSection {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13px;
+}
+
+.statLabel {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.statValue {
+  font-weight: 700;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.equiposTitle {
+  margin: 10px 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.emptyHint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.equipoRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.equipoRowGreen {
+  background: rgba(72, 207, 173, 0.08);
+  border: 1px solid rgba(72, 207, 173, 0.25);
+}
+
+.equipoName {
+  flex: 1;
+  min-width: 0;
+}
+
+.equipoCount {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.ptsBadge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(72, 207, 173, 0.15);
+  color: #2aaf8f;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.closeMeetingBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(237, 85, 101, 0.3);
+  background: rgba(237, 85, 101, 0.06);
+  color: var(--color-danger);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.closeMeetingBtn:hover {
+  background: rgba(237, 85, 101, 0.12);
+}
+
+@media (max-width: 640px) {
+  .body {
+    grid-template-columns: 1fr;
+  }
+
+  .qrSection {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: 16px;
+  }
+
+  .overlay {
+    padding: 12px;
+  }
+}
+
+@media print {
+  .overlay {
+    position: static;
+    background: none;
+    backdrop-filter: none;
+    padding: 0;
+  }
+
+  .panel {
+    box-shadow: none;
+    border: none;
+    max-width: none;
+  }
+
+  .header,
+  .statsSection,
+  .qrActions,
+  .closeBtn,
+  .countdownBar,
+  .closeMeetingBtn {
+    display: none !important;
+  }
+
+  .body {
+    display: block;
+  }
+
+  .qrSection {
+    border: none;
+    padding: 40px;
+  }
+}

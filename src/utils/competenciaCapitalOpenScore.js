@@ -41,18 +41,22 @@ export function puntosManualEquipo(manual) {
   return { promesas, escrituras, actividades }
 }
 
-export function totalPuntosEquipo(reservas, equipo, manual) {
+export function totalPuntosEquipo(reservas, equipo, manual, asistenciaPuntos = 0) {
   const auto = puntosReservaAuto(reservas, equipo)
   const m = puntosManualEquipo(manual)
-  return auto + m.promesas + m.escrituras + m.actividades
+  return auto + m.promesas + m.escrituras + m.actividades + asistenciaPuntos
 }
 
-export function equiposOrdenadosPorPuntos(reservas, manualByTeamId) {
+export function equiposOrdenadosPorPuntos(reservas, manualByTeamId, asistenciaPuntosByTeamId = {}) {
   return [...EQUIPOS_CAPITAL_ONE]
-    .map((equipo) => ({
-      equipo,
-      total: totalPuntosEquipo(reservas, equipo, manualByTeamId[String(equipo.id)]),
-    }))
+    .map((equipo) => {
+      const eid = String(equipo.id)
+      const asistPts = asistenciaPuntosByTeamId[eid]?.total ?? 0
+      return {
+        equipo,
+        total: totalPuntosEquipo(reservas, equipo, manualByTeamId[eid], asistPts),
+      }
+    })
     .sort((a, b) => {
       if (b.total !== a.total) return b.total - a.total
       return a.equipo.id - b.equipo.id

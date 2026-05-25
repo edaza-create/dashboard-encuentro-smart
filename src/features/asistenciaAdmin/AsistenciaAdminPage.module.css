@@ -1,0 +1,527 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 32px;
+}
+
+/* ── page header ──────────────────────────────────────────── */
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 4px;
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pageLede {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-muted);
+  max-width: 52ch;
+}
+
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.primaryBtn:hover { background: var(--color-primary-light); }
+
+/* ── sections ─────────────────────────────────────────────── */
+.section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 18px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sectionCount {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.sectionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 16px 16px;
+}
+
+/* ── reunion card ─────────────────────────────────────────── */
+.reunionCard {
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reunionCardActiva {
+  border-color: rgba(72, 207, 173, 0.35);
+  background: linear-gradient(135deg, rgba(72, 207, 173, 0.04), rgba(93, 156, 236, 0.04));
+}
+
+.reunionCardTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badgeGreen { background: rgba(72, 207, 173, 0.15); color: #2aaf8f; }
+.badgeGray { background: var(--color-surface); color: var(--color-text-muted); border: 1px solid var(--color-border); }
+.badgeRed { background: rgba(237, 85, 101, 0.12); color: #d44; }
+.badgeBlue { background: rgba(93, 156, 236, 0.12); color: var(--color-primary); }
+
+.tipoBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.fecha {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-left: auto;
+}
+
+.reunionName {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.reunionDesc {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+/* ── live info ────────────────────────────────────────────── */
+.liveInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.countdownBar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.countdownFill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #48cfad, #5d9cec);
+  transition: width 1s linear;
+}
+
+.liveRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #48cfad;
+  flex-shrink: 0;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.asistCount {
+  margin-left: auto;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.closedHint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* ── action buttons ───────────────────────────────────────── */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  border-top: 1px solid var(--color-border);
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.actionBtn:hover { background: var(--color-primary-light); }
+.actionBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.actionBtnMuted {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.actionBtnMuted:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+.actionBtnDanger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-left: auto;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.actionBtnDanger:hover {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  background: #fff5f5;
+}
+
+/* ── modal ────────────────────────────────────────────────── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(26, 29, 38, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 48px rgba(26, 29, 38, 0.15);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.modalClose {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.modalBody {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+/* ── form fields ──────────────────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fieldInput {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.fieldInput:focus { outline: none; border-color: var(--color-primary); }
+.fieldInput:disabled { opacity: 0.5; }
+
+.fieldTextarea {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.fieldTextarea:focus { outline: none; border-color: var(--color-primary); }
+.fieldTextarea:disabled { opacity: 0.5; }
+
+.fieldHint {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.radioGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.formHint {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b8860b;
+  background: rgba(255, 206, 84, 0.12);
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 206, 84, 0.3);
+}
+
+/* ── confirm modal extras ─────────────────────────────────── */
+.confirmWarning {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 206, 84, 0.1);
+  border: 1px solid rgba(255, 206, 84, 0.3);
+  color: #b8860b;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.confirmWarning p { margin: 0; }
+
+.confirmUrl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.urlCode {
+  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  word-break: break-all;
+  color: var(--color-primary);
+}
+
+/* ── states ───────────────────────────────────────────────── */
+.loadingText {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.errorBanner {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: var(--radius-card);
+  background: #fff5f5;
+  border: 1px solid rgba(237, 85, 101, 0.3);
+  color: var(--color-danger);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .pageHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reunionCard {
+    padding: 14px;
+  }
+
+  .modalOverlay {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 520px) {
+  .pageTitle {
+    font-size: 18px;
+  }
+
+  .actions {
+    gap: 6px;
+  }
+
+  .actionBtn,
+  .actionBtnMuted,
+  .actionBtnDanger {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
