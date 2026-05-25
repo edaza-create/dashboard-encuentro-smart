@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import mockData from '../data/reservas_mock.json'
-import { supabase, supabaseConfigured } from '../data/supabaseClient'
-import { mapReservaRow } from '../utils/mapReserva'
+import { fetchReservasOred } from '../api/oredClient'
+import { mapReservaRow, mapReservaPublica } from '../utils/mapReserva'
 
-const TABLE =
-  import.meta.env.SUPABASE_RESERVAS_TABLE ||
-  import.meta.env.VITE_SUPABASE_RESERVAS_TABLE ||
-  'reservas'
+const DATA_SOURCE = (
+  import.meta.env.VITE_DATA_SOURCE || 'ored'
+).trim().toLowerCase()
 
 export function useReservas() {
   const [reservas, setReservas] = useState([])
@@ -15,30 +14,24 @@ export function useReservas() {
   const [lastUpdated, setLastUpdated] = useState(null)
   const [isLive, setIsLive] = useState(false)
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (signal) => {
     try {
       setLoading(true)
       setError(null)
 
-      if (!supabaseConfigured || !supabase) {
-        await new Promise((r) => setTimeout(r, 200))
+      if (DATA_SOURCE === 'mock') {
         setReservas(mockData.map(mapReservaRow).filter((r) => r && r.id))
         setLastUpdated(new Date())
-        setLoading(false)
         return
       }
 
-      const { data, error: qErr } = await supabase
-        .from(TABLE)
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (qErr) throw qErr
-
-      const mapped = (data || []).map(mapReservaRow).filter((r) => r && r.id)
+      const resp = await fetchReservasOred({ signal })
+      const mapped = (resp.reservas || []).map(mapReservaPublica).filter((r) => r && r.id)
       setReservas(mapped)
-      setLastUpdated(new Date())
+      setLastUpdated(resp.updated_at ? new Date(resp.updated_at) : new Date())
+      setIsLive(true)
     } catch (err) {
+      if (err.name === 'AbortError') return
       setError(err.message || String(err))
       setReservas([])
     } finally {
@@ -47,33 +40,10 @@ export function useReservas() {
   }, [])
 
   useEffect(() => {
-    load()
+    const ac = new AbortController()
+    load(ac.signal)
+    return () => ac.abort()
   }, [load])
 
-  useEffect(() => {
-    if (!supabaseConfigured || !supabase) {
-      setIsLive(false)
-      return undefined
-    }
-
-    const channel = supabase
-      .channel(`dashboard-reservas:${TABLE}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: TABLE },
-        () => {
-          load()
-        }
-      )
-      .subscribe((status) => {
-        setIsLive(status === 'SUBSCRIBED')
-      })
-
-    return () => {
-      setIsLive(false)
-      supabase.removeChannel(channel)
-    }
-  }, [load])
-
-  return { reservas, loading, error, lastUpdated, refetch: load, isLive }
+  return { reservas, loading, error, lastUpdated, refetch: () => load(), isLive }
 }
