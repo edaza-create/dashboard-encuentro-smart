@@ -186,7 +186,7 @@ export default function AsistenciaAdminPage() {
                   onClose={() => {}}
                   onArchive={() => {}}
                   onUnarchive={handleUnarchive}
-                  onDelete={() => {}}
+                  onDelete={handleDelete}
                   onEdit={() => {}}
                   onViewQR={() => {}}
                   onViewLive={() => {}}

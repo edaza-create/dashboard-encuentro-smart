@@ -107,6 +107,9 @@ export default function ReunionCard({ reunion, onGenerateQR, onClose, onArchive,
             <button type="button" className={styles.actionBtnMuted} onClick={() => onUnarchive(reunion)}>
               <ArchiveRestore size={14} /> Desarchivar
             </button>
+            <button type="button" className={styles.actionBtnDanger} onClick={() => onDelete(reunion)}>
+              <Trash2 size={13} /> Eliminar
+            </button>
           </>
         )}
       </div>
