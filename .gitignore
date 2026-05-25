@@ -26,3 +26,4 @@ Thumbs.db
 # corriendo `pnpm run sync:asesores`.
 Lista Asesores Activos*.xlsx
 .snapshots/
+.vercel
