@@ -1,21 +1,12 @@
 import asesoresBP from '../data/asesores-bp.json' with { type: 'json' }
+import { BP_SLUG_TO_PLATAFORMA as BP_PLATAFORMA_CATALOG } from '../data/bpCatalog.js'
 import { lookupEquipoInternoBp } from './equipoComercialInterno.js'
 import { NIVEL_PLATAFORMA_EQUIPO_INTERNO, BP_SLUG_EQUIPO_INTERNO } from '../data/equipoComercialInterno.js'
 
-/**
- * Primer nombre de plataforma (nivel_jerarquia_nombre) por slug de BP,
- * alineado con competenciaCapitalOneTeams / extracto Brekto.
- */
+/** Primer nombre de plataforma por slug de BP (catálogo + equipo interno). */
 const BP_SLUG_TO_PLATAFORMA = {
   [BP_SLUG_EQUIPO_INTERNO]: NIVEL_PLATAFORMA_EQUIPO_INTERNO,
-  'forza-capital': 'BP Forza Capital',
-  mendoza: 'BP Mendoza Inversiones',
-  sinapsis: 'BP Sinapsis',
-  vanema: 'BP Vanema Inversiones',
-  'servicios-integrales': 'BP Greca',
-  skala: 'BP Skala',
-  'marisio-inversiones': 'BP Marisio Inversiones',
-  'irc-inversiones': 'BP IRC Inversiones Inmobiliarias',
+  ...BP_PLATAFORMA_CATALOG,
 }
 
 const emailToAsesor = new Map()

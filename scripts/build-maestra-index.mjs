@@ -16,16 +16,13 @@ const { EQUIPOS_CAPITAL_ONE } = await import(
 )
 const { MIEMBROS_EQUIPO_COMERCIAL_INTERNO, BP_SLUG_EQUIPO_INTERNO, NIVEL_PLATAFORMA_EQUIPO_INTERNO } =
   await import(new URL('../src/data/equipoComercialInterno.js', import.meta.url).href)
+const { BP_SLUG_TO_PLATAFORMA: BP_PLATAFORMA_CATALOG } = await import(
+  new URL('../src/data/bpCatalog.js', import.meta.url).href
+)
 
 const BP_SLUG_TO_PLATAFORMA = {
   [BP_SLUG_EQUIPO_INTERNO]: NIVEL_PLATAFORMA_EQUIPO_INTERNO,
-  'forza-capital': 'BP Forza Capital',
-  mendoza: 'BP Mendoza Inversiones',
-  sinapsis: 'BP Sinapsis',
-  vanema: 'BP Vanema Inversiones',
-  'servicios-integrales': 'BP Greca',
-  skala: 'BP Skala',
-  'marisio-inversiones': 'BP Marisio Inversiones',
+  ...BP_PLATAFORMA_CATALOG,
 }
 
 const bpDisplay = new Map(
