@@ -4,6 +4,15 @@
   padding: 0;
 }
 
+/*
+ * Breakpoint scale (reference — can't use vars in @media)
+ * 1200px  desktop grande
+ *  900px  colapso sidebar → horizontal
+ *  768px  tablet
+ *  520px  phone
+ *  360px  phone pequeño
+ */
+
 :root {
   /* Layout tipo analytics SaaS (sidebar + main) */
   --sidebar-width: 260px;

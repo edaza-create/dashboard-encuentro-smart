@@ -242,8 +242,15 @@
   .navItem,
   .navItemMuted {
     flex: 1 1 auto;
-    min-width: 120px;
+    min-width: 0;
     justify-content: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .menuBtn {
+    display: none;
   }
 
   .navItemMuted {
@@ -256,5 +263,56 @@
 
   .user {
     display: none;
+  }
+}
+
+.menuBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+
+@media (max-width: 520px) {
+  .menuBtn {
+    display: flex;
+  }
+
+  .sidebar {
+    gap: 0;
+  }
+
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .workspace {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .nav {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    padding-top: 8px;
+  }
+
+  .navOpen {
+    display: flex;
+  }
+
+  .navItem,
+  .navItemMuted {
+    justify-content: flex-start;
+    white-space: normal;
   }
 }

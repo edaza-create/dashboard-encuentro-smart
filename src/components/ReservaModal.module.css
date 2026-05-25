@@ -144,3 +144,21 @@
   .body { grid-template-columns: 1fr; }
   .overlay { padding: 16px 8px; }
 }
+
+@media (max-width: 360px) {
+  .overlay {
+    padding: 8px 4px;
+  }
+
+  .header {
+    padding: 16px 14px;
+  }
+
+  .body {
+    padding: 14px;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+}
