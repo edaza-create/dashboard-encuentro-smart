@@ -79,7 +79,7 @@ export default function App() {
 
         {error && <div className={styles.error}>Error al cargar datos: {error}</div>}
 
-        {!loading && !error && (
+        {!loading && !error && tab !== 'Asistencia reuniones' && (
           <div className={styles.mainScroll}>
             <div className={styles.shell}>
               <CapitalOpenHero reservas={reservas} />
@@ -109,9 +109,14 @@ export default function App() {
               {tab === 'Competencia Capital Open Individual' && (
                 <CompetenciaCapitalOpenIndividualTab reservas={reservasEnRango} />
               )}
-              {tab === 'Asistencia reuniones' && (
-                <AsistenciaAdminPage />
-              )}
+            </div>
+          </div>
+        )}
+
+        {tab === 'Asistencia reuniones' && (
+          <div className={styles.mainScroll}>
+            <div className={styles.shell}>
+              <AsistenciaAdminPage />
             </div>
           </div>
         )}

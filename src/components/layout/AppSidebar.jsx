@@ -7,10 +7,12 @@ import {
   ChevronDown,
   Trophy,
   UserCircle2,
+  ClipboardList,
 } from 'lucide-react'
 import styles from './AppSidebar.module.css'
 
 const NAV = [
+  { id: 'Asistencia reuniones', label: 'Asistencia reuniones', icon: ClipboardList },
   { id: 'Competencia Capital Open Equipos', label: 'Competencia Capital Open Equipos', icon: Trophy },
   {
     id: 'Competencia Capital Open Individual',
