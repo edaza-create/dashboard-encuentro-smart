@@ -3,8 +3,16 @@ import { useRankingPublico } from "../hooks/useRankingPublico.js";
 import { pickAvatarSrc } from "../utils/buildRankingCompetencia.js";
 import { SCORING } from "../utils/competenciaCapitalOpenScore.js";
 import { formatUF } from "../utils/format.js";
+import { EQUIPOS_CAPITAL_ONE } from "../data/competenciaCapitalOneTeams.js";
 import Avatar from "./ranking/Avatar.jsx";
 import styles from "./RankingPublicoPage.module.css";
+
+const brokersByTeamId = new Map(
+  EQUIPOS_CAPITAL_ONE.map((eq) => [
+    String(eq.id),
+    eq.brokers.map((b) => b.referenciaLista)
+  ])
+);
 
 const TOP_INDIVIDUAL = 10;
 
@@ -112,7 +120,7 @@ export default function RankingPublicoPage() {
       seed: a.email || a.nombre,
       nombre: a.nombre ?? a.email,
       metaTop: a.bp_display,
-      metaBottom: a.email,
+      metaBottom: null,
       avatarSrc: pickAvatarSrc(
         { asesor_foto_url: a.foto_url, asesor_foto_urls: a.foto_urls },
         AVATAR_SIZE
@@ -244,6 +252,22 @@ export default function RankingPublicoPage() {
             </span>
           </div>
         </div>
+
+        {tab === "bp" && brokersByTeamId.has(item.key) && (
+          <details className={styles.bpRoster}>
+            <summary className={styles.bpRosterSummary}>
+              <span>{brokersByTeamId.get(item.key).length} BPs</span>
+              <span className={styles.bpRosterChev} aria-hidden="true">▾</span>
+            </summary>
+            <ul className={styles.bpRosterList}>
+              {brokersByTeamId.get(item.key).map((name) => (
+                <li key={name} className={styles.bpRosterItem}>
+                  {name}
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
       </article>
     );
   };
