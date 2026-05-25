@@ -61,13 +61,15 @@ export function useReservas() {
           .select('*')
           .order('created_at', { ascending: false })
 
-        if (qErr) throw qErr
-
-        const mapped = (data || []).map(mapReservaRow).filter((r) => r && r.id)
-        setReservas(mapped)
-        setDataSource('supabase')
-        setLastUpdated(new Date())
-        return
+        if (qErr) {
+          console.warn('[useReservas] Supabase table error, falling back to ored:', qErr.message)
+        } else {
+          const mapped = (data || []).map(mapReservaRow).filter((r) => r && r.id)
+          setReservas(mapped)
+          setDataSource('supabase')
+          setLastUpdated(new Date())
+          return
+        }
       }
 
       const resp = await fetchReservasRanking()
