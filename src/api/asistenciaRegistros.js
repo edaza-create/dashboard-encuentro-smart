@@ -75,3 +75,25 @@ export async function fetchConteosPorReunion(reunionId, signal) {
   if (error) throw error
   return data ?? []
 }
+
+/**
+ * Fetch conteos de TODAS las reuniones no archivadas (para sumar puntos a la competencia).
+ * @param {AbortSignal} [signal]
+ */
+export async function fetchConteosGlobal(signal) {
+  if (!supabase) return []
+  const { data: reuniones } = await supabase
+    .from('asistencia_reuniones_config')
+    .select('id')
+    .eq('archivada', false)
+    .abortSignal(signal)
+  if (!reuniones?.length) return []
+  const ids = reuniones.map((r) => r.id)
+  const { data, error } = await supabase
+    .from('asistencia_conteo_por_equipo')
+    .select('*')
+    .in('reunion_id', ids)
+    .abortSignal(signal)
+  if (error) throw error
+  return data ?? []
+}

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Plus, ChevronDown, ChevronUp } from 'lucide-react'
 import { useReunionesAdmin } from '../../hooks/useReunionesAdmin.js'
-import { createReunion, updateReunion, generateQR, closeReunion, archiveReunion, deleteReunion } from '../../api/reunionesAdmin.js'
+import { createReunion, updateReunion, generateQR, closeReunion, archiveReunion, unarchiveReunion, deleteReunion } from '../../api/reunionesAdmin.js'
 import ReunionCard from './components/ReunionCard.jsx'
 import ReunionForm from './components/ReunionForm.jsx'
 import QRGenerarConfirm from './components/QRGenerarConfirm.jsx'
@@ -65,6 +65,11 @@ export default function AsistenciaAdminPage() {
 
   const handleArchive = async (reunion) => {
     await archiveReunion(reunion.id)
+    refetch()
+  }
+
+  const handleUnarchive = async (reunion) => {
+    await unarchiveReunion(reunion.id)
     refetch()
   }
 
@@ -180,6 +185,7 @@ export default function AsistenciaAdminPage() {
                   onGenerateQR={() => {}}
                   onClose={() => {}}
                   onArchive={() => {}}
+                  onUnarchive={handleUnarchive}
                   onDelete={() => {}}
                   onEdit={() => {}}
                   onViewQR={() => {}}

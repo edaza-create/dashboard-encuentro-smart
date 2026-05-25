@@ -9,6 +9,7 @@ import { brokerTieneMapeo } from '../utils/brokerReservaMatch'
 import CompetenciaRemoteSyncBanner from './CompetenciaRemoteSyncBanner'
 import { useCompetenciaManualPoints } from '../hooks/useCompetenciaManualPoints'
 import { useIndividualManualSaved } from '../hooks/useIndividualManualSaved'
+import { useAsistenciaPuntos } from '../hooks/useAsistenciaPuntos'
 import { useAuth } from '../context/AuthContext'
 import { aggregateManualIndividualPorEquipo } from '../utils/competenciaIndividualToEquipo'
 import {
@@ -27,6 +28,7 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
   const { savedTeams, draftTeams, patchDraft, saveTeam, resetManual, hydrated, isTeamDirty, remotePush } =
     useCompetenciaManualPoints()
   const indManual = useIndividualManualSaved()
+  const { asistenciaPuntos } = useAsistenciaPuntos()
 
   const indPorEquipo = useMemo(
     () => aggregateManualIndividualPorEquipo(reservas, indManual),
@@ -34,8 +36,8 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
   )
 
   const ranking = useMemo(
-    () => equiposOrdenadosPorPuntos(reservas, savedTeams, indManual),
-    [reservas, savedTeams, indManual]
+    () => equiposOrdenadosPorPuntos(reservas, savedTeams, indManual, asistenciaPuntos),
+    [reservas, savedTeams, indManual, asistenciaPuntos]
   )
 
   const handleResetManual = () => {
@@ -137,6 +139,7 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
             const pm = puntosManualEquipo(efectivo)
             const ptsOnline = (saved.actividadOnlineCount || 0) * SCORING.actividadOnline
             const ptsPres = (saved.actividadPresencialCount || 0) * SCORING.actividadPresencial
+            const asistPts = asistenciaPuntos[id]?.total ?? 0
             const rank = index + 1
             const dirty = isTeamDirty(equipo.id)
             const teamBg = equipo.backgroundImage
@@ -204,6 +207,10 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
                     </span>
                     <strong>{ptsPres.toLocaleString('es-CL')} pts</strong>
                   </div>
+                  <div className={styles.breakLine}>
+                    <span>Asistencia reuniones (QR)</span>
+                    <strong>{asistPts.toLocaleString('es-CL')} pts</strong>
+                  </div>
                 </div>
 
                 <div className={styles.manualForm}>
@@ -263,7 +270,7 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
               <UsersRound size={18} strokeWidth={2} aria-hidden />
               {equipo.label}
               <span className={styles.equipoPtsHint} title="Puntos totales del equipo">
-                {totalPuntosEquipo(reservas, equipo, savedTeams[String(equipo.id)], indManual).toLocaleString(
+                {totalPuntosEquipo(reservas, equipo, savedTeams[String(equipo.id)], indManual, asistenciaPuntos[String(equipo.id)]?.total ?? 0).toLocaleString(
                   'es-CL'
                 )}{' '}
                 pts

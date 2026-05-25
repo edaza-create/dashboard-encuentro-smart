@@ -1,4 +1,4 @@
-import { Clock, QrCode, Play, Square, Archive, Trash2, Eye, RotateCcw, FileText } from 'lucide-react'
+import { Clock, QrCode, Play, Square, Archive, ArchiveRestore, Trash2, Eye, RotateCcw, FileText } from 'lucide-react'
 import { useCountdown } from '../../../hooks/useCountdown.js'
 import { useReunionEnVivo } from '../../../hooks/useReunionEnVivo.js'
 import styles from '../AsistenciaAdminPage.module.css'
@@ -18,7 +18,7 @@ const ESTADO_COLOR = {
   archivada: styles.badgeBlue,
 }
 
-export default function ReunionCard({ reunion, onGenerateQR, onClose, onArchive, onDelete, onEdit, onViewQR, onViewLive, onViewReport, onReopen }) {
+export default function ReunionCard({ reunion, onGenerateQR, onClose, onArchive, onUnarchive, onDelete, onEdit, onViewQR, onViewLive, onViewReport, onReopen }) {
   const { estado } = reunion
   const countdown = useCountdown(estado === 'activa' ? reunion.closes_at : null)
   const { totalAsistentes } = useReunionEnVivo(estado === 'activa' ? reunion.id : null)
@@ -96,6 +96,16 @@ export default function ReunionCard({ reunion, onGenerateQR, onClose, onArchive,
             </button>
             <button type="button" className={styles.actionBtnMuted} onClick={() => onArchive(reunion)}>
               <Archive size={14} /> Archivar
+            </button>
+          </>
+        )}
+        {estado === 'archivada' && (
+          <>
+            <button type="button" className={styles.actionBtn} onClick={() => onViewReport(reunion)}>
+              <FileText size={14} /> Reporte
+            </button>
+            <button type="button" className={styles.actionBtnMuted} onClick={() => onUnarchive(reunion)}>
+              <ArchiveRestore size={14} /> Desarchivar
             </button>
           </>
         )}
