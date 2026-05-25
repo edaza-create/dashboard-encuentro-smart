@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   LayoutDashboard,
   Table2,
@@ -8,6 +9,8 @@ import {
   Trophy,
   UserCircle2,
   ClipboardList,
+  Menu,
+  X,
 } from 'lucide-react'
 import styles from './AppSidebar.module.css'
 
@@ -25,9 +28,24 @@ const NAV = [
 ]
 
 export default function AppSidebar({ tab, onTab, workspaceName, workspaceTag, workspaceLogoUrl }) {
+  const [navOpen, setNavOpen] = useState(false)
+
+  const handleTab = (id) => {
+    onTab(id)
+    setNavOpen(false)
+  }
+
   return (
     <aside className={styles.sidebar} aria-label="Navegación principal">
       <div className={styles.top}>
+        <button
+          type="button"
+          className={styles.menuBtn}
+          onClick={() => setNavOpen((o) => !o)}
+          aria-label={navOpen ? 'Cerrar menú' : 'Abrir menú'}
+        >
+          {navOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
         <button type="button" className={styles.workspace}>
           {workspaceLogoUrl ? (
             <span className={styles.wsAvatarFrame}>
@@ -65,13 +83,13 @@ export default function AppSidebar({ tab, onTab, workspaceName, workspaceTag, wo
       </nav>
 
       <div className={styles.sectionLabel}>Dashboard</div>
-      <nav className={styles.nav}>
+      <nav className={`${styles.nav} ${navOpen ? styles.navOpen : ''}`}>
         {NAV.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             type="button"
             className={`${styles.navItem} ${tab === id ? styles.navItemActive : ''}`}
-            onClick={() => onTab(id)}
+            onClick={() => handleTab(id)}
           >
             <Icon size={18} strokeWidth={2} />
             <span>{label}</span>

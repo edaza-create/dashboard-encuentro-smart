@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { BookOpen, RotateCcw, Save, UserCircle2 } from 'lucide-react'
+import CompetenciaRemoteSyncBanner from './CompetenciaRemoteSyncBanner'
 import { useCompetenciaIndividualManual } from '../hooks/useCompetenciaIndividualManual'
 import { useAuth } from '../context/AuthContext'
 import {
@@ -7,7 +8,9 @@ import {
   puntosManualIndividual,
   totalIndividual,
 } from '../utils/competenciaCapitalOpenIndividual'
+import { compareRankingPorPuntosYUf } from '../utils/rankingCompare'
 import { SCORING } from '../utils/competenciaCapitalOpenScore'
+import { formatUF } from '../utils/format'
 import styles from './CompetenciaCapitalOpenIndividualTab.module.css'
 
 export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
@@ -15,7 +18,7 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
   const asesoresBase = useMemo(() => listAsesoresCompetenciaIndividual(reservas), [reservas])
   const asesorKeys = useMemo(() => asesoresBase.map((a) => a.key), [asesoresBase])
 
-  const { saved, draft, patchDraft, saveAsesor, resetAll, hydrated, isDirty } =
+  const { saved, draft, patchDraft, saveAsesor, resetAll, hydrated, isDirty, remotePush } =
     useCompetenciaIndividualManual(asesorKeys)
 
   const rows = useMemo(() => {
@@ -26,10 +29,7 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
         const total = totalIndividual(s, a.reservas)
         return { ...a, total, pm }
       })
-      .sort((x, y) => {
-        if (y.total !== x.total) return y.total - x.total
-        return x.etiqueta.localeCompare(y.etiqueta, 'es', { sensitivity: 'base' })
-      })
+      .sort(compareRankingPorPuntosYUf)
   }, [asesoresBase, saved])
 
   const totales = useMemo(() => {
@@ -39,9 +39,10 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
         acc.pr += row.pm.promesas
         acc.es += row.pm.escrituras
         acc.tot += row.total
+        acc.uf += row.ufTotal
         return acc
       },
-      { res: 0, pr: 0, es: 0, tot: 0 }
+      { res: 0, pr: 0, es: 0, tot: 0, uf: 0 }
     )
     r.autoReserva = r.res * SCORING.reservaPorRegistro
     return r
@@ -69,6 +70,12 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
         </p>
       )}
 
+      <CompetenciaRemoteSyncBanner
+        canEdit={canEditCompetencia}
+        hasSession={Boolean(session)}
+        remotePush={remotePush}
+      />
+
       <section className={styles.rulesCard} aria-labelledby="reglas-individual">
         <div className={styles.rulesHeader}>
           <BookOpen size={20} aria-hidden />
@@ -82,12 +89,16 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
             registro está en un BP de la competencia. Se suma por asesor según los datos.
           </li>
           <li>
+            <strong>Cartera UF:</strong> suma del valor UF de cada reserva del asesor (promesa; si no hay, venta),
+            con el mismo criterio que el resto del dashboard.
+          </li>
+          <li>
             <strong>Promesa:</strong> {SCORING.promesaPorRegistro} pts por cada promesa registrada manualmente
-            en el desglose del asesor.
+            en el desglose del asesor. Se suman al equipo según el BP del asesor.
           </li>
           <li>
             <strong>Escritura:</strong> {SCORING.escrituraPorRegistro} pts por cada escritura registrada
-            manualmente en el desglose del asesor.
+            manualmente en el desglose del asesor. Se suman al equipo según el BP del asesor.
           </li>
         </ul>
         <p className={styles.rulesNote}>
@@ -121,6 +132,10 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
         <span className={styles.summarySep}>·</span>
         <span>
           Reservas competencia: <strong>{totales.res.toLocaleString('es-CL')}</strong>
+        </span>
+        <span className={styles.summarySep}>·</span>
+        <span>
+          Cartera UF: <strong>{formatUF(Math.round(totales.uf))}</strong>
         </span>
         <span className={styles.summarySep}>·</span>
         <span>
@@ -161,21 +176,31 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
                   <div className={styles.asMeta}>
                     {row.email ? <span className={styles.asEmail}>{row.email}</span> : null}
                     <span className={styles.asBp}>Nivel: {row.nivelJerarquia}</span>
+                    {row.equipoLabel ? (
+                      <span className={styles.asEquipo}>Equipo: {row.equipoLabel}</span>
+                    ) : null}
                   </div>
                 </div>
                 <div className={styles.asTotalWrap}>
                   <span className={styles.asTotalLabel}>Total</span>
                   <span className={styles.asTotal}>{row.total.toLocaleString('es-CL')} pts</span>
+                  <span className={styles.asUf} title="Suma UF de sus reservas en competencia">
+                    {formatUF(Math.round(row.ufTotal))}
+                  </span>
                 </div>
               </div>
 
-              <div className={styles.breakdown}>
+              
+                
+                  <span>Cartera UF ({row.reservas} reservas)</span>
+                  <strong>{formatUF(Math.round(row.ufTotal))}</strong>
+                
                 <div className={styles.breakLine}>
                   <span>
                     Reservas ({row.reservas}) × {SCORING.reservaPorRegistro}
                   </span>
                   <strong>{row.puntosReserva.toLocaleString('es-CL')} pts</strong>
-                </div>
+                
                 <div className={styles.breakLine}>
                   <span>Promesas</span>
                   <strong>{pmSaved.promesas.toLocaleString('es-CL')} pts</strong>

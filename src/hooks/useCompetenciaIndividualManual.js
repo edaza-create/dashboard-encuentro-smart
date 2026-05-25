@@ -1,6 +1,16 @@
-import { useCallback, useEffect, useReducer } from 'react'
-
-const STORAGE_KEY = 'capital-open-competencia-individual-v1'
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import {
+  fetchCompetenciaManualRemote,
+  isCompetenciaManualRemoteEnabled,
+  pushCompetenciaManualRemote,
+  remotePushReasonMessage,
+} from '../api/competenciaManualRemote.js'
+import {
+  COMPETENCIA_INDIVIDUAL_STORAGE_KEY as STORAGE_KEY,
+  applyRemoteManualCache,
+  notifyCompetenciaManualUpdated,
+  writeIndividualManualLocal,
+} from '../utils/competenciaStorage.js'
 
 function defaultEntry() {
   return { promesasCount: 0, escriturasCount: 0 }
@@ -79,14 +89,44 @@ function reducer(state, action) {
 
 export function useCompetenciaIndividualManual(asesorKeys) {
   const [state, dispatch] = useReducer(reducer, initial)
+  const [remotePush, setRemotePush] = useState({ status: 'idle', message: null })
   const keysStr = [...asesorKeys].sort().join('|')
+  const readyToPushRef = useRef(false)
 
   useEffect(() => {
-    try {
-      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')
-      dispatch({ type: 'hydrate', raw })
-    } catch {
-      dispatch({ type: 'hydrate', raw: null })
+    let cancelled = false
+
+    async function hydrate() {
+      let raw = null
+      if (isCompetenciaManualRemoteEnabled()) {
+        try {
+          const snap = await fetchCompetenciaManualRemote()
+          if (snap?.individualRaw) {
+            raw = snap.individualRaw
+            applyRemoteManualCache({ individualRaw: snap.individualRaw })
+            if (snap.individualRaw?.asesores) {
+              writeIndividualManualLocal(snap.individualRaw.asesores)
+            }
+          }
+        } catch {
+          /* fallback local */
+        }
+      }
+      if (!raw) {
+        try {
+          raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')
+        } catch {
+          raw = null
+        }
+      }
+      if (!cancelled) {
+        dispatch({ type: 'hydrate', raw })
+      }
+    }
+
+    hydrate()
+    return () => {
+      cancelled = true
     }
   }, [])
 
@@ -97,10 +137,26 @@ export function useCompetenciaIndividualManual(asesorKeys) {
 
   useEffect(() => {
     if (!state.hydrated) return
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, asesores: state.saved }))
-    } catch {
-      /* ignore */
+    const payload = { version: 1, asesores: state.saved }
+    writeIndividualManualLocal(state.saved)
+    notifyCompetenciaManualUpdated()
+
+    if (!readyToPushRef.current) {
+      readyToPushRef.current = true
+      return
+    }
+
+    if (isCompetenciaManualRemoteEnabled()) {
+      pushCompetenciaManualRemote('individual', payload).then((result) => {
+        if (!result.ok) {
+          setRemotePush({
+            status: 'error',
+            message: remotePushReasonMessage(result.reason),
+          })
+          return
+        }
+        setRemotePush({ status: 'ok', message: null })
+      })
     }
   }, [state.saved, state.hydrated])
 
@@ -132,5 +188,6 @@ export function useCompetenciaIndividualManual(asesorKeys) {
     resetAll,
     hydrated: state.hydrated,
     isDirty,
+    remotePush,
   }
 }

@@ -69,6 +69,10 @@
 }
 
 @media (max-width: 900px) {
+  .app {
+    flex-direction: column;
+  }
+
   .mainScroll {
     padding: 0 16px 32px;
   }

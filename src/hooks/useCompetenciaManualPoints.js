@@ -1,7 +1,17 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams'
-
-const STORAGE_KEY = 'capital-open-competencia-manual-v1'
+import {
+  fetchCompetenciaManualRemote,
+  isCompetenciaManualRemoteEnabled,
+  pushCompetenciaManualRemote,
+  remotePushReasonMessage,
+} from '../api/competenciaManualRemote.js'
+import {
+  COMPETENCIA_TEAM_STORAGE_KEY as STORAGE_KEY,
+  applyRemoteManualCache,
+  notifyCompetenciaManualUpdated,
+  writeTeamManualLocal,
+} from '../utils/competenciaStorage.js'
 
 /** Lo que persiste en localStorage (incluye acumulados de actividades). */
 function defaultSavedEntry() {
@@ -69,8 +79,6 @@ function normalizeLoaded(raw) {
 
 function isTeamDirty(draft, saved, id) {
   const d = draft[id] || defaultDraftEntry()
-  const s = saved[id] || defaultSavedEntry()
-  if (d.promesasCount !== s.promesasCount || d.escriturasCount !== s.escriturasCount) return true
   if (d.registrarOnline || d.registrarPresencial) return true
   return false
 }
@@ -79,27 +87,76 @@ export function useCompetenciaManualPoints() {
   const [savedTeams, setSavedTeams] = useState(() => defaultTeamsMapSaved())
   const [draftTeams, setDraftTeams] = useState(() => defaultTeamsMapDraftFromSaved(defaultTeamsMapSaved()))
   const [hydrated, setHydrated] = useState(false)
+  const [remotePush, setRemotePush] = useState({ status: 'idle', message: null })
+  const readyToPushRef = useRef(false)
+  // Espejo de draftTeams para que saveTeam pueda leerlo sin anidar setState.
+  // Anidar setSavedTeams dentro del updater de setDraftTeams hacia que en
+  // StrictMode (o batching futuro de React) el updater corriera 2 veces y
+  // los contadores de actividad se incrementaran al doble.
+  const draftRef = useRef(draftTeams)
+  useEffect(() => { draftRef.current = draftTeams }, [draftTeams])
 
   useEffect(() => {
-    try {
-      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')
+    let cancelled = false
+
+    async function load() {
+      let raw = null
+      if (isCompetenciaManualRemoteEnabled()) {
+        try {
+          const snap = await fetchCompetenciaManualRemote()
+          if (snap?.teamRaw) {
+            raw = snap.teamRaw
+            applyRemoteManualCache({ teamRaw: snap.teamRaw })
+            if (snap.teamRaw?.teams) writeTeamManualLocal(snap.teamRaw.teams)
+          }
+        } catch {
+          /* fallback local */
+        }
+      }
+      if (!raw) {
+        try {
+          raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')
+        } catch {
+          raw = null
+        }
+      }
+
       const normalized = normalizeLoaded(raw)
-      setSavedTeams(normalized)
-      setDraftTeams(defaultTeamsMapDraftFromSaved(normalized))
-    } catch {
-      const z = defaultTeamsMapSaved()
-      setSavedTeams(z)
-      setDraftTeams(defaultTeamsMapDraftFromSaved(z))
+      if (!cancelled) {
+        setSavedTeams(normalized)
+        setDraftTeams(defaultTeamsMapDraftFromSaved(normalized))
+        setHydrated(true)
+      }
     }
-    setHydrated(true)
+
+    load()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useEffect(() => {
     if (!hydrated) return
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, teams: savedTeams }))
-    } catch {
-      /* ignore */
+    const payload = { version: 1, teams: savedTeams }
+    writeTeamManualLocal(savedTeams)
+    notifyCompetenciaManualUpdated()
+
+    if (!readyToPushRef.current) {
+      readyToPushRef.current = true
+      return
+    }
+
+    if (isCompetenciaManualRemoteEnabled()) {
+      pushCompetenciaManualRemote('team', payload).then((result) => {
+        if (!result.ok) {
+          setRemotePush({
+            status: 'error',
+            message: remotePushReasonMessage(result.reason),
+          })
+          return
+        }
+        setRemotePush({ status: 'ok', message: null })
+      })
     }
   }, [savedTeams, hydrated])
 
@@ -113,13 +170,14 @@ export function useCompetenciaManualPoints() {
 
   const saveTeam = useCallback((teamId) => {
     const id = String(teamId)
-    setDraftTeams((d) => {
-      const draft = { ...(d[id] || defaultDraftEntry()) }
-      setSavedTeams((s) => {
-        const prev = s[id] || defaultSavedEntry()
-        const next = {
-          promesasCount: Math.max(0, Math.min(9999, Math.floor(Number(draft.promesasCount) || 0))),
-          escriturasCount: Math.max(0, Math.min(9999, Math.floor(Number(draft.escriturasCount) || 0))),
+    const draft = draftRef.current[id] || defaultDraftEntry()
+    setSavedTeams((s) => {
+      const prev = s[id] || defaultSavedEntry()
+      return {
+        ...s,
+        [id]: {
+          promesasCount: 0,
+          escriturasCount: 0,
           actividadOnlineCount: Math.min(
             999,
             (prev.actividadOnlineCount || 0) + (draft.registrarOnline ? 1 : 0)
@@ -128,19 +186,18 @@ export function useCompetenciaManualPoints() {
             999,
             (prev.actividadPresencialCount || 0) + (draft.registrarPresencial ? 1 : 0)
           ),
-        }
-        return { ...s, [id]: next }
-      })
-      return {
-        ...d,
-        [id]: {
-          promesasCount: Math.max(0, Math.min(9999, Math.floor(Number(draft.promesasCount) || 0))),
-          escriturasCount: Math.max(0, Math.min(9999, Math.floor(Number(draft.escriturasCount) || 0))),
-          registrarOnline: false,
-          registrarPresencial: false,
         },
       }
     })
+    setDraftTeams((d) => ({
+      ...d,
+      [id]: {
+        promesasCount: 0,
+        escriturasCount: 0,
+        registrarOnline: false,
+        registrarPresencial: false,
+      },
+    }))
   }, [])
 
   const resetManual = useCallback(() => {
@@ -162,5 +219,6 @@ export function useCompetenciaManualPoints() {
     resetManual,
     hydrated,
     isTeamDirty: isTeamDirtyFn,
+    remotePush,
   }
 }

@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { supabase, supabaseConfigured } from '../data/supabaseClient'
 import { adminEmailsSet, isCompetenciaEditLockEnabled } from '../config/admins'
 
-/** @typedef {{ session: import('@supabase/supabase-js').Session | null, loading: boolean, canEditCompetencia: boolean, adminLockActive: boolean, signInWithOtp: (email: string) => Promise<{ error?: import('@supabase/supabase-js').AuthError }>, signOut: () => Promise<void> }} AuthState */
+/** @typedef {{ session: import('@supabase/supabase-js').Session | null, loading: boolean, canEditCompetencia: boolean, adminLockActive: boolean, signInWithOtp: (email: string) => Promise<{ error?: import('@supabase/supabase-js').AuthError }>, verifyOtp: (email: string, token: string) => Promise<{ error?: import('@supabase/supabase-js').AuthError }>, signOut: () => Promise<void> }} AuthState */
 
 /** @type {React.Context<AuthState | null>} */
 const AuthContext = createContext(null)
@@ -45,10 +45,19 @@ export function AuthProvider({ children }) {
 
   const signInWithOtp = useCallback(async (email) => {
     if (!supabase) return { error: { message: 'Supabase no configurado', status: 0 } }
-    const redirectTo = `${window.location.origin}${window.location.pathname || '/'}`
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: redirectTo },
+      options: { shouldCreateUser: true },
+    })
+    return { error: error ?? undefined }
+  }, [])
+
+  const verifyOtp = useCallback(async (email, token) => {
+    if (!supabase) return { error: { message: 'Supabase no configurado', status: 0 } }
+    const { error } = await supabase.auth.verifyOtp({
+      email: email.trim(),
+      token,
+      type: 'email',
     })
     return { error: error ?? undefined }
   }, [])
@@ -65,9 +74,10 @@ export function AuthProvider({ children }) {
       canEditCompetencia,
       adminLockActive,
       signInWithOtp,
+      verifyOtp,
       signOut,
     }),
-    [session, loading, canEditCompetencia, adminLockActive, signInWithOtp, signOut]
+    [session, loading, canEditCompetencia, adminLockActive, signInWithOtp, verifyOtp, signOut]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

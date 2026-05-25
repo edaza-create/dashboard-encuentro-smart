@@ -1,7 +1,11 @@
 import { Search, SlidersHorizontal, X } from 'lucide-react'
 import styles from './Filters.module.css'
+import { listMiembrosEquipoInterno } from '../utils/equipoComercialInterno'
+
+const EQUIPO_INTERNO_TODOS = '__equipo_interno__'
 
 export default function Filters({ filters, onChange, reservas }) {
+  const miembrosInterno = listMiembrosEquipoInterno()
   const proyectos = [...new Set(reservas.map(r => r.proyecto))].sort()
   const tipologias = [...new Set(reservas.map(r => r.tipologia))].sort()
   const estados = [...new Set(reservas.map(r => r.estado))].sort()
@@ -11,7 +15,8 @@ export default function Filters({ filters, onChange, reservas }) {
     filters.estado ||
     filters.proyecto ||
     filters.tipologia ||
-    filters.tipo_entrega
+    filters.tipo_entrega ||
+    filters.equipoInterno
 
   const clear = () =>
     onChange({
@@ -20,6 +25,7 @@ export default function Filters({ filters, onChange, reservas }) {
       proyecto: '',
       tipologia: '',
       tipo_entrega: '',
+      equipoInterno: '',
     })
 
   return (
@@ -51,6 +57,19 @@ export default function Filters({ filters, onChange, reservas }) {
           <option value="">Tipo de entrega</option>
           <option value="inmediata">Inmediata</option>
           <option value="futura">Futura</option>
+        </select>
+        <select
+          className={styles.select}
+          value={filters.equipoInterno ?? ''}
+          onChange={(e) => onChange({ ...filters, equipoInterno: e.target.value })}
+        >
+          <option value="">Equipo comercial interno</option>
+          <option value={EQUIPO_INTERNO_TODOS}>Todo el equipo interno</option>
+          {miembrosInterno.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.nombre}
+            </option>
+          ))}
         </select>
         {hasFilters && (
           <button className={styles.clearBtn} onClick={clear}>

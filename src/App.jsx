@@ -1,22 +1,26 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import styles from './App.module.css'
 import AppSidebar from './components/layout/AppSidebar'
 import MainHeader from './components/layout/MainHeader'
 import CapitalOpenHero from './components/CapitalOpenHero'
-import DashboardOverview from './components/DashboardOverview'
+import ResumenPage from './features/resumen/ResumenPage.jsx'
 import DateRangeFilter from './components/DateRangeFilter'
 import Filters from './components/Filters'
 import CompetenciaCapitalOneTab from './components/CompetenciaCapitalOneTab'
 import CompetenciaCapitalOpenIndividualTab from './components/CompetenciaCapitalOpenIndividualTab'
+import AsistenciaPage from './features/asistencia/AsistenciaPage.jsx'
 import RankingsTab from './components/RankingsTab'
 import ReservasTable from './components/ReservasTable'
 import AsistenciaAdminPage from './features/asistenciaAdmin/AsistenciaAdminPage'
 import { capitalOpenConfig } from './config/capitalOpen'
+import { useCompetenciaManualRemoteSync } from './hooks/useCompetenciaManualRemoteSync.js'
 import { useReservas } from './hooks/useReservas'
 import { filtrarReservasPorFecha } from './utils/reservaFecha'
+import { isReservaEquipoComercialInterno } from './utils/equipoComercialInterno'
 
 export default function App() {
-  const { reservas, loading, error, lastUpdated, refetch, isLive } = useReservas()
+  useCompetenciaManualRemoteSync()
+  const { reservas, loading, error, lastUpdated, refetch, isLive, dataSource } = useReservas()
   const [tab, setTab] = useState('Resumen')
   const [filters, setFilters] = useState({
     search: '',
@@ -24,6 +28,7 @@ export default function App() {
     proyecto: '',
     tipologia: '',
     tipo_entrega: '',
+    equipoInterno: '',
     fechaDesde: capitalOpenConfig.cyberDesde,
     fechaHasta: capitalOpenConfig.cyberHasta,
   })
@@ -40,6 +45,11 @@ export default function App() {
       if (filters.proyecto && r.proyecto !== filters.proyecto) return false
       if (filters.tipologia && r.tipologia !== filters.tipologia) return false
       if (filters.tipo_entrega && r.tipo_entrega !== filters.tipo_entrega) return false
+      if (filters.equipoInterno === '__equipo_interno__') {
+        if (!isReservaEquipoComercialInterno(r)) return false
+      } else if (filters.equipoInterno) {
+        if (r.miembro_equipo_interno_id !== filters.equipoInterno) return false
+      }
       if (q) {
         const haystack = [
           r.nombre_cliente,
@@ -48,6 +58,7 @@ export default function App() {
           r.cliente_rut,
           r.nivel_jerarquia_nombre,
           r.nombre_asesor,
+          r.miembro_equipo_interno,
           r.unidad,
           r.tipologia,
           r.comuna,
@@ -62,6 +73,26 @@ export default function App() {
 
   const logoTag = capitalOpenConfig.logoAbrev?.trim() || 'ES'
 
+  const handleResumenDrillDown = useCallback(({ type, value }) => {
+    setTab('Reservas')
+    setFilters((f) => {
+      const base = {
+        ...f,
+        estado: '',
+        proyecto: '',
+        tipologia: '',
+        tipo_entrega: '',
+        equipoInterno: '',
+        search: '',
+      }
+      if (type === 'proyecto') return { ...base, proyecto: value }
+      if (type === 'estado') return { ...base, estado: value }
+      if (type === 'tipologia') return { ...base, tipologia: value }
+      if (type === 'search') return { ...base, search: value }
+      return base
+    })
+  }, [])
+
   return (
     <div className={styles.app}>
       <AppSidebar
@@ -73,7 +104,14 @@ export default function App() {
       />
 
       <div className={styles.main}>
-        <MainHeader tab={tab} lastUpdated={lastUpdated} onRefresh={refetch} loading={loading} isLive={isLive} />
+        <MainHeader
+          tab={tab}
+          lastUpdated={lastUpdated}
+          onRefresh={refetch}
+          loading={loading}
+          isLive={isLive}
+          dataSource={dataSource}
+        />
 
         {loading && <div className={styles.loadingBar} />}
 
@@ -82,11 +120,20 @@ export default function App() {
         {!loading && !error && tab !== 'Asistencia reuniones' && (
           <div className={styles.mainScroll}>
             <div className={styles.shell}>
-              <CapitalOpenHero reservas={reservas} />
-              <div className={styles.panel}>
-                <DateRangeFilter total={reservas.length} filtradas={reservasEnRango.length} />
-              </div>
-              {tab === 'Resumen' && <DashboardOverview reservas={reservasEnRango} />}
+              {tab !== 'Resumen' ? <CapitalOpenHero reservas={reservas} /> : null}
+              {tab !== 'Resumen' ? (
+                <div className={styles.panel}>
+                  <DateRangeFilter total={reservas.length} filtradas={reservasEnRango.length} />
+                </div>
+              ) : null}
+              {tab === 'Resumen' && (
+                <ResumenPage
+                  reservas={reservasEnRango}
+                  totalEnApi={reservas.length}
+                  lastUpdated={lastUpdated}
+                  onDrillDown={handleResumenDrillDown}
+                />
+              )}
               {tab === 'Reservas' && (
                 <>
                   <div className={styles.panel}>
@@ -103,6 +150,7 @@ export default function App() {
                   <RankingsTab reservas={filtered} />
                 </>
               )}
+              {tab === 'Asistencia reuniones' && <AsistenciaPage />}
               {tab === 'Competencia Capital Open Equipos' && (
                 <CompetenciaCapitalOneTab reservas={reservasEnRango} />
               )}

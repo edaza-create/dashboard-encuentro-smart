@@ -1,4 +1,8 @@
 import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams'
+import { reservaMatchesBroker } from './brokerReservaMatch'
+import { aggregateManualIndividualPorEquipo } from './competenciaIndividualToEquipo'
+import { compareRankingPorPuntosYUf } from './rankingCompare.js'
+import { ufMontoPlanillaReserva } from './ufNormalize'
 
 /** Reglas oficiales de la competencia Capital Open. */
 export const SCORING = {
@@ -22,9 +26,19 @@ export function allNombresPlataformaForEquipo(equipo) {
 
 /** Reservas en ventana cuyo broker está mapeado al equipo (cualquier BP del equipo). */
 export function cuentaReservasEquipo(reservas, equipo) {
-  const set = allNombresPlataformaForEquipo(equipo)
-  if (set.size === 0 || !reservas?.length) return 0
-  return reservas.filter((r) => set.has(r.nivel_jerarquia_nombre)).length
+  if (!reservas?.length || !equipo?.brokers?.length) return 0
+  return reservas.filter((r) => equipo.brokers.some((b) => reservaMatchesBroker(r, b))).length
+}
+
+/** Suma UF de reservas del equipo (mismo criterio que cartera por asesor). */
+export function ufTotalReservasEquipo(reservas, equipo) {
+  if (!reservas?.length || !equipo?.brokers?.length) return 0
+  let sum = 0
+  for (const r of reservas) {
+    if (!equipo.brokers.some((b) => reservaMatchesBroker(r, b))) continue
+    sum += ufMontoPlanillaReserva(r)
+  }
+  return Math.round(sum * 100) / 100
 }
 
 export function puntosReservaAuto(reservas, equipo) {
@@ -41,24 +55,49 @@ export function puntosManualEquipo(manual) {
   return { promesas, escrituras, actividades }
 }
 
-export function totalPuntosEquipo(reservas, equipo, manual, asistenciaPuntos = 0) {
+/** Promesas/escrituras del equipo = suma de asesores; actividades solo desde manual de equipo. */
+export function manualEfectivoEquipo(reservas, equipo, teamManual, individualManual = {}) {
+  const id = String(equipo.id)
+  const fromIndividual = aggregateManualIndividualPorEquipo(reservas, individualManual)[id] || {
+    promesasCount: 0,
+    escriturasCount: 0,
+  }
+  return {
+    promesasCount: fromIndividual.promesasCount,
+    escriturasCount: fromIndividual.escriturasCount,
+    actividadOnlineCount: teamManual?.actividadOnlineCount ?? 0,
+    actividadPresencialCount: teamManual?.actividadPresencialCount ?? 0,
+  }
+}
+
+export function totalPuntosEquipo(reservas, equipo, teamManual, individualManual = {}, asistenciaPuntos = 0) {
   const auto = puntosReservaAuto(reservas, equipo)
-  const m = puntosManualEquipo(manual)
+  const m = puntosManualEquipo(manualEfectivoEquipo(reservas, equipo, teamManual, individualManual))
   return auto + m.promesas + m.escrituras + m.actividades + asistenciaPuntos
 }
 
-export function equiposOrdenadosPorPuntos(reservas, manualByTeamId, asistenciaPuntosByTeamId = {}) {
+export function equiposOrdenadosPorPuntos(reservas, manualByTeamId, individualManual = {}, asistenciaPuntosByTeamId = {}) {
   return [...EQUIPOS_CAPITAL_ONE]
     .map((equipo) => {
       const eid = String(equipo.id)
       const asistPts = asistenciaPuntosByTeamId[eid]?.total ?? 0
       return {
         equipo,
-        total: totalPuntosEquipo(reservas, equipo, manualByTeamId[eid], asistPts),
+        total: totalPuntosEquipo(
+          reservas,
+          equipo,
+          manualByTeamId[eid],
+          individualManual,
+          asistPts
+        ),
+        ufTotal: ufTotalReservasEquipo(reservas, equipo),
+        display: equipo.label,
       }
     })
     .sort((a, b) => {
-      if (b.total !== a.total) return b.total - a.total
+      const cmp = compareRankingPorPuntosYUf(a, b)
+      if (cmp !== 0) return cmp
       return a.equipo.id - b.equipo.id
     })
+    .map(({ equipo, total, ufTotal }) => ({ equipo, total, ufTotal }))
 }

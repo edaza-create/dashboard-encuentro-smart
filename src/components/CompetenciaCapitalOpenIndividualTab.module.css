@@ -227,6 +227,11 @@
   color: var(--color-text);
 }
 
+.asEquipo {
+  font-weight: 600;
+  color: var(--color-primary, #2563eb);
+}
+
 .asTotalWrap {
   text-align: right;
   flex-shrink: 0;
@@ -247,6 +252,15 @@
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--color-primary);
+}
+
+.asUf {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
 }
 
 .breakdown {

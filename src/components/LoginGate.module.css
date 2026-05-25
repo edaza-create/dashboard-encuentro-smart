@@ -1,0 +1,119 @@
+.backdrop {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg, #0b0e14);
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--color-surface, #141922);
+  border: 1px solid var(--color-border, #1e2533);
+  border-radius: 16px;
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text, #e8ecf4);
+  margin: 0 0 6px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--color-text-muted, #7a8494);
+  margin: 0 0 28px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border, #1e2533);
+  background: var(--color-bg, #0b0e14);
+  color: var(--color-text, #e8ecf4);
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary, #6c5ce7);
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-primary, #6c5ce7);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.msg {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary, #6c5ce7);
+  margin-top: 4px;
+}
+
+.msgError {
+  color: var(--color-danger, #e74c3c);
+}
+
+.btnLink {
+  background: none;
+  border: none;
+  color: var(--color-text-muted, #7a8494);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.btnLink:hover {
+  color: var(--color-text, #e8ecf4);
+}
+
+.loading {
+  font-size: 14px;
+  color: var(--color-text-muted, #7a8494);
+}
+
+@media (max-width: 360px) {
+  .card {
+    padding: 32px 20px;
+  }
+
+  .title {
+    font-size: 19px;
+  }
+}

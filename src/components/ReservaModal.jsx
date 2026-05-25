@@ -97,6 +97,9 @@ export default function ReservaModal({ reserva: r, onClose }) {
 
             <Section title="Broker / Jerarquía" icon={MapPin}>
               <Row label="Asesor" value={r.nombre_asesor} />
+              {r.miembro_equipo_interno ? (
+                <Row label="Equipo comercial interno" value={r.miembro_equipo_interno} />
+              ) : null}
               <Row label="Nivel" value={r.nivel_jerarquia_nombre} />
               <Row label="Email Broker" value={r.user_email} />
               <Row label="Tipo Reserva" value={r.tipo_reserva} />
