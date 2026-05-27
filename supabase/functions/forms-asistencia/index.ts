@@ -34,10 +34,20 @@ function json(status: number, body: unknown) {
   })
 }
 
+const DOMAIN_CL = '@capitalinteligente.cl'
+const DOMAIN_ME = '@capitalinteligente.me'
+
 function normalizeEmail(email: unknown): string | null {
   if (typeof email !== 'string') return null
   const t = email.trim().toLowerCase()
   return t.includes('@') ? t : null
+}
+
+function canonicalAsesorEmail(email: unknown): string | null {
+  const n = normalizeEmail(email)
+  if (!n) return null
+  if (n.endsWith(DOMAIN_ME)) return n.slice(0, -DOMAIN_ME.length) + DOMAIN_CL
+  return n
 }
 
 function parseModalidad(modalidad: unknown): 'online' | 'presencial' | null {
@@ -100,7 +110,7 @@ Deno.serve(async (req) => {
     return json(400, { ok: false, error: 'invalid_json' })
   }
 
-  const email = normalizeEmail(payload.email)
+  const email = canonicalAsesorEmail(payload.email)
   const reunion = String(payload.reunion ?? '').trim()
   const modalidad = parseModalidad(payload.modalidad)
 

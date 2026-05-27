@@ -8,6 +8,9 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..')
+const { canonicalAsesorEmail, normalizeEmail } = await import(
+  new URL('../src/utils/asesorEmail.js', import.meta.url).href
+)
 const asesoresBP = JSON.parse(
   readFileSync(join(root, 'src/data/asesores-bp.json'), 'utf8')
 )
@@ -36,15 +39,9 @@ const emailToRow = new Map(
 const internoEmails = new Map()
 for (const m of MIEMBROS_EQUIPO_COMERCIAL_INTERNO) {
   for (const e of m.emails) {
-    const k = normalizeEmail(e)
+    const k = canonicalAsesorEmail(e)
     if (k) internoEmails.set(k, m)
   }
-}
-
-function normalizeEmail(email) {
-  if (typeof email !== 'string') return null
-  const t = email.trim().toLowerCase()
-  return t.includes('@') ? t : null
 }
 
 function equipoIdForNivel(nivel) {
@@ -64,7 +61,7 @@ function equipoLabel(id) {
 }
 
 function resolve(email) {
-  const key = normalizeEmail(email)
+  const key = canonicalAsesorEmail(email)
   if (!key) return null
 
   const interno = internoEmails.get(key)

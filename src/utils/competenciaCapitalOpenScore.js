@@ -1,8 +1,8 @@
-import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams'
-import { reservaMatchesBroker } from './brokerReservaMatch'
-import { aggregateManualIndividualPorEquipo } from './competenciaIndividualToEquipo'
+import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams.js'
+import { reservaMatchesBroker } from './brokerReservaMatch.js'
+import { aggregateManualIndividualPorEquipo } from './competenciaIndividualToEquipo.js'
 import { compareRankingPorPuntosYUf } from './rankingCompare.js'
-import { ufMontoPlanillaReserva } from './ufNormalize'
+import { ufMontoPlanillaReserva } from './ufNormalize.js'
 
 /** Reglas oficiales de la competencia Capital Open. */
 export const SCORING = {

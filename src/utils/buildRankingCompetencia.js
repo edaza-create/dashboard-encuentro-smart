@@ -21,17 +21,12 @@ import {
   SCORING,
 } from './competenciaCapitalOpenScore.js'
 import { loadIndividualManualSaved, loadTeamManualSaved } from './competenciaStorage.js'
-
-function normalizeEmail(email) {
-  if (typeof email !== 'string') return null
-  const trimmed = email.trim().toLowerCase()
-  return trimmed || null
-}
+import { canonicalAsesorEmail } from './asesorEmail.js'
 
 function buildFotoByEmail(reservasPublicas) {
   const map = new Map()
   for (const r of reservasPublicas ?? []) {
-    const email = normalizeEmail(r.asesor_email)
+    const email = canonicalAsesorEmail(r.asesor_email)
     if (!email || map.has(email)) continue
     map.set(email, {
       foto_url: r.asesor_foto_url ?? null,
@@ -42,7 +37,7 @@ function buildFotoByEmail(reservasPublicas) {
 }
 
 function reservaTieneBpAsignado(r) {
-  const email = normalizeEmail(r.asesor_email)
+  const email = canonicalAsesorEmail(r.asesor_email)
   if (email && lookupAsesorBp(email).bp_slug) return true
   if (miembroPorNombre(r.asesor_nombre)) return true
   return false
@@ -52,9 +47,9 @@ function buildHuerfanos(reservasPublicas) {
   const porEmail = new Map()
   for (const r of reservasPublicas ?? []) {
     if (reservaTieneBpAsignado(r)) continue
-    const email = normalizeEmail(r.asesor_email) ?? `nombre:${String(r.asesor_nombre ?? '').trim().toLowerCase()}`
+    const email = canonicalAsesorEmail(r.asesor_email) ?? `nombre:${String(r.asesor_nombre ?? '').trim().toLowerCase()}`
     if (!porEmail.has(email)) {
-      porEmail.set(email, { email: normalizeEmail(r.asesor_email) ?? email, nombre: r.asesor_nombre ?? null, total: 0 })
+      porEmail.set(email, { email: canonicalAsesorEmail(r.asesor_email) ?? email, nombre: r.asesor_nombre ?? null, total: 0 })
     }
     porEmail.get(email).total += 1
   }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { fetchReunionPublica, deriveEstado, insertAsistencia } from '../api/asistenciaRegistros.js'
 import { resolveAsesorMaestra } from '../utils/asesorMaestra.js'
+import { isCorporateAsesorEmail } from '../utils/asesorEmail.js'
 import { useCountdown } from '../hooks/useCountdown.js'
 import styles from './AsistenciaFormPage.module.css'
 
@@ -8,8 +9,6 @@ function getReunionId() {
   const params = new URLSearchParams(window.location.search)
   return params.get('reunion')
 }
-
-const VALID_DOMAIN = '@capitalinteligente.cl'
 
 export default function AsistenciaFormPage() {
   const reunionId = getReunionId()
@@ -46,8 +45,8 @@ export default function AsistenciaFormPage() {
     setResult(null)
 
     const trimmed = email.trim().toLowerCase()
-    if (!trimmed.endsWith(VALID_DOMAIN)) {
-      setError(`Solo se aceptan emails ${VALID_DOMAIN}`)
+    if (!isCorporateAsesorEmail(trimmed)) {
+      setError('Solo se aceptan emails @capitalinteligente.cl o @capitalinteligente.me')
       return
     }
 
@@ -60,7 +59,7 @@ export default function AsistenciaFormPage() {
     setSubmitting(true)
     const res = await insertAsistencia({
       reunion_id: reunionId,
-      email: trimmed,
+      email: asesor.email,
       nombre: asesor.nombre,
       bp_slug: asesor.bp_slug,
       equipo_id: asesor.equipo_id ? Number(asesor.equipo_id) : null,
@@ -156,7 +155,7 @@ export default function AsistenciaFormPage() {
             <input
               className={styles.input}
               type="email"
-              placeholder="tu.nombre@capitalinteligente.cl"
+              placeholder="tu.nombre@capitalinteligente.cl o .me"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

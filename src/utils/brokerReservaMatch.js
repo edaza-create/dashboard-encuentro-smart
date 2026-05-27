@@ -1,8 +1,5 @@
 import { lookupAsesorBp } from './asesorBpPlataforma.js'
-
-function normEmail(v) {
-  return String(v ?? '').trim().toLowerCase()
-}
+import { canonicalAsesorEmail } from './asesorEmail.js'
 
 function normNombre(v) {
   return String(v ?? '')
@@ -20,13 +17,13 @@ export function reservaMatchesBroker(r, broker) {
   if (!r || !broker) return false
 
   const nivel = String(r.nivel_jerarquia_nombre ?? '').trim()
-  const email = normEmail(r.user_email ?? r.asesor_email)
+  const email = canonicalAsesorEmail(r.user_email ?? r.asesor_email) ?? ''
   const nombreAsesor = normNombre(r.nombre_asesor ?? r.asesor_nombre)
 
   const plataformas = broker.nombresPlataforma ?? []
   if (plataformas.length && plataformas.includes(nivel)) return true
 
-  const emails = (broker.emails ?? []).map(normEmail).filter(Boolean)
+  const emails = (broker.emails ?? []).map((e) => canonicalAsesorEmail(e)).filter(Boolean)
   if (emails.length && email && emails.includes(email)) return true
 
   const slugs = broker.bpSlugs ?? []

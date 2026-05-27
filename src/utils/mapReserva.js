@@ -1,5 +1,6 @@
 import { lookupAsesorBp } from './asesorBpPlataforma.js'
 import { enrichReservaEquipoInterno } from './equipoComercialInterno.js'
+import { canonicalAsesorEmail } from './asesorEmail.js'
 
 /**
  * Unifica tipología: ESTUDIO / Estudio / ESTUDIOS / STUDIO → "Studio" (identificador estándar).
@@ -31,7 +32,8 @@ export function mapReservaRow(row) {
   const mapped = {
     id: String(row.id ?? row.reserva_id ?? ''),
     nombre_cliente: row.nombre_cliente ?? row.nombreCliente ?? row.cliente_nombre ?? '',
-    user_email: row.user_email ?? row.userEmail ?? row.broker_email ?? '',
+    user_email:
+      canonicalAsesorEmail(row.user_email ?? row.userEmail ?? row.broker_email ?? '') ?? '',
     estado: row.estado ?? '',
     fecha_reserva: row.fecha_reserva ?? row.fechaReserva ?? null,
     tipologia: normalizeTipologia(row.tipologia ?? row.tipo_tipologia ?? ''),
@@ -94,7 +96,7 @@ function tipologiaFromUnidad(unidad) {
 export function mapReservaPublica(row) {
   if (!row || typeof row !== 'object') return null
 
-  const email = row.asesor_email ?? ''
+  const email = canonicalAsesorEmail(row.asesor_email ?? '') ?? ''
   const bp = lookupAsesorBp(email)
   const fechaReserva = row.fecha ?? (row.ocurrido_en ? String(row.ocurrido_en).slice(0, 10) : null)
   const montoUf = row.monto_uf == null ? 0 : Number(row.monto_uf)

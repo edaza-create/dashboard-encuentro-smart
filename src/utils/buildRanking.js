@@ -13,6 +13,7 @@ import asesoresBP from "../data/asesores-bp.json" with { type: "json" };
 import { lookupAsesorBp } from "./asesorBpPlataforma.js";
 import { BP_SLUG_EQUIPO_INTERNO, NIVEL_PLATAFORMA_EQUIPO_INTERNO } from "../data/equipoComercialInterno.js";
 import { miembroPorNombre } from "./equipoComercialInterno.js";
+import { canonicalAsesorEmail } from "./asesorEmail.js";
 
 const SIN_BP_SLUG = "sin-bp";
 const SIN_BP_DISPLAY = "Sin BP asignado";
@@ -50,12 +51,6 @@ function buildAsesorIndex() {
 
 const BP_INDEX = Object.freeze(buildBpIndex());
 const ASESOR_INDEX = Object.freeze(buildAsesorIndex());
-
-function normalizeEmail(email) {
-  if (typeof email !== "string") return null;
-  const trimmed = email.trim().toLowerCase();
-  return trimmed ? trimmed : null;
-}
 
 function toNum(v) {
   if (v == null) return 0;
@@ -106,7 +101,7 @@ export function buildRanking(reservas) {
   const porBP = new Map();
 
   for (const r of reservas) {
-    const email = normalizeEmail(r.asesor_email);
+    const email = canonicalAsesorEmail(r.asesor_email);
     if (!email) continue;
 
     const mapping = ASESOR_INDEX.get(email);
