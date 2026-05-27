@@ -113,11 +113,21 @@ export function pickAvatarSrc(reserva, displaySize = 72) {
       .filter((v) => Number.isFinite(v.size) && typeof v.url === "string")
       .sort((a, b) => a.size - b.size);
 
-    const fit = sizes.find((v) => v.size >= target) ?? sizes[sizes.length - 1];
+    let fit = sizes.find((v) => v.size >= target) ?? sizes[sizes.length - 1];
+    // ored suele marcar foto_url con la variante 400; en storage a veces solo existen 100 y 800.
+    if (fit?.size === 400) {
+      fit = sizes.find((v) => v.size === 800) ?? sizes.find((v) => v.size === 100) ?? fit;
+    }
     if (fit?.url) return fit.url;
   }
 
-  return reserva.asesor_foto_url ?? null;
+  const legacy = reserva.asesor_foto_url ?? null;
+  if (legacy && /_400\.png/i.test(legacy) && variants && typeof variants === "object") {
+    const alt =
+      variants["800"] ?? variants[800] ?? variants["100"] ?? variants[100];
+    if (typeof alt === "string") return alt;
+  }
+  return legacy;
 }
 
 /**
