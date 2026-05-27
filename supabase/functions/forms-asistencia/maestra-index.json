@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-25T15:48:46.559Z",
+  "generated_at": "2026-05-27T19:34:57.022Z",
   "index": {
     "aaguilera@capitalinteligente.cl": {
       "asesor_id": "email:aaguilera@capitalinteligente.cl",
@@ -1909,6 +1909,22 @@
       "asesor_id": "email:claudia.boccieri@capitalinteligente.cl",
       "email": "claudia.boccieri@capitalinteligente.cl",
       "nombre": "Claudia Boccieri",
+      "subgrupo": "Equipo Comercial Interno",
+      "equipo_id": null,
+      "equipo": null
+    },
+    "molguin@capitalinteligente.cl": {
+      "asesor_id": "email:molguin@capitalinteligente.cl",
+      "email": "molguin@capitalinteligente.cl",
+      "nombre": "Marcela Olguín",
+      "subgrupo": "Equipo Comercial Interno",
+      "equipo_id": null,
+      "equipo": null
+    },
+    "marcela.olguin@capitalinteligente.cl": {
+      "asesor_id": "email:marcela.olguin@capitalinteligente.cl",
+      "email": "marcela.olguin@capitalinteligente.cl",
+      "nombre": "Marcela Olguín",
       "subgrupo": "Equipo Comercial Interno",
       "equipo_id": null,
       "equipo": null

@@ -62,4 +62,10 @@ export const MIEMBROS_EQUIPO_COMERCIAL_INTERNO = [
     ],
     aliases: ['Claudia Boccieri', 'Claudia Bocchieri'],
   },
+  {
+    id: 'marcela-olguin',
+    nombre: 'Marcela Olguín',
+    emails: ['molguin@capitalinteligente.cl', 'marcela.olguin@capitalinteligente.cl'],
+    aliases: ['Marcela Olguin', 'Marcela Olguín'],
+  },
 ]
