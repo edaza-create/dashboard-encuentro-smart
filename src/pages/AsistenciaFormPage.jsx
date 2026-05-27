@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { fetchReunionPublica, deriveEstado, insertAsistencia } from '../api/asistenciaRegistros.js'
 import { resolveAsesorMaestra } from '../utils/asesorMaestra.js'
+import { supabase } from '../data/supabaseClient.js'
 import { useCountdown } from '../hooks/useCountdown.js'
 import styles from './AsistenciaFormPage.module.css'
 
@@ -9,7 +10,7 @@ function getReunionId() {
   return params.get('reunion')
 }
 
-const VALID_DOMAIN = '@capitalinteligente.cl'
+const VALID_DOMAINS = ['@capitalinteligente.cl', '@capitalinteligente.me']
 
 export default function AsistenciaFormPage() {
   const reunionId = getReunionId()
@@ -46,39 +47,59 @@ export default function AsistenciaFormPage() {
     setResult(null)
 
     const trimmed = email.trim().toLowerCase()
-    if (!trimmed.endsWith(VALID_DOMAIN)) {
-      setError(`Solo se aceptan emails ${VALID_DOMAIN}`)
+    if (!VALID_DOMAINS.some((d) => trimmed.endsWith(d))) {
+      setError(`Solo se aceptan emails ${VALID_DOMAINS.join(' o ')}`)
       return
     }
 
     const asesor = resolveAsesorMaestra(trimmed)
+
+    let nombre = asesor.ok ? asesor.nombre : null
+    let bp_slug = asesor.ok ? asesor.bp_slug : null
+    let equipo_id = asesor.ok && asesor.equipo_id ? Number(asesor.equipo_id) : null
+    let equipo_label = asesor.ok ? asesor.equipo : null
+
     if (!asesor.ok) {
-      setError('Email no encontrado en el registro de asesores activos')
-      return
+      if (!supabase) {
+        setError('Email no encontrado en el registro de asesores activos')
+        return
+      }
+      const { data: member } = await supabase
+        .from('panel_members')
+        .select('name, company')
+        .eq('email', trimmed)
+        .eq('is_active', true)
+        .maybeSingle()
+      if (!member) {
+        setError('Email no encontrado en el registro de asesores activos')
+        return
+      }
+      nombre = member.name
+      bp_slug = member.company ?? 'panel-member'
     }
 
     setSubmitting(true)
     const res = await insertAsistencia({
       reunion_id: reunionId,
       email: trimmed,
-      nombre: asesor.nombre,
-      bp_slug: asesor.bp_slug,
-      equipo_id: asesor.equipo_id ? Number(asesor.equipo_id) : null,
-      equipo_label: asesor.equipo,
+      nombre,
+      bp_slug,
+      equipo_id,
+      equipo_label,
       modalidad,
     })
     setSubmitting(false)
 
     if (!res.ok) {
       if (res.reason === 'duplicate') {
-        setResult({ type: 'duplicate', nombre: asesor.nombre })
+        setResult({ type: 'duplicate', nombre })
       } else {
         setError(res.reason)
       }
       return
     }
 
-    setResult({ type: 'success', nombre: asesor.nombre, equipo: asesor.equipo, modalidad })
+    setResult({ type: 'success', nombre, equipo: equipo_label, modalidad })
   }
 
   if (loadingReunion) {
@@ -156,7 +177,7 @@ export default function AsistenciaFormPage() {
             <input
               className={styles.input}
               type="email"
-              placeholder="tu.nombre@capitalinteligente.cl"
+              placeholder="tu.nombre@capitalinteligente.cl/.me"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
