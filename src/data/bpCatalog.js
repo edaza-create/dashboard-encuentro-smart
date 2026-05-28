@@ -16,6 +16,7 @@ export const BP_CATALOG = [
   { slug: 'skala', display: 'Skala', label_origen: 'Equipo Rosicela Fernandez', plataforma: 'BP Skala' },
   { slug: 'avanti-invest', display: 'Avanti Invest', label_origen: 'Avanti Invest MC / Maria Carolina Pinto', plataforma: 'BP Avanti Invest MC' },
   { slug: 'vanema', display: 'Vanema', label_origen: 'Vanessa Chirinos / VANEMA', plataforma: 'BP Vanema Inversiones' },
+  { slug: 'vivvoen', display: 'Vivvoen', label_origen: 'Manuel Duran / Vivvoen', plataforma: 'BP Vivvoen' },
   { slug: 'irc-inversiones', display: 'IRC Inversiones', label_origen: 'Bastián Rodriguez / IRC', plataforma: 'BP IRC Inversiones Inmobiliarias' },
   { slug: 'trama-gestion', display: 'Trama Gestión', label_origen: 'Denyz Leyton / Tramagestion', plataforma: 'Trama Gestion' },
   { slug: 'sinapsis', display: 'Sinapsis', label_origen: 'Equipo Sinapsis / Leandro Rios y Francisco Reyes', plataforma: 'BP Sinapsis' },

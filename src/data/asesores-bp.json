@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-28T13:24:13.587Z",
+  "generated_at": "2026-05-28T13:26:50.514Z",
   "source_file": "roster-bp-grupos.mjs (planilla visual Capital Open)",
   "business_partners": [
     {
@@ -121,6 +121,11 @@
       "slug": "vanema",
       "display": "Vanema",
       "label_origen": "Vanessa Chirinos / VANEMA"
+    },
+    {
+      "slug": "vivvoen",
+      "display": "Vivvoen",
+      "label_origen": "Manuel Duran / Vivvoen"
     }
   ],
   "asesores": [
@@ -794,7 +799,7 @@
       "email": "gsuarez@capitalinteligente.cl",
       "nombre": "Gabriel Eduardo Chacon",
       "estado": "ACTIVO",
-      "bp_slug": "vanema"
+      "bp_slug": "vivvoen"
     },
     {
       "email": "hgallardo@capitalinteligente.cl",
@@ -1676,7 +1681,7 @@
       "email": "vivvoen@capitalinteligente.cl",
       "nombre": "Vivvo en",
       "estado": "ACTIVO",
-      "bp_slug": "vanema"
+      "bp_slug": "vivvoen"
     },
     {
       "email": "ylastra@capitalinteligente.cl",
@@ -1692,7 +1697,7 @@
     }
   ],
   "stats": {
-    "total_bps": 24,
+    "total_bps": 25,
     "total_asesores": 261,
     "activos": 251,
     "eliminados": 10,

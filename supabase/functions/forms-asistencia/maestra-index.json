@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-28T13:24:13.653Z",
+  "generated_at": "2026-05-28T13:26:50.571Z",
   "index": {
     "aabarzua@capitalinteligente.cl": {
       "asesor_id": "email:aabarzua@capitalinteligente.cl",
@@ -869,9 +869,9 @@
       "asesor_id": "email:gsuarez@capitalinteligente.cl",
       "email": "gsuarez@capitalinteligente.cl",
       "nombre": "Gabriel Eduardo Chacon",
-      "subgrupo": "Vanema",
-      "equipo_id": "3",
-      "equipo": "Team Federer"
+      "subgrupo": "Vivvoen",
+      "equipo_id": "4",
+      "equipo": "Team Alcaraz"
     },
     "housefamily_rrss@capitalinteligente.cl": {
       "asesor_id": "email:housefamily_rrss@capitalinteligente.cl",
@@ -1989,9 +1989,9 @@
       "asesor_id": "email:vivvoen@capitalinteligente.cl",
       "email": "vivvoen@capitalinteligente.cl",
       "nombre": "Vivvo en",
-      "subgrupo": "Vanema",
-      "equipo_id": "3",
-      "equipo": "Team Federer"
+      "subgrupo": "Vivvoen",
+      "equipo_id": "4",
+      "equipo": "Team Alcaraz"
     },
     "ylastra@capitalinteligente.cl": {
       "asesor_id": "email:ylastra@capitalinteligente.cl",
@@ -2288,7 +2288,6 @@
       "fperalta@capitalinteligente.cl",
       "gromero@capitalinteligente.cl",
       "grosa@capitalinteligente.cl",
-      "gsuarez@capitalinteligente.cl",
       "iromero@capitalinteligente.cl",
       "jescudero@capitalinteligente.cl",
       "kfuentes@capitalinteligente.cl",
@@ -2327,8 +2326,7 @@
       "vanema7@capitalinteligente.cl",
       "vanema8@capitalinteligente.cl",
       "vchirinos@capitalinteligente.cl",
-      "vfernandez@capitalinteligente.cl",
-      "vivvoen@capitalinteligente.cl"
+      "vfernandez@capitalinteligente.cl"
     ],
     "4": [
       "acorderoc@capitalinteligente.cl",
@@ -2347,6 +2345,7 @@
       "fsilva@capitalinteligente.cl",
       "glugo@capitalinteligente.cl",
       "gromerou@capitalinteligente.cl",
+      "gsuarez@capitalinteligente.cl",
       "housefamily_rrss@capitalinteligente.cl",
       "irocco@capitalinteligente.cl",
       "jcalcagni@capitalinteligente.cl",
@@ -2370,6 +2369,7 @@
       "srodriguez@capitalinteligente.cl",
       "ssalinas@capitalinteligente.cl",
       "vfernandezv@capitalinteligente.cl",
+      "vivvoen@capitalinteligente.cl",
       "ylastra@capitalinteligente.cl"
     ],
     "5": [

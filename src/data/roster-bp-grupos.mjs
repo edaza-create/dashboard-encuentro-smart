@@ -377,8 +377,6 @@ export const ROSTER_GRUPOS = [
       ['sgarcia@capitalinteligente.cl', 'Scarleth Garcia', 'ACTIVO'],
       ['vanema@capitalinteligente.cl', 'Vanema Ci', 'ACTIVO'],
       ['vchirinos@capitalinteligente.cl', 'Vanessa Chirinos', 'ACTIVO'],
-      ['vivvoen@capitalinteligente.cl', 'Vivvo en', 'ACTIVO'],
-      ['gsuarez@capitalinteligente.cl', 'Gabriel Eduardo Chacon', 'ACTIVO'],
       ['vanema1@capitalinteligente.cl', 'Vanema 1'],
       ['vanema2@capitalinteligente.cl', 'Vanema 2'],
       ['vanema3@capitalinteligente.cl', 'Vanema 3'],
@@ -387,6 +385,13 @@ export const ROSTER_GRUPOS = [
       ['vanema6@capitalinteligente.cl', 'Vanema 6'],
       ['vanema7@capitalinteligente.cl', 'Vanema 7'],
       ['vanema8@capitalinteligente.cl', 'Vanema 8'],
+    ].map(([email, nombre, estado]) => ({ email, nombre, estado: estado ?? 'ACTIVO' })),
+  },
+  {
+    slug: 'vivvoen',
+    miembros: [
+      ['vivvoen@capitalinteligente.cl', 'Vivvo en', 'ACTIVO'],
+      ['gsuarez@capitalinteligente.cl', 'Gabriel Eduardo Chacon', 'ACTIVO'],
     ].map(([email, nombre, estado]) => ({ email, nombre, estado: estado ?? 'ACTIVO' })),
   },
 ]
