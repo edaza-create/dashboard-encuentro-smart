@@ -80,6 +80,16 @@ export function mapReservaRow(row) {
     nombre_completo_origen: row.nombre_completo_origen ?? '',
   }
 
+  if (mapped.user_email) {
+    const bp = lookupAsesorBp(mapped.user_email)
+    if (bp.bp_slug) {
+      mapped.nivel_jerarquia_nombre = bp.nivel_jerarquia_nombre
+      if (!String(mapped.nombre_asesor ?? '').trim() && bp.nombre) {
+        mapped.nombre_asesor = bp.nombre
+      }
+    }
+  }
+
   return enrichReservaEquipoInterno(mapped)
 }
 

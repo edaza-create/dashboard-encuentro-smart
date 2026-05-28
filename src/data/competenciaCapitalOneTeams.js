@@ -108,6 +108,11 @@ export const EQUIPOS_CAPITAL_ONE = [
         bpSlugs: ['vanema'],
       },
       {
+        referenciaLista: 'Inm e Inv FIR',
+        nombresPlataforma: ['BP Inm e Inv FIR'],
+        bpSlugs: ['inm-inv-fir'],
+      },
+      {
         referenciaLista: 'IRC Inversiones',
         nombresPlataforma: ['BP IRC Inversiones Inmobiliarias'],
         bpSlugs: ['irc-inversiones'],
@@ -128,6 +133,11 @@ export const EQUIPOS_CAPITAL_ONE = [
         referenciaLista: 'Sinapsis',
         nombresPlataforma: ['BP Sinapsis'],
         bpSlugs: ['sinapsis'],
+      },
+      {
+        referenciaLista: 'Nazar Property',
+        nombresPlataforma: ['BP Nazar Property'],
+        bpSlugs: ['nazar-property'],
       },
       {
         referenciaLista: 'Debora Capital Inmobiliario',
