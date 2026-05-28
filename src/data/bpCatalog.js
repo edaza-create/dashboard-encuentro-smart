@@ -28,6 +28,8 @@ export const BP_CATALOG = [
   { slug: 'domca', display: 'Domca', label_origen: 'Domca / Hermanos Dominguez', plataforma: 'BP Domca' },
   { slug: 'invest-u', display: 'Invest U', label_origen: 'Olmar Lugo / Invest U', plataforma: 'BP Invest U' },
   { slug: 'neumann-stanley', display: 'Neumann Stanley', label_origen: 'Neumann Stanley / Neuman Stanley Group', plataforma: 'BP Neumann-Stanley Group' },
+  { slug: 'inm-inv-fir', display: 'Inm e Inv FIR', label_origen: 'Fernando Ipinza / Inm e Inv FIR', plataforma: 'BP Inm e Inv FIR' },
+  { slug: 'nazar-property', display: 'Nazar Property', label_origen: 'Claudia Nazar / Nazar Property', plataforma: 'BP Nazar Property' },
 ]
 
 /** @type {Record<string, string>} */

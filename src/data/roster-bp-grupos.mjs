@@ -303,7 +303,6 @@ export const ROSTER_GRUPOS = [
     slug: 'sinapsis',
     miembros: [
       ['cbustos@capitalinteligente.cl', 'Cristobal Alonzo Bustos Gonzalez', 'ACTIVO'],
-      ['cnazar@capitalinteligente.cl', 'Claudia Andrea Nazar Fuentes', 'ACTIVO'],
       ['driffo@capitalinteligente.cl', 'Daniela Riffo', 'ACTIVO'],
       ['dithurbisquy@capitalinteligente.cl', 'Denise Ithurbisquy', 'ACTIVO'],
       ['dsandoval@capitalinteligente.cl', 'Diego Sandoval', 'ACTIVO'],
