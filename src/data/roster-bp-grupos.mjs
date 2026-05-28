@@ -378,6 +378,7 @@ export const ROSTER_GRUPOS = [
       ['vanema@capitalinteligente.cl', 'Vanema Ci', 'ACTIVO'],
       ['vchirinos@capitalinteligente.cl', 'Vanessa Chirinos', 'ACTIVO'],
       ['vivvoen@capitalinteligente.cl', 'Vivvo en', 'ACTIVO'],
+      ['gsuarez@capitalinteligente.cl', 'Gabriel Eduardo Chacon', 'ACTIVO'],
       ['vanema1@capitalinteligente.cl', 'Vanema 1'],
       ['vanema2@capitalinteligente.cl', 'Vanema 2'],
       ['vanema3@capitalinteligente.cl', 'Vanema 3'],

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-27T21:28:39.375Z",
+  "generated_at": "2026-05-28T13:24:13.587Z",
   "source_file": "roster-bp-grupos.mjs (planilla visual Capital Open)",
   "business_partners": [
     {
@@ -789,6 +789,12 @@
       "nombre": "Gabriel Salazar",
       "estado": "ACTIVO",
       "bp_slug": "capital-growth"
+    },
+    {
+      "email": "gsuarez@capitalinteligente.cl",
+      "nombre": "Gabriel Eduardo Chacon",
+      "estado": "ACTIVO",
+      "bp_slug": "vanema"
     },
     {
       "email": "hgallardo@capitalinteligente.cl",
@@ -1687,8 +1693,8 @@
   ],
   "stats": {
     "total_bps": 24,
-    "total_asesores": 260,
-    "activos": 250,
+    "total_asesores": 261,
+    "activos": 251,
     "eliminados": 10,
     "conflictos_email": 0,
     "preservados_desde_json": 0

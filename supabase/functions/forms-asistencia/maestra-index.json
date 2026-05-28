@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-27T21:28:39.438Z",
+  "generated_at": "2026-05-28T13:24:13.653Z",
   "index": {
     "aabarzua@capitalinteligente.cl": {
       "asesor_id": "email:aabarzua@capitalinteligente.cl",
@@ -864,6 +864,14 @@
       "subgrupo": "Capital Growth",
       "equipo_id": "5",
       "equipo": "Team Sabalenka"
+    },
+    "gsuarez@capitalinteligente.cl": {
+      "asesor_id": "email:gsuarez@capitalinteligente.cl",
+      "email": "gsuarez@capitalinteligente.cl",
+      "nombre": "Gabriel Eduardo Chacon",
+      "subgrupo": "Vanema",
+      "equipo_id": "3",
+      "equipo": "Team Federer"
     },
     "housefamily_rrss@capitalinteligente.cl": {
       "asesor_id": "email:housefamily_rrss@capitalinteligente.cl",
@@ -2280,6 +2288,7 @@
       "fperalta@capitalinteligente.cl",
       "gromero@capitalinteligente.cl",
       "grosa@capitalinteligente.cl",
+      "gsuarez@capitalinteligente.cl",
       "iromero@capitalinteligente.cl",
       "jescudero@capitalinteligente.cl",
       "kfuentes@capitalinteligente.cl",
