@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-28T13:42:41.609Z",
+  "generated_at": "2026-06-01T20:53:04.469Z",
   "index": {
     "aabarzua@capitalinteligente.cl": {
       "asesor_id": "email:aabarzua@capitalinteligente.cl",
@@ -78,8 +78,8 @@
       "email": "amarschhausen@capitalinteligente.cl",
       "nombre": "Alice Marschhausen",
       "subgrupo": "Inm e Inv FIR",
-      "equipo_id": null,
-      "equipo": null
+      "equipo_id": "3",
+      "equipo": "Team Federer"
     },
     "amorillo@capitalinteligente.cl": {
       "asesor_id": "email:amorillo@capitalinteligente.cl",
@@ -374,8 +374,8 @@
       "email": "cnazar@capitalinteligente.cl",
       "nombre": "Claudia Andrea Nazar Fuentes",
       "subgrupo": "Nazar Property",
-      "equipo_id": null,
-      "equipo": null
+      "equipo_id": "4",
+      "equipo": "Team Alcaraz"
     },
     "cneumann@capitalinteligente.cl": {
       "asesor_id": "email:cneumann@capitalinteligente.cl",
@@ -734,8 +734,8 @@
       "email": "fipinza@capitalinteligente.cl",
       "nombre": "Fernando Ipinza",
       "subgrupo": "Inm e Inv FIR",
-      "equipo_id": null,
-      "equipo": null
+      "equipo_id": "3",
+      "equipo": "Team Federer"
     },
     "fmendoza@capitalinteligente.cl": {
       "asesor_id": "email:fmendoza@capitalinteligente.cl",
@@ -974,8 +974,8 @@
       "email": "iprimus@capitalinteligente.cl",
       "nombre": "Iván Enrique Primus Moreno",
       "subgrupo": "Inm e Inv FIR",
-      "equipo_id": null,
-      "equipo": null
+      "equipo_id": "3",
+      "equipo": "Team Federer"
     },
     "irocco@capitalinteligente.cl": {
       "asesor_id": "email:irocco@capitalinteligente.cl",
@@ -1286,8 +1286,8 @@
       "email": "mgiorgio@capitalinteligente.cl",
       "nombre": "Maria Ines Giorgio",
       "subgrupo": "Inm e Inv FIR",
-      "equipo_id": null,
-      "equipo": null
+      "equipo_id": "3",
+      "equipo": "Team Federer"
     },
     "mgomez@capitalinteligente.cl": {
       "asesor_id": "email:mgomez@capitalinteligente.cl",
@@ -1446,8 +1446,8 @@
       "email": "mtaher@capitalinteligente.cl",
       "nombre": "Mohammad Taher Perez",
       "subgrupo": "Inm e Inv FIR",
-      "equipo_id": null,
-      "equipo": null
+      "equipo_id": "3",
+      "equipo": "Team Federer"
     },
     "mvargas@capitalinteligente.cl": {
       "asesor_id": "email:mvargas@capitalinteligente.cl",
@@ -1702,16 +1702,16 @@
       "email": "ptoro@capitalinteligente.cl",
       "nombre": "Pablo Mauricio Toro Vargas",
       "subgrupo": "Inm e Inv FIR",
-      "equipo_id": null,
-      "equipo": null
+      "equipo_id": "3",
+      "equipo": "Team Federer"
     },
     "pvargas@capitalinteligente.cl": {
       "asesor_id": "email:pvargas@capitalinteligente.cl",
       "email": "pvargas@capitalinteligente.cl",
       "nombre": "Paula Andrea Vargas Gaete",
-      "subgrupo": "CFM Inversiones",
-      "equipo_id": "1",
-      "equipo": "Team Williams"
+      "subgrupo": "Mendoza Real State",
+      "equipo_id": "5",
+      "equipo": "Team Sabalenka"
     },
     "pvidal@capitalinteligente.cl": {
       "asesor_id": "email:pvidal@capitalinteligente.cl",
@@ -1798,16 +1798,16 @@
       "email": "sbustamante@capitalinteligente.cl",
       "nombre": "Sandra Díaz Bustamante",
       "subgrupo": "Inm e Inv FIR",
-      "equipo_id": null,
-      "equipo": null
+      "equipo_id": "3",
+      "equipo": "Team Federer"
     },
     "schaparro@capitalinteligente.cl": {
       "asesor_id": "email:schaparro@capitalinteligente.cl",
       "email": "schaparro@capitalinteligente.cl",
       "nombre": "Silvia Paola Chaparro Serey",
       "subgrupo": "Inm e Inv FIR",
-      "equipo_id": null,
-      "equipo": null
+      "equipo_id": "3",
+      "equipo": "Team Federer"
     },
     "sdiaz@capitalinteligente.cl": {
       "asesor_id": "email:sdiaz@capitalinteligente.cl",
@@ -2134,16 +2134,16 @@
       "email": "wbirkner@capitalinteligente.cl",
       "nombre": "Waleska Birkner Cerda",
       "subgrupo": "Inm e Inv FIR",
-      "equipo_id": null,
-      "equipo": null
+      "equipo_id": "3",
+      "equipo": "Team Federer"
     },
     "ygaona@capitalinteligente.cl": {
       "asesor_id": "email:ygaona@capitalinteligente.cl",
       "email": "ygaona@capitalinteligente.cl",
       "nombre": "Yésica Marcela Gaona Cifuentes",
       "subgrupo": "Inm e Inv FIR",
-      "equipo_id": null,
-      "equipo": null
+      "equipo_id": "3",
+      "equipo": "Team Federer"
     },
     "ylastra@capitalinteligente.cl": {
       "asesor_id": "email:ylastra@capitalinteligente.cl",
@@ -2378,7 +2378,6 @@
       "pguajardo@capitalinteligente.cl",
       "pmaldonado@capitalinteligente.cl",
       "pmarin@capitalinteligente.cl",
-      "pvargas@capitalinteligente.cl",
       "rsoto@capitalinteligente.cl",
       "sdiaza@capitalinteligente.cl",
       "sinostroza@capitalinteligente.cl",
@@ -2430,6 +2429,7 @@
     ],
     "3": [
       "ahernandez@capitalinteligente.cl",
+      "amarschhausen@capitalinteligente.cl",
       "aorellana@capitalinteligente.cl",
       "aquero@capitalinteligente.cl",
       "asanchez@capitalinteligente.cl",
@@ -2442,9 +2442,11 @@
       "clorca@capitalinteligente.cl",
       "dleyton@capitalinteligente.cl",
       "dmaturana@capitalinteligente.cl",
+      "fipinza@capitalinteligente.cl",
       "fperalta@capitalinteligente.cl",
       "gromero@capitalinteligente.cl",
       "grosa@capitalinteligente.cl",
+      "iprimus@capitalinteligente.cl",
       "iromero@capitalinteligente.cl",
       "jescudero@capitalinteligente.cl",
       "kfuentes@capitalinteligente.cl",
@@ -2452,21 +2454,26 @@
       "lvivas@capitalinteligente.cl",
       "marcko@capitalinteligente.cl",
       "mespinoza@capitalinteligente.cl",
+      "mgiorgio@capitalinteligente.cl",
       "mhuilipan@capitalinteligente.cl",
       "miturrieta@capitalinteligente.cl",
       "mneira@capitalinteligente.cl",
       "mpintom@capitalinteligente.cl",
       "mrodriguez@capitalinteligente.cl",
       "mrodriguezc@capitalinteligente.cl",
+      "mtaher@capitalinteligente.cl",
       "nlopez@capitalinteligente.cl",
       "nruiz@capitalinteligente.cl",
       "opernia@capitalinteligente.cl",
       "pgomez@capitalinteligente.cl",
       "phenriquez@capitalinteligente.cl",
       "praviap@capitalinteligente.cl",
+      "ptoro@capitalinteligente.cl",
       "rcarbullanca@capitalinteligente.cl",
       "rfernandez@capitalinteligente.cl",
       "rtroncoso@capitalinteligente.cl",
+      "sbustamante@capitalinteligente.cl",
+      "schaparro@capitalinteligente.cl",
       "sgarcia@capitalinteligente.cl",
       "skala.realty@capitalinteligente.cl",
       "skalarealty1@capitalinteligente.cl",
@@ -2484,11 +2491,14 @@
       "vanema7@capitalinteligente.cl",
       "vanema8@capitalinteligente.cl",
       "vchirinos@capitalinteligente.cl",
-      "vfernandez@capitalinteligente.cl"
+      "vfernandez@capitalinteligente.cl",
+      "wbirkner@capitalinteligente.cl",
+      "ygaona@capitalinteligente.cl"
     ],
     "4": [
       "acorderoc@capitalinteligente.cl",
       "cbustos@capitalinteligente.cl",
+      "cnazar@capitalinteligente.cl",
       "dalzurutt@capitalinteligente.cl",
       "deboracapitalinmobiliario@capitalinteligente.cl",
       "dithurbisquy@capitalinteligente.cl",
@@ -2576,6 +2586,7 @@
       "olmar@capitalinteligente.cl",
       "olugog@capitalinteligente.cl",
       "pcontreras@capitalinteligente.cl",
+      "pvargas@capitalinteligente.cl",
       "sdiaz@capitalinteligente.cl",
       "smendoza@capitalinteligente.cl",
       "teamfm1@capitalinteligente.cl",
