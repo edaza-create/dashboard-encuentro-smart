@@ -1,0 +1,17 @@
+# Netlify config — dashboard-encuentro-smart (Vite SPA, ranking.capitalinteligente.com).
+# Migración desde Vercel. SPA: todo path sirve index.html (replica el rewrite
+# de vercel.json). Las env VITE_* son build-time (se hornean en el bundle), por
+# eso se importan ANTES del build. El frontend llama a la API de ored vía VITE_API_BASE_URL.
+
+[build]
+  command = "pnpm install --ignore-scripts && pnpm run build"
+  publish = "dist"
+
+[build.environment]
+  PNPM_VERSION = "9.15.9"
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
