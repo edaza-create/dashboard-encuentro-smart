@@ -29,10 +29,16 @@ export default function ReunionReporte({ reunion, onClose, onReopen, onArchive }
     return () => ac.abort()
   }, [reunion.id])
 
-  const breakdown = breakdownReunion(conteos, rosterMap)
-  const totalPresencial = conteos.filter((c) => c.modalidad === 'Presencial').reduce((s, c) => s + Number(c.total), 0)
-  const totalOnline = conteos.filter((c) => c.modalidad === 'Online').reduce((s, c) => s + Number(c.total), 0)
+  const { rows: breakdown, winners, maxParticipantes } = breakdownReunion(registros, rosterMap, {
+    fromRegistros: true,
+  })
+  const totalPresencial = breakdown.reduce((s, eq) => s + eq.presencial, 0)
+  const totalOnline = breakdown.reduce((s, eq) => s + eq.online, 0)
   const totalPts = breakdown.reduce((s, eq) => s + eq.ptsTotal, 0)
+  const liderLabel = winners
+    .map((id) => equipoLabel[id])
+    .filter(Boolean)
+    .join(', ')
   const ausentes = detectarAusentes(registros)
 
   const fecha = reunion.fecha_evento
@@ -66,18 +72,32 @@ export default function ReunionReporte({ reunion, onClose, onReopen, onArchive }
         <div className={styles.body}>
           <section>
             <h3 className={styles.sectionTitle}>Puntos por equipo</h3>
+            <p className={styles.sectionHint}>
+              +15 pts al equipo con más participantes (online + presencial).
+              {liderLabel && maxParticipantes > 0
+                ? ` Líder: ${liderLabel} (${maxParticipantes} asistentes).`
+                : ' Sin asistentes aún.'}
+            </p>
             <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <thead>
-                  <tr><th>Equipo</th><th>Total</th><th>Presencial</th><th>Online</th><th>Puntos</th></tr>
+                  <tr>
+                    <th>Equipo</th>
+                    <th>Participantes</th>
+                    <th>Presencial</th>
+                    <th>Online</th>
+                    <th>Puntos</th>
+                  </tr>
                 </thead>
                 <tbody>
                   {breakdown.map((eq) => (
                     <tr key={eq.equipo_id} className={eq.ptsTotal > 0 ? styles.rowGreen : ''}>
                       <td className={styles.tdName}>
-                        {eq.ptsTotal > 0 ? '✅ ' : '❌ '}{equipoLabel[eq.equipo_id] ?? eq.equipo_id}
+                        {eq.ptsTotal > 0 ? '🏆 ' : ''}{eq.equipo_label ?? equipoLabel[eq.equipo_id] ?? eq.equipo_id}
                       </td>
-                      <td>{eq.online + eq.presencial}/{eq.rosterSize}</td>
+                      <td>
+                        <strong>{eq.asistentesTotal}</strong>/{eq.rosterSize}
+                      </td>
                       <td>{eq.presencial} ({Math.round(eq.presencialPct * 100)}%)</td>
                       <td>{eq.online} ({Math.round(eq.onlinePct * 100)}%)</td>
                       <td>{eq.ptsTotal > 0 ? <span className={styles.ptsBadge}>+{eq.ptsTotal}</span> : '0'}</td>

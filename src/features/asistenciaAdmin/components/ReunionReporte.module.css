@@ -110,6 +110,13 @@
   color: var(--color-text-muted);
 }
 
+.sectionHint {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
 .tableWrap { overflow-x: auto; }
 
 .table {
