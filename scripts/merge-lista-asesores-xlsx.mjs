@@ -31,6 +31,7 @@ const ESTADO_COL_INDEX = 3
 /** Emails que en el xlsx pueden aparecer bajo Vanema pero son BP Vivvoen. */
 const VIVVOEN_EMAILS = new Set([
   'vivvoen@capitalinteligente.cl',
+  'gchacon@capitalinteligente.cl',
   'gsuarez@capitalinteligente.cl',
 ])
 

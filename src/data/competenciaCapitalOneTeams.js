@@ -152,8 +152,8 @@ export const EQUIPOS_CAPITAL_ONE = [
       {
         referenciaLista: 'Vivvoen',
         nombresPlataforma: ['BP Vivvoen', 'Vivvo en', 'VIVVOEN'],
-        emails: ['vivvoen@capitalinteligente.cl', 'gsuarez@capitalinteligente.cl'],
-        asesorNombres: ['Vivvo en', 'Gabriel Eduardo Chacon'],
+        emails: ['vivvoen@capitalinteligente.cl', 'gchacon@capitalinteligente.cl', 'gsuarez@capitalinteligente.cl'],
+        asesorNombres: ['Vivvo en', 'Gabriel Chacon', 'Gabriel Eduardo Chacon'],
         bpSlugs: ['vivvoen'],
       },
       {
