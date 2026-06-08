@@ -208,7 +208,7 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
                     <strong>{ptsPres.toLocaleString('es-CL')} pts</strong>
                   </div>
                   <div className={styles.breakLine}>
-                    <span>Asistencia reuniones (QR) — líder por # asistentes</span>
+                    <span>Asistencia reuniones (QR, desde hoy) — líder por # asistentes</span>
                     <strong>{asistPts.toLocaleString('es-CL')} pts</strong>
                   </div>
                 </div>

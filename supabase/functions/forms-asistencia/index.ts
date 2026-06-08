@@ -78,6 +78,17 @@ function log(event: string, extra: Record<string, unknown>) {
   console.log(JSON.stringify({ level: 'info', event, ...extra }))
 }
 
+function todayISOChile(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago' }).format(new Date())
+}
+
+function isoDateChile(iso: string | null | undefined): string | null {
+  if (!iso) return null
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return null
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago' }).format(d)
+}
+
 Deno.serve(async (req) => {
   const requestId = crypto.randomUUID()
   const t0 = Date.now()
@@ -170,6 +181,8 @@ Deno.serve(async (req) => {
   }
 
   const awardsGranted: { equipo_id: string; actividad_tipo: string }[] = []
+  const registradoIso = row.registrado_en ?? new Date().toISOString()
+  const cuentaParaPuntos = (isoDateChile(registradoIso) ?? '') >= todayISOChile()
 
   const equipoIds = Object.keys(roster)
   const countsByEquipo = new Map<string, { online: number; presencial: number; roster: number }>()
@@ -201,7 +214,11 @@ Deno.serve(async (req) => {
           .map(([id]) => id)
       : []
 
-  for (const equipoId of winners) {
+  if (!cuentaParaPuntos) {
+    log('forms.skip_awards_before_cutoff', { requestId, reunion, registradoIso })
+  }
+
+  for (const equipoId of cuentaParaPuntos ? winners : []) {
     const counts = countsByEquipo.get(equipoId)!
     const onlinePct = counts.roster > 0 ? counts.online / counts.roster : 0
     const presencialPct = counts.roster > 0 ? counts.presencial / counts.roster : 0

@@ -1,5 +1,5 @@
 /**
- * Calcula puntos de asistencia por equipo, acumulados sobre todas las reuniones.
+ * Calcula puntos de asistencia por equipo, acumulados sobre reuniones elegibles (desde hoy).
  *
  * Regla por reunión: +15 pts al equipo con **más asistentes** (online + presencial).
  * El formato en UI sigue siendo asistentes/roster (ej. 19/66); el % no otorga puntos.
