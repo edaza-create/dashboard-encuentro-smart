@@ -1,13 +1,15 @@
 /**
  * Reglas de actividades Capital Open desde asistencia a reuniones (Google Forms).
- * Online: ≥80% del roster del equipo · Presencial: ≥50%
- * Cada umbral cumplido suma +1 evento → +15 pts (SCORING en competenciaCapitalOpenScore).
+ * Por reunión: gana el equipo con más asistentes (online + presencial) → +15 pts.
  */
 
 import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams.js'
 import { rosterEmailsPorEquipoCapitalOpen } from './asesorMaestra.js'
+import { equiposLiderAsistentes, PTS_ASISTENCIA_REUNION } from './buildAsistenciaPuntos.js'
 
+/** @deprecated Solo referencia histórica en copy; los puntos ya no usan % */
 export const THRESHOLD_ONLINE = 0.8
+/** @deprecated Solo referencia histórica en copy; los puntos ya no usan % */
 export const THRESHOLD_PRESENCIAL = 0.5
 
 /**
@@ -42,6 +44,8 @@ export function evaluarReunionActividades(rows, rosterByEquipo = rosterEmailsPor
   const reunion = rows[0]?.reunion ?? ''
   const porEquipo = new Map()
 
+  const countsByEquipo = new Map()
+
   for (const eq of EQUIPOS_CAPITAL_ONE) {
     const equipoId = String(eq.id)
     const roster = rosterByEquipo.get(equipoId) ?? new Set()
@@ -55,21 +59,36 @@ export function evaluarReunionActividades(rows, rosterByEquipo = rosterEmailsPor
       if (r.modalidad === 'presencial') presencialAsistentes.add(r.email)
     }
 
-    const onlinePct = total > 0 ? onlineAsistentes.size / total : 0
-    const presencialPct = total > 0 ? presencialAsistentes.size / total : 0
+    const online = onlineAsistentes.size
+    const presencial = presencialAsistentes.size
+    countsByEquipo.set(equipoId, { online, presencial })
+
+    const onlinePct = total > 0 ? online / total : 0
+    const presencialPct = total > 0 ? presencial / total : 0
 
     porEquipo.set(equipoId, {
       reunion,
       equipo_id: equipoId,
       equipo_label: eq.label,
       roster_total: total,
-      online_asistentes: onlineAsistentes.size,
-      presencial_asistentes: presencialAsistentes.size,
+      online_asistentes: online,
+      presencial_asistentes: presencial,
+      asistentes_total: online + presencial,
       online_pct: onlinePct,
       presencial_pct: presencialPct,
-      online_cumple: total > 0 && onlinePct >= THRESHOLD_ONLINE,
-      presencial_cumple: total > 0 && presencialPct >= THRESHOLD_PRESENCIAL,
+      online_cumple: false,
+      presencial_cumple: false,
+      gana_puntos: false,
     })
+  }
+
+  const winners = equiposLiderAsistentes(countsByEquipo)
+  for (const eid of winners) {
+    const row = porEquipo.get(eid)
+    if (row) {
+      row.gana_puntos = true
+      row.puntos = PTS_ASISTENCIA_REUNION
+    }
   }
 
   return [...porEquipo.values()]

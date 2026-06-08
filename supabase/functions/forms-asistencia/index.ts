@@ -5,8 +5,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 import maestraBundle from './maestra-index.json' with { type: 'json' }
 
-const THRESHOLD_ONLINE = 0.8
-const THRESHOLD_PRESENCIAL = 0.5
+const PTS_LIDER = 15
 
 type MaestraEntry = {
   asesor_id: string
@@ -173,93 +172,107 @@ Deno.serve(async (req) => {
   const awardsGranted: { equipo_id: string; actividad_tipo: string }[] = []
 
   const equipoIds = Object.keys(roster)
+  const countsByEquipo = new Map<string, { online: number; presencial: number; roster: number }>()
+
   for (const equipoId of equipoIds) {
     const emailsRoster = roster[equipoId] ?? []
-    const total = emailsRoster.length
-    if (total === 0) continue
+    const rosterTotal = emailsRoster.length
+    if (rosterTotal === 0) continue
 
-    const onlineSet = new Set<string>()
-    const presencialSet = new Set<string>()
+    let online = 0
+    let presencial = 0
     for (const a of asistencias ?? []) {
-      if (a.equipo_id !== equipoId) continue
-      if (a.modalidad === 'online') onlineSet.add(a.email)
-      if (a.modalidad === 'presencial') presencialSet.add(a.email)
+      if (String(a.equipo_id) !== equipoId) continue
+      if (a.modalidad === 'online') online += 1
+      if (a.modalidad === 'presencial') presencial += 1
+    }
+    countsByEquipo.set(equipoId, { online, presencial, roster: rosterTotal })
+  }
+
+  let maxTotal = 0
+  for (const c of countsByEquipo.values()) {
+    maxTotal = Math.max(maxTotal, c.online + c.presencial)
+  }
+
+  const winners =
+    maxTotal > 0
+      ? [...countsByEquipo.entries()]
+          .filter(([, c]) => c.online + c.presencial === maxTotal)
+          .map(([id]) => id)
+      : []
+
+  for (const equipoId of winners) {
+    const counts = countsByEquipo.get(equipoId)!
+    const onlinePct = counts.roster > 0 ? counts.online / counts.roster : 0
+    const presencialPct = counts.roster > 0 ? counts.presencial / counts.roster : 0
+    const tipo = 'lider_asistencia'
+
+    const { data: existingAward } = await supabase
+      .from('encuentro_reunion_actividad_award')
+      .select('id')
+      .eq('reunion', reunion)
+      .eq('equipo_id', equipoId)
+      .eq('actividad_tipo', tipo)
+      .maybeSingle()
+
+    if (existingAward) continue
+
+    const { data: teamRow } = await supabase
+      .from('encuentro_competencia_manual')
+      .select('data')
+      .eq('scope', 'team')
+      .maybeSingle()
+
+    const teams =
+      teamRow?.data && typeof teamRow.data === 'object' && 'teams' in teamRow.data
+        ? (teamRow.data as { teams: Record<string, Record<string, number>> }).teams
+        : {}
+
+    const prev = teams[equipoId] ?? {
+      promesasCount: 0,
+      escriturasCount: 0,
+      actividadOnlineCount: 0,
+      actividadPresencialCount: 0,
     }
 
-    const onlinePct = onlineSet.size / total
-    const presencialPct = presencialSet.size / total
-
-    const checks: { tipo: 'online' | 'presencial'; cumple: boolean; pct: number }[] = [
-      { tipo: 'online', cumple: onlinePct >= THRESHOLD_ONLINE, pct: onlinePct },
-      { tipo: 'presencial', cumple: presencialPct >= THRESHOLD_PRESENCIAL, pct: presencialPct },
-    ]
-
-    for (const { tipo, cumple, pct } of checks) {
-      if (!cumple) continue
-
-      const { data: existingAward } = await supabase
-        .from('encuentro_reunion_actividad_award')
-        .select('id')
-        .eq('reunion', reunion)
-        .eq('equipo_id', equipoId)
-        .eq('actividad_tipo', tipo)
-        .maybeSingle()
-
-      if (existingAward) continue
-
-      const { data: teamRow } = await supabase
-        .from('encuentro_competencia_manual')
-        .select('data')
-        .eq('scope', 'team')
-        .maybeSingle()
-
-      const teams =
-        teamRow?.data && typeof teamRow.data === 'object' && 'teams' in teamRow.data
-          ? (teamRow.data as { teams: Record<string, Record<string, number>> }).teams
-          : {}
-
-      const prev = teams[equipoId] ?? {
-        promesasCount: 0,
-        escriturasCount: 0,
-        actividadOnlineCount: 0,
-        actividadPresencialCount: 0,
-      }
-
-      const next = { ...teams }
-      next[equipoId] = {
-        ...prev,
-        actividadOnlineCount:
-          (prev.actividadOnlineCount || 0) + (tipo === 'online' ? 1 : 0),
-        actividadPresencialCount:
-          (prev.actividadPresencialCount || 0) + (tipo === 'presencial' ? 1 : 0),
-      }
-
-      const { error: upsertErr } = await supabase.from('encuentro_competencia_manual').upsert(
-        {
-          scope: 'team',
-          data: { version: 1, teams: next },
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'scope' }
-      )
-
-      if (upsertErr) {
-        log('forms.team_upsert_error', { requestId, equipoId, tipo, message: upsertErr.message })
-        continue
-      }
-
-      await supabase.from('encuentro_reunion_actividad_award').insert({
-        reunion,
-        equipo_id: equipoId,
-        actividad_tipo: tipo,
-        online_pct: onlinePct,
-        presencial_pct: presencialPct,
-        roster_total: total,
-      })
-
-      awardsGranted.push({ equipo_id: equipoId, actividad_tipo: tipo })
-      log('forms.award_granted', { requestId, reunion, equipoId, tipo, pct })
+    const next = { ...teams }
+    next[equipoId] = {
+      ...prev,
+      actividadOnlineCount: (prev.actividadOnlineCount || 0) + 1,
     }
+
+    const { error: upsertErr } = await supabase.from('encuentro_competencia_manual').upsert(
+      {
+        scope: 'team',
+        data: { version: 1, teams: next },
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'scope' }
+    )
+
+    if (upsertErr) {
+      log('forms.team_upsert_error', { requestId, equipoId, tipo, message: upsertErr.message })
+      continue
+    }
+
+    await supabase.from('encuentro_reunion_actividad_award').insert({
+      reunion,
+      equipo_id: equipoId,
+      actividad_tipo: tipo,
+      online_pct: onlinePct,
+      presencial_pct: presencialPct,
+      roster_total: counts.roster,
+    })
+
+    awardsGranted.push({ equipo_id: equipoId, actividad_tipo: tipo })
+    log('forms.award_granted', {
+      requestId,
+      reunion,
+      equipoId,
+      tipo,
+      asistentes: counts.online + counts.presencial,
+      pts: PTS_LIDER,
+    })
   }
 
   log('forms.ok', {

@@ -69,7 +69,7 @@ export default function ReunionReporte({ reunion, onClose, onReopen, onArchive }
             <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <thead>
-                  <tr><th>Equipo</th><th>Roster</th><th>Presencial</th><th>Online</th><th>Puntos</th></tr>
+                  <tr><th>Equipo</th><th>Total</th><th>Presencial</th><th>Online</th><th>Puntos</th></tr>
                 </thead>
                 <tbody>
                   {breakdown.map((eq) => (
@@ -77,9 +77,9 @@ export default function ReunionReporte({ reunion, onClose, onReopen, onArchive }
                       <td className={styles.tdName}>
                         {eq.ptsTotal > 0 ? '✅ ' : '❌ '}{equipoLabel[eq.equipo_id] ?? eq.equipo_id}
                       </td>
-                      <td>{eq.rosterSize}</td>
-                      <td>{eq.presencial} ({Math.round(eq.presencialPct * 100)}%){eq.ptsPresencial > 0 ? ' ✓' : ''}</td>
-                      <td>{eq.online} ({Math.round(eq.onlinePct * 100)}%){eq.ptsOnline > 0 ? ' ✓' : ''}</td>
+                      <td>{eq.online + eq.presencial}/{eq.rosterSize}</td>
+                      <td>{eq.presencial} ({Math.round(eq.presencialPct * 100)}%)</td>
+                      <td>{eq.online} ({Math.round(eq.onlinePct * 100)}%)</td>
                       <td>{eq.ptsTotal > 0 ? <span className={styles.ptsBadge}>+{eq.ptsTotal}</span> : '0'}</td>
                     </tr>
                   ))}
