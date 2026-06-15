@@ -1782,12 +1782,30 @@
       "nombre": "Yasna Valenzuela",
       "estado": "ACTIVO",
       "bp_slug": "cfm-inversiones"
+    },
+    {
+      "email": "gsuarez@capitalinteligente.cl",
+      "nombre": "Gabriel Chacon",
+      "estado": "ACTIVO",
+      "bp_slug": "vivvoen"
+    },
+    {
+      "email": "m.salinas@capitalinteligente.cl",
+      "nombre": "Maribel Angela Salinas Olguin",
+      "estado": "ACTIVO",
+      "bp_slug": "debora-capital"
+    },
+    {
+      "email": "scamps@capitalinteligente.me",
+      "nombre": "Sandra Camps",
+      "estado": "ACTIVO",
+      "bp_slug": "trama-gestion"
     }
   ],
   "stats": {
     "total_bps": 27,
-    "total_asesores": 274,
-    "activos": 246,
+    "total_asesores": 277,
+    "activos": 249,
     "eliminados": 28,
     "conflictos_email": 0,
     "preservados_desde_json": 0
