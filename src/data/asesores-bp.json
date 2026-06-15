@@ -38,6 +38,11 @@
       "label_origen": "Rafael Cordero / House Family"
     },
     {
+      "slug": "inm-inv-fir",
+      "display": "Inm e Inv FIR",
+      "label_origen": "Fernando Ipinza / Inm e Inv FIR"
+    },
+    {
       "slug": "invest-u",
       "display": "Invest U",
       "label_origen": "Olmar Lugo / Invest U"
@@ -66,6 +71,11 @@
       "slug": "mendoza",
       "display": "Mendoza Real State",
       "label_origen": "Francisco Mendoza / Mendoza Real State"
+    },
+    {
+      "slug": "nazar-property",
+      "display": "Nazar Property",
+      "label_origen": "Claudia Nazar / Nazar Property"
     },
     {
       "slug": "neumann-stanley",
@@ -121,6 +131,11 @@
       "slug": "vanema",
       "display": "Vanema",
       "label_origen": "Vanessa Chirinos / VANEMA"
+    },
+    {
+      "slug": "vivvoen",
+      "display": "Vivvoen",
+      "label_origen": "Manuel Duran / Vivvoen"
     }
   ],
   "asesores": [
@@ -141,6 +156,12 @@
       "nombre": "Alvaro Carrillo",
       "estado": "ACTIVO",
       "bp_slug": "neumann-stanley"
+    },
+    {
+      "email": "acolmenares@capitalinteligente.cl",
+      "nombre": "Alejandra Colmenares Urbina",
+      "estado": "ACTIVO",
+      "bp_slug": "nazar-property"
     },
     {
       "email": "acorderoc@capitalinteligente.cl",
@@ -173,6 +194,12 @@
       "bp_slug": "neumann-stanley"
     },
     {
+      "email": "amardones@capitalinteligente.cl",
+      "nombre": "Andrés Mauricio Mardones Ojeda",
+      "estado": "ACTIVO",
+      "bp_slug": "nazar-property"
+    },
+    {
       "email": "amarisio@capitalinteligente.cl",
       "nombre": "Areli Marisio",
       "estado": "ACTIVO",
@@ -187,7 +214,7 @@
     {
       "email": "amorillo@capitalinteligente.cl",
       "nombre": "Aurimar Edani Morillo Ramirez",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "jtf-invest"
     },
     {
@@ -195,6 +222,12 @@
       "nombre": "Andrea Orellana Hernandez",
       "estado": "ACTIVO",
       "bp_slug": "irc-inversiones"
+    },
+    {
+      "email": "aportilla@capitalinteligente.cl",
+      "nombre": "Aldo Portilla Pérez",
+      "estado": "ACTIVO",
+      "bp_slug": "jtf-invest"
     },
     {
       "email": "aquero@capitalinteligente.cl",
@@ -296,7 +329,13 @@
       "email": "calvarador@capitalinteligente.cl",
       "nombre": "Cristofher Alvarado",
       "estado": "ACTIVO",
-      "bp_slug": "avanti-invest"
+      "bp_slug": "skala"
+    },
+    {
+      "email": "caof@capitalinteligente.cl",
+      "nombre": "Camilo Olivero",
+      "estado": "ACTIVO",
+      "bp_slug": "olivero-partners"
     },
     {
       "email": "capitalgrowth@capitalinteligente.cl",
@@ -313,7 +352,7 @@
     {
       "email": "cbarrientos@capitalinteligente.cl",
       "nombre": "Claudio Alejandro Barrientos Bustamante",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "invierte-y-acierta"
     },
     {
@@ -392,7 +431,7 @@
       "email": "cnazar@capitalinteligente.cl",
       "nombre": "Claudia Andrea Nazar Fuentes",
       "estado": "ACTIVO",
-      "bp_slug": "sinapsis"
+      "bp_slug": "nazar-property"
     },
     {
       "email": "cneumann@capitalinteligente.cl",
@@ -491,6 +530,18 @@
       "bp_slug": "jtf-invest"
     },
     {
+      "email": "dcaballero@capitalinteligente.cl",
+      "nombre": "Diana Cleofe Caballero Soria",
+      "estado": "ACTIVO",
+      "bp_slug": "nazar-property"
+    },
+    {
+      "email": "dcordero@capitalinteligente.cl",
+      "nombre": "Daniela Cordero Campos",
+      "estado": "ACTIVO",
+      "bp_slug": "capital-growth"
+    },
+    {
       "email": "ddeocares@capitalinteligente.cl",
       "nombre": "Daniela Deocares",
       "estado": "ACTIVO",
@@ -527,8 +578,20 @@
       "bp_slug": "trama-gestion"
     },
     {
+      "email": "dmaturana@capitalinteligente.cl",
+      "nombre": "Daphne Claudia Ashley Maturana Moya",
+      "estado": "ACTIVO",
+      "bp_slug": "irc-inversiones"
+    },
+    {
       "email": "dmendez@capitalinteligente.cl",
       "nombre": "Debora Méndez Contreras",
+      "estado": "ACTIVO",
+      "bp_slug": "debora-capital"
+    },
+    {
+      "email": "dolguin@capitalinteligente.cl",
+      "nombre": "Dan Eleazar Olguín Painevilo",
       "estado": "ACTIVO",
       "bp_slug": "debora-capital"
     },
@@ -541,7 +604,7 @@
     {
       "email": "dpino@capitalinteligente.cl",
       "nombre": "Daniela Pino",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "servicios-integrales"
     },
     {
@@ -551,16 +614,34 @@
       "bp_slug": "sinapsis"
     },
     {
+      "email": "drojo@capitalinteligente.cl",
+      "nombre": "Douglas Rojo",
+      "estado": "ACTIVO",
+      "bp_slug": "vivvoen"
+    },
+    {
       "email": "dsandoval@capitalinteligente.cl",
       "nombre": "Diego Sandoval",
       "estado": "ACTIVO",
       "bp_slug": "sinapsis"
     },
     {
+      "email": "dsotelo@capitalinteligente.cl",
+      "nombre": "Daphny Sotelo",
+      "estado": "ACTIVO",
+      "bp_slug": "marisio-inversiones"
+    },
+    {
       "email": "dvega@capitalinteligente.cl",
       "nombre": "Denisse Vega Peña",
       "estado": "ACTIVO",
       "bp_slug": "neumann-stanley"
+    },
+    {
+      "email": "dyanez@capitalinteligente.cl",
+      "nombre": "Diego Yañez",
+      "estado": "ACTIVO",
+      "bp_slug": "invierte-y-acierta"
     },
     {
       "email": "e.rivero@capitalinteligente.cl",
@@ -571,14 +652,20 @@
     {
       "email": "ecardozo@capitalinteligente.cl",
       "nombre": "Erika Cardozo",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "capital-growth"
     },
     {
       "email": "ecarrillo@capitalinteligente.cl",
       "nombre": "Evelyn Carrillo",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "domca"
+    },
+    {
+      "email": "ecarrillod@capitalinteligente.cl",
+      "nombre": "Edgar David Carrillo Dávila",
+      "estado": "ACTIVO",
+      "bp_slug": "vivvoen"
     },
     {
       "email": "edaza@capitalinteligente.cl",
@@ -641,6 +728,12 @@
       "bp_slug": "olivero-partners"
     },
     {
+      "email": "fipinza@capitalinteligente.cl",
+      "nombre": "Fernando Ipinza",
+      "estado": "ACTIVO",
+      "bp_slug": "inm-inv-fir"
+    },
+    {
       "email": "fmendoza@capitalinteligente.cl",
       "nombre": "Francisco Mendoza",
       "estado": "ACTIVO",
@@ -701,9 +794,15 @@
       "bp_slug": "olivero-partners"
     },
     {
+      "email": "gchacon@capitalinteligente.cl",
+      "nombre": "Gabriel Chacon",
+      "estado": "ACTIVO",
+      "bp_slug": "vivvoen"
+    },
+    {
       "email": "ghidalgo@capitalinteligente.cl",
       "nombre": "Gabriela Hidalgo",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "cfm-inversiones"
     },
     {
@@ -713,9 +812,15 @@
       "bp_slug": "debora-capital"
     },
     {
+      "email": "gmackenney@capitalinteligente.cl",
+      "nombre": "German Sebastian Mackenney Esquerre",
+      "estado": "ACTIVO",
+      "bp_slug": "forza-capital"
+    },
+    {
       "email": "gmontenegro@capitalinteligente.cl",
       "nombre": "Guillermo Montenegro",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "mendoza"
     },
     {
@@ -743,9 +848,15 @@
       "bp_slug": "capital-growth"
     },
     {
+      "email": "gvargas@capitalinteligente.cl",
+      "nombre": "Gloria Mercedes Vargas Alvira",
+      "estado": "ACTIVO",
+      "bp_slug": "trama-gestion"
+    },
+    {
       "email": "hgallardo@capitalinteligente.cl",
       "nombre": "Hugo Arturo Gallardo Ravanal",
-      "estado": "ELIMINADO",
+      "estado": "ACTIVO",
       "bp_slug": "sinapsis"
     },
     {
@@ -777,6 +888,18 @@
       "nombre": "Iris del Carmen Lara",
       "estado": "ACTIVO",
       "bp_slug": "jtf-invest"
+    },
+    {
+      "email": "iprimus@capitalinteligente.cl",
+      "nombre": "Iván Enrique Primus Moreno",
+      "estado": "ACTIVO",
+      "bp_slug": "inm-inv-fir"
+    },
+    {
+      "email": "iquezada@capitalinteligente.cl",
+      "nombre": "Ivan Quezada",
+      "estado": "ACTIVO",
+      "bp_slug": "marisio-inversiones"
     },
     {
       "email": "irocco@capitalinteligente.cl",
@@ -851,6 +974,12 @@
       "bp_slug": "olivero-partners"
     },
     {
+      "email": "jparra@capitalinteligente.cl",
+      "nombre": "Juan Carlos Parra",
+      "estado": "ACTIVO",
+      "bp_slug": "sinapsis"
+    },
+    {
       "email": "jpolivero@capitalinteligente.cl",
       "nombre": "Juan Pablo Olivero",
       "estado": "ACTIVO",
@@ -889,7 +1018,7 @@
     {
       "email": "jvelasquez@capitalinteligente.cl",
       "nombre": "José Miguel Velásquez Remolcoy",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "mendoza"
     },
     {
@@ -907,7 +1036,7 @@
     {
       "email": "kmartinez@capitalinteligente.cl",
       "nombre": "Kevin Martinez",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "sinapsis"
     },
     {
@@ -921,6 +1050,12 @@
       "nombre": "Lorena Dayana Acosta Villegas",
       "estado": "ACTIVO",
       "bp_slug": "irc-inversiones"
+    },
+    {
+      "email": "lcastro@capitalinteligente.cl",
+      "nombre": "Loretto Stephanie Castro Durán",
+      "estado": "ACTIVO",
+      "bp_slug": "olivero-partners"
     },
     {
       "email": "lhuaraka@capitalinteligente.cl",
@@ -953,6 +1088,12 @@
       "bp_slug": "cfm-inversiones"
     },
     {
+      "email": "ltoledo@capitalinteligente.cl",
+      "nombre": "Leonardo Andrés Toledo Toledo",
+      "estado": "ACTIVO",
+      "bp_slug": "mendoza"
+    },
+    {
       "email": "lvivas@capitalinteligente.cl",
       "nombre": "Leonardo Jose Vivas Perez",
       "estado": "ACTIVO",
@@ -971,10 +1112,28 @@
       "bp_slug": "cfm-inversiones"
     },
     {
+      "email": "mcalvache@capitalinteligente.cl",
+      "nombre": "Matías Andrés Calvache Fernández",
+      "estado": "ACTIVO",
+      "bp_slug": "nazar-property"
+    },
+    {
+      "email": "mcarreno@capitalinteligente.cl",
+      "nombre": "María Eugenia Carreño Silva",
+      "estado": "ACTIVO",
+      "bp_slug": "mendoza"
+    },
+    {
       "email": "mdominguez@capitalinteligente.cl",
       "nombre": "Macarena Dominguez",
       "estado": "ACTIVO",
       "bp_slug": "domca"
+    },
+    {
+      "email": "mduran@capitalinteligente.cl",
+      "nombre": "Manuel Alejandro Duran Rojo",
+      "estado": "ACTIVO",
+      "bp_slug": "vivvoen"
     },
     {
       "email": "mescobar@capitalinteligente.cl",
@@ -1001,10 +1160,22 @@
       "bp_slug": "house-family"
     },
     {
+      "email": "mgallardo@capitalinteligente.cl",
+      "nombre": "Mathias Nicolas Gallardo Gaete",
+      "estado": "ACTIVO",
+      "bp_slug": "mendoza"
+    },
+    {
       "email": "mgarrido@capitalinteligente.cl",
       "nombre": "Marcel Garrido",
       "estado": "ACTIVO",
       "bp_slug": "jtf-invest"
+    },
+    {
+      "email": "mgiorgio@capitalinteligente.cl",
+      "nombre": "Maria Ines Giorgio",
+      "estado": "ELIMINADO",
+      "bp_slug": "inm-inv-fir"
     },
     {
       "email": "mgomez@capitalinteligente.cl",
@@ -1073,6 +1244,12 @@
       "bp_slug": "servicios-integrales"
     },
     {
+      "email": "mperezc@capitalinteligente.cl",
+      "nombre": "Matilde Perez",
+      "estado": "ACTIVO",
+      "bp_slug": "select-capital"
+    },
+    {
       "email": "mpintom@capitalinteligente.cl",
       "nombre": "María Carolina Pinto Mota",
       "estado": "ACTIVO",
@@ -1097,6 +1274,12 @@
       "bp_slug": "irc-inversiones"
     },
     {
+      "email": "mrojasl@capitalinteligente.cl",
+      "nombre": "Manuel Rojas Latud",
+      "estado": "ACTIVO",
+      "bp_slug": "cfm-inversiones"
+    },
+    {
       "email": "msalinas@capitalinteligente.cl",
       "nombre": "Maribel Angela Salinas Olguin",
       "estado": "ACTIVO",
@@ -1115,10 +1298,22 @@
       "bp_slug": "servicios-integrales"
     },
     {
+      "email": "mtaher@capitalinteligente.cl",
+      "nombre": "Mohammad Taher Perez",
+      "estado": "ELIMINADO",
+      "bp_slug": "inm-inv-fir"
+    },
+    {
       "email": "mvargas@capitalinteligente.cl",
       "nombre": "Mauro Vargas",
       "estado": "ACTIVO",
       "bp_slug": "mendoza"
+    },
+    {
+      "email": "nazar@capitalinteligente.cl",
+      "nombre": "Nazar Properties",
+      "estado": "ACTIVO",
+      "bp_slug": "nazar-property"
     },
     {
       "email": "nblanco@capitalinteligente.cl",
@@ -1142,7 +1337,7 @@
       "email": "njaques@capitalinteligente.cl",
       "nombre": "Nancy Andrea Jaques Rojas",
       "estado": "ACTIVO",
-      "bp_slug": "marisio-inversiones"
+      "bp_slug": "forza-capital"
     },
     {
       "email": "nlopez@capitalinteligente.cl",
@@ -1153,7 +1348,7 @@
     {
       "email": "nmiranda@capitalinteligente.cl",
       "nombre": "Natalia Miranda",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "sion"
     },
     {
@@ -1189,7 +1384,7 @@
     {
       "email": "nzambrano@capitalinteligente.cl",
       "nombre": "Natalia Zambrano Ortega",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "domca"
     },
     {
@@ -1233,6 +1428,12 @@
       "nombre": "Patricia Nicole Escobar Marín",
       "estado": "ACTIVO",
       "bp_slug": "olivero-partners"
+    },
+    {
+      "email": "pgomez@capitalinteligente.cl",
+      "nombre": "Paloma Almendra de Lourdes Gómez",
+      "estado": "ACTIVO",
+      "bp_slug": "irc-inversiones"
     },
     {
       "email": "pguajardo@capitalinteligente.cl",
@@ -1283,6 +1484,12 @@
       "bp_slug": "sinapsis"
     },
     {
+      "email": "priquelme@capitalinteligente.cl",
+      "nombre": "Paulina Riquelme",
+      "estado": "ACTIVO",
+      "bp_slug": "marisio-inversiones"
+    },
+    {
       "email": "psandoval@capitalinteligente.cl",
       "nombre": "Paula Sandoval Flores",
       "estado": "ACTIVO",
@@ -1295,10 +1502,22 @@
       "bp_slug": "prop-inversiones"
     },
     {
+      "email": "ptoro@capitalinteligente.cl",
+      "nombre": "Pablo Mauricio Toro Vargas",
+      "estado": "ELIMINADO",
+      "bp_slug": "inm-inv-fir"
+    },
+    {
       "email": "pvargas@capitalinteligente.cl",
       "nombre": "Paula Andrea Vargas Gaete",
       "estado": "ACTIVO",
-      "bp_slug": "cfm-inversiones"
+      "bp_slug": "mendoza"
+    },
+    {
+      "email": "pvidal@capitalinteligente.cl",
+      "nombre": "Paz Vidal Morales",
+      "estado": "ACTIVO",
+      "bp_slug": "jtf-invest"
     },
     {
       "email": "raguayo@capitalinteligente.cl",
@@ -1309,7 +1528,7 @@
     {
       "email": "rcarbullanca@capitalinteligente.cl",
       "nombre": "Rolando Rafael Carbullanca Corre",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "trama-gestion"
     },
     {
@@ -1353,6 +1572,18 @@
       "nombre": "Rudy Troncoso",
       "estado": "ACTIVO",
       "bp_slug": "skala"
+    },
+    {
+      "email": "sbustamante@capitalinteligente.cl",
+      "nombre": "Sandra Díaz Bustamante",
+      "estado": "ELIMINADO",
+      "bp_slug": "inm-inv-fir"
+    },
+    {
+      "email": "schaparro@capitalinteligente.cl",
+      "nombre": "Silvia Paola Chaparro Serey",
+      "estado": "ELIMINADO",
+      "bp_slug": "inm-inv-fir"
     },
     {
       "email": "sdiaz@capitalinteligente.cl",
@@ -1451,6 +1682,12 @@
       "bp_slug": "prop-inversiones"
     },
     {
+      "email": "tmonzon@capitalinteligente.cl",
+      "nombre": "Tamara Monzon Olavarría",
+      "estado": "ACTIVO",
+      "bp_slug": "jtf-invest"
+    },
+    {
       "email": "tramagestion@capitalinteligente.cl",
       "nombre": "Trama Gestion",
       "estado": "ACTIVO",
@@ -1461,6 +1698,12 @@
       "nombre": "Vanessa Bustos",
       "estado": "ACTIVO",
       "bp_slug": "marisio-inversiones"
+    },
+    {
+      "email": "vbravo@capitalinteligente.cl",
+      "nombre": "Valeria Bravo Lillo",
+      "estado": "ACTIVO",
+      "bp_slug": "cfm-inversiones"
     },
     {
       "email": "vanema@capitalinteligente.cl",
@@ -1496,7 +1739,31 @@
       "email": "vivvoen@capitalinteligente.cl",
       "nombre": "Vivvo en",
       "estado": "ACTIVO",
-      "bp_slug": "vanema"
+      "bp_slug": "vivvoen"
+    },
+    {
+      "email": "vloyola@capitalinteligente.cl",
+      "nombre": "Victoria Cristina Loyola Fernández",
+      "estado": "ACTIVO",
+      "bp_slug": "capital-growth"
+    },
+    {
+      "email": "vortega@capitalinteligente.cl",
+      "nombre": "Valentina Isidora Ortega Fuentes",
+      "estado": "ELIMINADO",
+      "bp_slug": "vivvoen"
+    },
+    {
+      "email": "wbirkner@capitalinteligente.cl",
+      "nombre": "Waleska Birkner Cerda",
+      "estado": "ELIMINADO",
+      "bp_slug": "inm-inv-fir"
+    },
+    {
+      "email": "ygaona@capitalinteligente.cl",
+      "nombre": "Yésica Marcela Gaona Cifuentes",
+      "estado": "ELIMINADO",
+      "bp_slug": "inm-inv-fir"
     },
     {
       "email": "ylastra@capitalinteligente.cl",
@@ -1509,13 +1776,19 @@
       "nombre": "Yolanny Leon",
       "estado": "ACTIVO",
       "bp_slug": "invest-u"
+    },
+    {
+      "email": "yvalenzuela@capitalinteligente.cl",
+      "nombre": "Yasna Valenzuela",
+      "estado": "ACTIVO",
+      "bp_slug": "cfm-inversiones"
     }
   ],
   "stats": {
-    "total_bps": 24,
-    "total_asesores": 231,
-    "activos": 222,
-    "eliminados": 9,
+    "total_bps": 27,
+    "total_asesores": 274,
+    "activos": 246,
+    "eliminados": 28,
     "conflictos_email": 0,
     "preservados_desde_json": 0
   }
