@@ -1,6 +1,6 @@
-import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams'
-import { reservaMatchesBroker } from './brokerReservaMatch'
-import { asesorStorageKey, reservasEnCompetencia } from './competenciaCapitalOpenIndividual'
+import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams.js'
+import { reservaMatchesBroker } from './brokerReservaMatch.js'
+import { asesorStorageKey, reservasEnCompetencia } from './competenciaCapitalOpenIndividual.js'
 
 /** @returns {string | null} id de equipo como string */
 export function equipoIdForNivelPlataforma(nivelJerarquiaNombre) {

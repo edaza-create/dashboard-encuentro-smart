@@ -9,7 +9,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "sync:asesores": "node scripts/sync-asesores-bp.mjs && node scripts/build-maestra-index.mjs",
+    "merge:asesores-xlsx": "node scripts/merge-lista-asesores-xlsx.mjs && node scripts/build-maestra-index.mjs",
     "apply:roster": "node scripts/apply-roster-bp.mjs && node scripts/build-maestra-index.mjs",
+    "merge:correos-me": "node scripts/merge-correos-me.mjs",
     "build:maestra-index": "node scripts/build-maestra-index.mjs",
     "prebuild:functions": "node scripts/build-maestra-index.mjs",
     "test": "node --test src/features/resumen/hooks/useResumenMetrics.test.js"

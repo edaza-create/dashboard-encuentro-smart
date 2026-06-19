@@ -3,6 +3,7 @@ import {
   NIVEL_PLATAFORMA_EQUIPO_INTERNO,
   BP_SLUG_EQUIPO_INTERNO,
 } from '../data/equipoComercialInterno.js'
+import { canonicalAsesorEmail } from './asesorEmail.js'
 
 function normalizeText(s) {
   return String(s ?? '')
@@ -27,7 +28,7 @@ for (const m of MIEMBROS_EQUIPO_COMERCIAL_INTERNO) {
 }
 
 function emailFromReserva(r) {
-  return String(r?.user_email ?? r?.asesor_email ?? '').trim().toLowerCase()
+  return canonicalAsesorEmail(r?.user_email ?? r?.asesor_email ?? '') ?? ''
 }
 
 function nombreFromReserva(r) {
@@ -39,7 +40,7 @@ function nombreFromReserva(r) {
  * @returns {import('../data/equipoComercialInterno.js').MiembroEquipoInterno | null}
  */
 export function miembroPorEmail(email) {
-  const key = String(email ?? '').trim().toLowerCase()
+  const key = canonicalAsesorEmail(email)
   if (!key) return null
   return emailToMiembro.get(key) ?? null
 }

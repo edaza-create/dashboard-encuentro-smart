@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useRankingPublico } from "../hooks/useRankingPublico.js";
-import { pickAvatarSrc } from "../utils/buildRankingCompetencia.js";
+import { avatarUrlWithCacheBust, pickAvatarSrc } from "../utils/buildRankingCompetencia.js";
 import { SCORING } from "../utils/competenciaCapitalOpenScore.js";
 import { formatUF } from "../utils/format.js";
 import { EQUIPOS_CAPITAL_ONE } from "../data/competenciaCapitalOneTeams.js";
@@ -121,9 +121,12 @@ export default function RankingPublicoPage() {
       nombre: a.nombre ?? a.email,
       metaTop: a.bp_display,
       metaBottom: null,
-      avatarSrc: pickAvatarSrc(
-        { asesor_foto_url: a.foto_url, asesor_foto_urls: a.foto_urls },
-        AVATAR_SIZE
+      avatarSrc: avatarUrlWithCacheBust(
+        pickAvatarSrc(
+          { asesor_foto_url: a.foto_url, asesor_foto_urls: a.foto_urls },
+          AVATAR_SIZE
+        ),
+        updatedAt
       ),
       reservasCount: a.reservasCount,
       promesasCount: a.promesasCount,
@@ -134,7 +137,7 @@ export default function RankingPublicoPage() {
       totalPuntos: a.totalPuntos,
       ufTotal: a.ufTotal ?? 0
     }));
-  }, [tab, asesores, bps]);
+  }, [tab, asesores, bps, updatedAt]);
 
   const ptsBreakdown = (item) => {
     const parts = [

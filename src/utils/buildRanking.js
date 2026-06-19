@@ -13,6 +13,7 @@ import asesoresBP from "../data/asesores-bp.json" with { type: "json" };
 import { lookupAsesorBp } from "./asesorBpPlataforma.js";
 import { BP_SLUG_EQUIPO_INTERNO, NIVEL_PLATAFORMA_EQUIPO_INTERNO } from "../data/equipoComercialInterno.js";
 import { miembroPorNombre } from "./equipoComercialInterno.js";
+import { canonicalAsesorEmail } from "./asesorEmail.js";
 
 const SIN_BP_SLUG = "sin-bp";
 const SIN_BP_DISPLAY = "Sin BP asignado";
@@ -51,16 +52,42 @@ function buildAsesorIndex() {
 const BP_INDEX = Object.freeze(buildBpIndex());
 const ASESOR_INDEX = Object.freeze(buildAsesorIndex());
 
-function normalizeEmail(email) {
-  if (typeof email !== "string") return null;
-  const trimmed = email.trim().toLowerCase();
-  return trimmed ? trimmed : null;
-}
-
 function toNum(v) {
   if (v == null) return 0;
   const n = typeof v === "number" ? v : Number(v);
   return Number.isFinite(n) ? n : 0;
+}
+
+function reservaFotoTs(reserva) {
+  const raw = reserva?.ocurrido_en ?? reserva?.fecha ?? "";
+  const ms = Date.parse(String(raw));
+  return Number.isFinite(ms) ? ms : 0;
+}
+
+/**
+ * Conserva la foto de la reserva más reciente (por ocurrido_en).
+ * @param {{ foto_url?: string|null, foto_urls?: Record<string,string>|null, _ts?: number }|null|undefined} current
+ * @param {import('../api/rankingClient.js').ReservaPublica} reserva
+ */
+export function mergeFotoFromReserva(current, reserva) {
+  if (!reserva) return current ?? null;
+  const foto_url = reserva.asesor_foto_url ?? null;
+  const foto_urls = reserva.asesor_foto_urls ?? null;
+  if (!foto_url && !foto_urls) return current ?? null;
+  const ts = reservaFotoTs(reserva);
+  if (current && ts < (current._ts ?? 0)) return current;
+  return {
+    foto_url: foto_url ?? current?.foto_url ?? null,
+    foto_urls: foto_urls ?? current?.foto_urls ?? null,
+    _ts: ts,
+  };
+}
+
+/** Evita cache del navegador cuando ored actualiza avatars en la misma URL. */
+export function avatarUrlWithCacheBust(url, version) {
+  if (!url || version == null || version === "") return url ?? null;
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}v=${encodeURIComponent(String(version))}`;
 }
 
 /**
@@ -86,11 +113,21 @@ export function pickAvatarSrc(reserva, displaySize = 72) {
       .filter((v) => Number.isFinite(v.size) && typeof v.url === "string")
       .sort((a, b) => a.size - b.size);
 
-    const fit = sizes.find((v) => v.size >= target) ?? sizes[sizes.length - 1];
+    let fit = sizes.find((v) => v.size >= target) ?? sizes[sizes.length - 1];
+    // ored suele marcar foto_url con la variante 400; en storage a veces solo existen 100 y 800.
+    if (fit?.size === 400) {
+      fit = sizes.find((v) => v.size === 800) ?? sizes.find((v) => v.size === 100) ?? fit;
+    }
     if (fit?.url) return fit.url;
   }
 
-  return reserva.asesor_foto_url ?? null;
+  const legacy = reserva.asesor_foto_url ?? null;
+  if (legacy && /_400\.png/i.test(legacy) && variants && typeof variants === "object") {
+    const alt =
+      variants["800"] ?? variants[800] ?? variants["100"] ?? variants[100];
+    if (typeof alt === "string") return alt;
+  }
+  return legacy;
 }
 
 /**
@@ -106,7 +143,7 @@ export function buildRanking(reservas) {
   const porBP = new Map();
 
   for (const r of reservas) {
-    const email = normalizeEmail(r.asesor_email);
+    const email = canonicalAsesorEmail(r.asesor_email);
     if (!email) continue;
 
     const mapping = ASESOR_INDEX.get(email);
@@ -122,8 +159,9 @@ export function buildRanking(reservas) {
         bp_display: bp.display,
         total: 0,
         monto_uf_total: 0,
-        foto_url: r.asesor_foto_url ?? null,
-        foto_urls: r.asesor_foto_urls ?? null,
+        foto_url: null,
+        foto_urls: null,
+        _foto: null,
         reservas: []
       });
     }
@@ -131,12 +169,11 @@ export function buildRanking(reservas) {
     filaAsesor.total += 1;
     filaAsesor.monto_uf_total += uf;
     filaAsesor.reservas.push(r);
-    // Actualizar foto si llega data nueva (mas reciente o mas completa).
-    if (!filaAsesor.foto_url && r.asesor_foto_url) {
-      filaAsesor.foto_url = r.asesor_foto_url;
-    }
-    if (!filaAsesor.foto_urls && r.asesor_foto_urls) {
-      filaAsesor.foto_urls = r.asesor_foto_urls;
+    const merged = mergeFotoFromReserva(filaAsesor._foto, r);
+    if (merged) {
+      filaAsesor._foto = merged;
+      filaAsesor.foto_url = merged.foto_url;
+      filaAsesor.foto_urls = merged.foto_urls;
     }
 
     if (!porBP.has(bpSlug)) {
@@ -154,7 +191,9 @@ export function buildRanking(reservas) {
     filaBP.asesores_activos.add(email);
   }
 
-  const asesoresArr = [...porAsesor.values()].sort((a, b) => b.total - a.total);
+  const asesoresArr = [...porAsesor.values()]
+    .map(({ _foto, ...rest }) => rest)
+    .sort((a, b) => b.total - a.total);
 
   const bpsArr = [...porBP.values()]
     .map((b) => ({

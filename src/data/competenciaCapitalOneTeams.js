@@ -108,6 +108,11 @@ export const EQUIPOS_CAPITAL_ONE = [
         bpSlugs: ['vanema'],
       },
       {
+        referenciaLista: 'Inm e Inv FIR',
+        nombresPlataforma: ['BP Inm e Inv FIR'],
+        bpSlugs: ['inm-inv-fir'],
+      },
+      {
         referenciaLista: 'IRC Inversiones',
         nombresPlataforma: ['BP IRC Inversiones Inmobiliarias'],
         bpSlugs: ['irc-inversiones'],
@@ -130,6 +135,11 @@ export const EQUIPOS_CAPITAL_ONE = [
         bpSlugs: ['sinapsis'],
       },
       {
+        referenciaLista: 'Nazar Property',
+        nombresPlataforma: ['BP Nazar Property'],
+        bpSlugs: ['nazar-property'],
+      },
+      {
         referenciaLista: 'Debora Capital Inmobiliario',
         nombresPlataforma: ['BP Deborah Mendez'],
         bpSlugs: ['debora-capital'],
@@ -142,9 +152,9 @@ export const EQUIPOS_CAPITAL_ONE = [
       {
         referenciaLista: 'Vivvoen',
         nombresPlataforma: ['BP Vivvoen', 'Vivvo en', 'VIVVOEN'],
-        emails: ['vivvoen@capitalinteligente.cl'],
-        asesorNombres: ['Vivvo en'],
-        bpSlugs: ['vanema'],
+        emails: ['vivvoen@capitalinteligente.cl', 'gchacon@capitalinteligente.cl', 'gsuarez@capitalinteligente.cl'],
+        asesorNombres: ['Vivvo en', 'Gabriel Chacon', 'Gabriel Eduardo Chacon'],
+        bpSlugs: ['vivvoen'],
       },
       {
         referenciaLista: 'House Family',

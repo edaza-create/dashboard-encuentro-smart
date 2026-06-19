@@ -2,8 +2,7 @@ import { useMemo } from 'react'
 import { ClipboardList, RefreshCw } from 'lucide-react'
 import { useAsistenciaReuniones } from '../../hooks/useAsistenciaReuniones.js'
 import { EQUIPOS_CAPITAL_ONE } from '../../data/competenciaCapitalOneTeams.js'
-import { THRESHOLD_ONLINE, THRESHOLD_PRESENCIAL } from '../../utils/asistenciaActividades.js'
-import { SCORING } from '../../utils/competenciaCapitalOpenScore.js'
+import { PTS_ASISTENCIA_REUNION } from '../../utils/buildAsistenciaPuntos.js'
 import styles from './AsistenciaPage.module.css'
 
 const equipoLabel = Object.fromEntries(
@@ -64,10 +63,9 @@ export default function AsistenciaPage() {
             Asistencia reuniones (Google Forms)
           </h1>
           <p className={styles.lede}>
-            Cada respuesta del formulario suma al % del <strong>equipo Capital Open</strong>. Si se
-            cumple ≥{Math.round(THRESHOLD_ONLINE * 100)}% online o ≥{Math.round(THRESHOLD_PRESENCIAL * 100)}%
-            presencial, el equipo recibe +{SCORING.actividadOnline} pts automáticamente (visible en
-            Competencia Equipos y <code>/cyber</code>).
+            Por cada reunión, el <strong>equipo Capital Open con más asistentes</strong> (online +
+            presencial) recibe +{PTS_ASISTENCIA_REUNION} pts en Competencia Equipos y{' '}
+            <code>/cyber</code>. El formato de conteo sigue siendo asistentes/roster (ej. 19/66).
           </p>
         </div>
         <button type="button" className={styles.refreshBtn} onClick={refetch} disabled={status === 'loading'}>

@@ -1,10 +1,11 @@
 import asesoresBpData from '../data/asesores-bp.json'
-import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams'
-import { brokerTieneMapeo } from './brokerReservaMatch'
-import { reservaMatchesBroker } from './brokerReservaMatch'
-import { equipoIdForReservasAsesor, equipoLabelForId } from './competenciaIndividualToEquipo'
-import { SCORING } from './competenciaCapitalOpenScore'
-import { ufMontoPlanillaReserva } from './ufNormalize'
+import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams.js'
+import { brokerTieneMapeo } from './brokerReservaMatch.js'
+import { reservaMatchesBroker } from './brokerReservaMatch.js'
+import { equipoIdForReservasAsesor, equipoLabelForId } from './competenciaIndividualToEquipo.js'
+import { SCORING } from './competenciaCapitalOpenScore.js'
+import { ufMontoPlanillaReserva } from './ufNormalize.js'
+import { canonicalAsesorEmail } from './asesorEmail.js'
 
 function bpSlugsEnCompetencia() {
   const slugs = new Set()
@@ -60,7 +61,7 @@ export function reservasEnCompetencia(reservas) {
 export function asesorStorageKey(r) {
   const n = String(r.nombre_asesor ?? '').trim().toLowerCase()
   if (n) return `n:${n}`
-  const e = String(r.user_email ?? '').trim().toLowerCase()
+  const e = canonicalAsesorEmail(r.user_email)
   if (e) return `e:${e}`
   return `l:${String(r.nivel_jerarquia_nombre ?? '')}`
 }

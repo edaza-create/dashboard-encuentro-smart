@@ -1,4 +1,5 @@
 import { supabase, supabaseConfigured } from '../data/supabaseClient.js'
+import { reunionCuentaParaPuntos } from '../utils/asistenciaFechaCorte.js'
 
 /**
  * Fetch reunión pública (anon — para el formulario QR).
@@ -82,13 +83,14 @@ export async function fetchConteosPorReunion(reunionId, signal) {
  */
 export async function fetchConteosGlobal(signal) {
   if (!supabase) return []
-  const { data: reuniones } = await supabase
+  const { data: reuniones, error: reunionesErr } = await supabase
     .from('asistencia_reuniones_config')
-    .select('id')
+    .select('id, fecha_evento, qr_generated_at, created_at')
     .eq('archivada', false)
     .abortSignal(signal)
-  if (!reuniones?.length) return []
-  const ids = reuniones.map((r) => r.id)
+  if (reunionesErr) throw reunionesErr
+  const ids = (reuniones ?? []).filter(reunionCuentaParaPuntos).map((r) => r.id)
+  if (!ids.length) return []
   const { data, error } = await supabase
     .from('asistencia_conteo_por_equipo')
     .select('*')

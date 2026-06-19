@@ -2,6 +2,7 @@ import asesoresBP from '../data/asesores-bp.json' with { type: 'json' }
 import { BP_SLUG_TO_PLATAFORMA as BP_PLATAFORMA_CATALOG } from '../data/bpCatalog.js'
 import { lookupEquipoInternoBp } from './equipoComercialInterno.js'
 import { NIVEL_PLATAFORMA_EQUIPO_INTERNO, BP_SLUG_EQUIPO_INTERNO } from '../data/equipoComercialInterno.js'
+import { canonicalAsesorEmail } from './asesorEmail.js'
 
 /** Primer nombre de plataforma por slug de BP (catálogo + equipo interno). */
 const BP_SLUG_TO_PLATAFORMA = {
@@ -19,7 +20,7 @@ for (const a of asesoresBP.asesores) {
  * @returns {{ bp_slug: string|null, nombre: string|null, nivel_jerarquia_nombre: string }}
  */
 export function lookupAsesorBp(email) {
-  const key = typeof email === 'string' ? email.trim().toLowerCase() : ''
+  const key = canonicalAsesorEmail(email) ?? ''
   if (!key) {
     return { bp_slug: null, nombre: null, nivel_jerarquia_nombre: '' }
   }

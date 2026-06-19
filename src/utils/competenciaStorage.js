@@ -1,4 +1,4 @@
-import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams'
+import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams.js'
 
 export const COMPETENCIA_TEAM_STORAGE_KEY = 'capital-open-competencia-manual-v1'
 export const COMPETENCIA_INDIVIDUAL_STORAGE_KEY = 'capital-open-competencia-individual-v1'

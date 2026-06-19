@@ -13,9 +13,12 @@ export default function ReunionEnVivoPanel({ reunion, onClose }) {
   const countdown = useCountdown(reunion.closes_at)
   const { conteos, registros, totalAsistentes, refetch } = useReunionEnVivo(reunion.id, { includeRegistros: true })
 
-  const breakdown = breakdownReunion(conteos, rosterMap)
-  const totalPresencial = conteos.filter((c) => c.modalidad === 'Presencial').reduce((s, c) => s + Number(c.total), 0)
-  const totalOnline = conteos.filter((c) => c.modalidad === 'Online').reduce((s, c) => s + Number(c.total), 0)
+  const source = registros.length ? registros : conteos
+  const { rows: breakdown } = breakdownReunion(source, rosterMap, {
+    fromRegistros: registros.length > 0,
+  })
+  const totalPresencial = breakdown.reduce((s, eq) => s + eq.presencial, 0)
+  const totalOnline = breakdown.reduce((s, eq) => s + eq.online, 0)
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -67,18 +70,15 @@ export default function ReunionEnVivoPanel({ reunion, onClose }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {breakdown.map((eq) => {
-                    const nearThreshold = (eq.onlinePct >= 0.7 && eq.ptsOnline === 0) || (eq.presencialPct >= 0.7 && eq.ptsPresencial === 0)
-                    return (
-                      <tr key={eq.equipo_id} className={eq.ptsTotal > 0 ? styles.rowGreen : nearThreshold ? styles.rowYellow : ''}>
+                  {breakdown.map((eq) => (
+                      <tr key={eq.equipo_id} className={eq.ptsTotal > 0 ? styles.rowGreen : ''}>
                         <td className={styles.tdName}>{equipoLabel[eq.equipo_id] ?? eq.equipo_id}</td>
-                        <td>{eq.online + eq.presencial}/{eq.rosterSize}</td>
+                        <td><strong>{eq.asistentesTotal}</strong>/{eq.rosterSize}</td>
                         <td>{eq.presencial} ({Math.round(eq.presencialPct * 100)}%)</td>
                         <td>{eq.online} ({Math.round(eq.onlinePct * 100)}%)</td>
                         <td>{eq.ptsTotal > 0 ? <span className={styles.ptsBadge}>+{eq.ptsTotal}</span> : '—'}</td>
                       </tr>
-                    )
-                  })}
+                  ))}
                   {breakdown.length === 0 && (
                     <tr><td colSpan={5} className={styles.emptyRow}>Sin registros aún</td></tr>
                   )}

@@ -3,7 +3,7 @@
  * Lee promesas y escrituras desde caché remota (Supabase) o localStorage del dashboard admin.
  */
 
-import { pickAvatarSrc } from './buildRanking.js'
+import { mergeFotoFromReserva, pickAvatarSrc } from './buildRanking.js'
 import { lookupAsesorBp } from './asesorBpPlataforma.js'
 import { miembroPorNombre } from './equipoComercialInterno.js'
 import { mapReservaPublica } from './mapReserva.js'
@@ -21,28 +21,23 @@ import {
   SCORING,
 } from './competenciaCapitalOpenScore.js'
 import { loadIndividualManualSaved, loadTeamManualSaved } from './competenciaStorage.js'
-
-function normalizeEmail(email) {
-  if (typeof email !== 'string') return null
-  const trimmed = email.trim().toLowerCase()
-  return trimmed || null
-}
+import { canonicalAsesorEmail } from './asesorEmail.js'
 
 function buildFotoByEmail(reservasPublicas) {
   const map = new Map()
   for (const r of reservasPublicas ?? []) {
-    const email = normalizeEmail(r.asesor_email)
-    if (!email || map.has(email)) continue
-    map.set(email, {
-      foto_url: r.asesor_foto_url ?? null,
-      foto_urls: r.asesor_foto_urls ?? null,
-    })
+    const email = canonicalAsesorEmail(r.asesor_email)
+    if (!email) continue
+    const merged = mergeFotoFromReserva(map.get(email), r)
+    if (merged) {
+      map.set(email, { foto_url: merged.foto_url, foto_urls: merged.foto_urls })
+    }
   }
   return map
 }
 
 function reservaTieneBpAsignado(r) {
-  const email = normalizeEmail(r.asesor_email)
+  const email = canonicalAsesorEmail(r.asesor_email)
   if (email && lookupAsesorBp(email).bp_slug) return true
   if (miembroPorNombre(r.asesor_nombre)) return true
   return false
@@ -52,9 +47,9 @@ function buildHuerfanos(reservasPublicas) {
   const porEmail = new Map()
   for (const r of reservasPublicas ?? []) {
     if (reservaTieneBpAsignado(r)) continue
-    const email = normalizeEmail(r.asesor_email) ?? `nombre:${String(r.asesor_nombre ?? '').trim().toLowerCase()}`
+    const email = canonicalAsesorEmail(r.asesor_email) ?? `nombre:${String(r.asesor_nombre ?? '').trim().toLowerCase()}`
     if (!porEmail.has(email)) {
-      porEmail.set(email, { email: normalizeEmail(r.asesor_email) ?? email, nombre: r.asesor_nombre ?? null, total: 0 })
+      porEmail.set(email, { email: canonicalAsesorEmail(r.asesor_email) ?? email, nombre: r.asesor_nombre ?? null, total: 0 })
     }
     porEmail.get(email).total += 1
   }
@@ -75,7 +70,7 @@ export function buildRankingCompetencia(reservasPublicas) {
     .map((a) => {
       const saved = indManual[a.key] || { promesasCount: 0, escriturasCount: 0 }
       const pm = puntosManualIndividual(saved)
-      const emailKey = a.email?.toLowerCase()
+      const emailKey = canonicalAsesorEmail(a.email)
       const foto = emailKey ? fotos.get(emailKey) : null
       return {
         email: a.email,
@@ -128,4 +123,4 @@ export function buildRankingCompetencia(reservasPublicas) {
 }
 
 /** Re-export para la UI pública */
-export { pickAvatarSrc }
+export { avatarUrlWithCacheBust, pickAvatarSrc } from './buildRanking.js'

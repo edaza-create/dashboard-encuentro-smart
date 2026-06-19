@@ -1,53 +1,93 @@
 /**
- * Calcula puntos de asistencia por equipo, acumulados sobre todas las reuniones.
+ * Calcula puntos de asistencia por equipo, acumulados sobre reuniones elegibles (desde hoy).
  *
- * Umbrales por reunión:
- *  - ≥ 80% Online  → +15 pts
- *  - ≥ 50% Presencial → +15 pts
- *
- * @param {Array<{ reunion_id: string, equipo_id: number, modalidad: 'Presencial'|'Online', total: number }>} conteos
- *   — filas de la view asistencia_conteo_por_equipo (puede incluir múltiples reuniones)
- * @param {Map<string, Set<string>>} rosterMap
- *   — equipoId → Set de emails activos (de rosterEmailsPorEquipoCapitalOpen)
- * @returns {{ [equipo_id: string]: { online: number, presencial: number, total: number } }}
+ * Regla por reunión: +15 pts al equipo con **más asistentes** (online + presencial).
+ * El formato en UI sigue siendo asistentes/roster (ej. 19/66); el % no otorga puntos.
  */
-export function buildAsistenciaPuntos(conteos, rosterMap) {
-  const THRESHOLD_ONLINE = 0.8
-  const THRESHOLD_PRESENCIAL = 0.5
-  const PTS = 15
 
-  const byReunionEquipo = new Map()
-  for (const row of conteos) {
-    const key = `${row.reunion_id}::${row.equipo_id}`
-    if (!byReunionEquipo.has(key)) {
-      byReunionEquipo.set(key, { reunion_id: row.reunion_id, equipo_id: String(row.equipo_id), online: 0, presencial: 0 })
-    }
-    const entry = byReunionEquipo.get(key)
-    if (row.modalidad === 'Online') entry.online += Number(row.total)
-    if (row.modalidad === 'Presencial') entry.presencial += Number(row.total)
+import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams.js'
+
+export const PTS_ASISTENCIA_REUNION = 15
+
+/** @returns {'online'|'presencial'|null} */
+export function normalizeModalidadAsistencia(modalidad) {
+  const t = String(modalidad ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+  if (!t) return null
+  if (/online|virtual|remot|zoom|meet|remoto/.test(t)) return 'online'
+  if (/presencial|presencia|sala|oficina|terreno/.test(t)) return 'presencial'
+  return null
+}
+
+/** @param {Map<string, { online: number, presencial: number }>} countsByEquipo */
+export function equiposLiderAsistentes(countsByEquipo) {
+  let maxTotal = 0
+  for (const counts of countsByEquipo.values()) {
+    maxTotal = Math.max(maxTotal, counts.online + counts.presencial)
   }
+  if (maxTotal === 0) return new Set()
 
+  const winners = new Set()
+  for (const [eid, counts] of countsByEquipo) {
+    if (counts.online + counts.presencial === maxTotal) winners.add(eid)
+  }
+  return winners
+}
+
+function aggregateConteosPorEquipo(conteos) {
+  const byEquipo = new Map()
+  for (const row of conteos ?? []) {
+    const eid = String(row.equipo_id)
+    if (!eid) continue
+    if (!byEquipo.has(eid)) byEquipo.set(eid, { online: 0, presencial: 0 })
+    const entry = byEquipo.get(eid)
+    const mod = normalizeModalidadAsistencia(row.modalidad)
+    if (mod === 'online') entry.online += Number(row.total) || 0
+    if (mod === 'presencial') entry.presencial += Number(row.total) || 0
+  }
+  return byEquipo
+}
+
+/** Cuenta cada registro de asistencia (más fiable en reportes en vivo). */
+export function aggregateFromRegistros(registros) {
+  const byEquipo = new Map()
+  for (const row of registros ?? []) {
+    const eid = String(row.equipo_id ?? '')
+    if (!eid) continue
+    if (!byEquipo.has(eid)) byEquipo.set(eid, { online: 0, presencial: 0 })
+    const entry = byEquipo.get(eid)
+    const mod = normalizeModalidadAsistencia(row.modalidad)
+    if (mod === 'online') entry.online += 1
+    if (mod === 'presencial') entry.presencial += 1
+  }
+  return byEquipo
+}
+
+function groupConteosPorReunion(conteos) {
+  const byReunion = new Map()
+  for (const row of conteos ?? []) {
+    const rid = row.reunion_id
+    if (!byReunion.has(rid)) byReunion.set(rid, [])
+    byReunion.get(rid).push(row)
+  }
+  return byReunion
+}
+
+export function buildAsistenciaPuntos(conteos, rosterMap) {
   const result = {}
 
-  for (const entry of byReunionEquipo.values()) {
-    const roster = rosterMap.get(entry.equipo_id)
-    const rosterSize = roster ? roster.size : 0
-    if (rosterSize === 0) continue
+  for (const reunionConteos of groupConteosPorReunion(conteos).values()) {
+    const byEquipo = aggregateConteosPorEquipo(reunionConteos)
+    const winners = equiposLiderAsistentes(byEquipo)
 
-    const onlinePct = entry.online / rosterSize
-    const presencialPct = entry.presencial / rosterSize
-
-    if (!result[entry.equipo_id]) {
-      result[entry.equipo_id] = { online: 0, presencial: 0, total: 0 }
-    }
-
-    if (onlinePct >= THRESHOLD_ONLINE) {
-      result[entry.equipo_id].online += PTS
-      result[entry.equipo_id].total += PTS
-    }
-    if (presencialPct >= THRESHOLD_PRESENCIAL) {
-      result[entry.equipo_id].presencial += PTS
-      result[entry.equipo_id].total += PTS
+    for (const eid of winners) {
+      const roster = rosterMap.get(eid)
+      if (!roster?.size) continue
+      if (!result[eid]) result[eid] = { online: 0, presencial: 0, total: 0 }
+      result[eid].total += PTS_ASISTENCIA_REUNION
     }
   }
 
@@ -55,46 +95,57 @@ export function buildAsistenciaPuntos(conteos, rosterMap) {
 }
 
 /**
- * Calcula breakdown detallado para UNA reunión (útil para panel en vivo y reporte).
+ * Breakdown para UNA reunión (reporte, panel en vivo, QR activo).
  *
- * @param {Array<{ equipo_id: number, modalidad: string, total: number }>} conteos — de UNA reunión
+ * @param {Array<object>} conteosOrRegistros — filas de view `asistencia_conteo_por_equipo` o `asistencia_registros`
  * @param {Map<string, Set<string>>} rosterMap
- * @returns {Array<{ equipo_id: string, rosterSize: number, online: number, presencial: number, onlinePct: number, presencialPct: number, ptsOnline: number, ptsPresencial: number, ptsTotal: number }>}
+ * @param {{ fromRegistros?: boolean, equipos?: typeof EQUIPOS_CAPITAL_ONE }} [opts]
  */
-export function breakdownReunion(conteos, rosterMap) {
-  const THRESHOLD_ONLINE = 0.8
-  const THRESHOLD_PRESENCIAL = 0.5
-  const PTS = 15
+export function breakdownReunion(conteosOrRegistros, rosterMap, opts = {}) {
+  const equipos = opts.equipos ?? EQUIPOS_CAPITAL_ONE
+  const byEquipo = opts.fromRegistros
+    ? aggregateFromRegistros(conteosOrRegistros)
+    : aggregateConteosPorEquipo(conteosOrRegistros)
 
-  const byEquipo = new Map()
-  for (const row of conteos) {
-    const eid = String(row.equipo_id)
-    if (!byEquipo.has(eid)) byEquipo.set(eid, { online: 0, presencial: 0 })
-    const e = byEquipo.get(eid)
-    if (row.modalidad === 'Online') e.online += Number(row.total)
-    if (row.modalidad === 'Presencial') e.presencial += Number(row.total)
-  }
+  const winners = equiposLiderAsistentes(byEquipo)
+  const maxParticipantes = winners.size
+    ? Math.max(...[...winners].map((eid) => {
+        const c = byEquipo.get(eid) ?? { online: 0, presencial: 0 }
+        return c.online + c.presencial
+      }))
+    : 0
 
   const result = []
-  for (const [eid, counts] of byEquipo) {
+  for (const eq of equipos) {
+    const eid = String(eq.id)
+    const counts = byEquipo.get(eid) ?? { online: 0, presencial: 0 }
     const roster = rosterMap.get(eid)
     const rosterSize = roster ? roster.size : 0
+    const asistentesTotal = counts.online + counts.presencial
     const onlinePct = rosterSize ? counts.online / rosterSize : 0
     const presencialPct = rosterSize ? counts.presencial / rosterSize : 0
-    const ptsOnline = onlinePct >= THRESHOLD_ONLINE ? PTS : 0
-    const ptsPresencial = presencialPct >= THRESHOLD_PRESENCIAL ? PTS : 0
+    const ptsTotal = winners.has(eid) ? PTS_ASISTENCIA_REUNION : 0
+
     result.push({
       equipo_id: eid,
+      equipo_label: eq.label,
       rosterSize,
       online: counts.online,
       presencial: counts.presencial,
+      asistentesTotal,
       onlinePct,
       presencialPct,
-      ptsOnline,
-      ptsPresencial,
-      ptsTotal: ptsOnline + ptsPresencial,
+      ptsOnline: 0,
+      ptsPresencial: 0,
+      ptsTotal,
+      esLider: winners.has(eid),
     })
   }
 
-  return result
+  result.sort((a, b) => {
+    if (b.asistentesTotal !== a.asistentesTotal) return b.asistentesTotal - a.asistentesTotal
+    return a.equipo_label.localeCompare(b.equipo_label, 'es', { sensitivity: 'base' })
+  })
+
+  return { rows: result, winners: [...winners], maxParticipantes }
 }

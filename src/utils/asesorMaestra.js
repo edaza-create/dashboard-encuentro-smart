@@ -7,16 +7,13 @@ import asesoresBP from '../data/asesores-bp.json' with { type: 'json' }
 import { lookupAsesorBp } from './asesorBpPlataforma.js'
 import { BP_SLUG_EQUIPO_INTERNO } from '../data/equipoComercialInterno.js'
 import { equipoIdForNivelPlataforma, equipoLabelForId } from './competenciaIndividualToEquipo.js'
+import { canonicalAsesorEmail, normalizeEmail } from './asesorEmail.js'
+
+export { canonicalAsesorEmail, normalizeEmail } from './asesorEmail.js'
 
 const bpDisplayBySlug = new Map(
   (asesoresBP.business_partners ?? []).map((bp) => [bp.slug, bp.display ?? bp.slug])
 )
-
-export function normalizeEmail(email) {
-  if (typeof email !== 'string') return null
-  const t = email.trim().toLowerCase()
-  return t && t.includes('@') ? t : null
-}
 
 /**
  * @param {string} email
@@ -32,7 +29,7 @@ export function normalizeEmail(email) {
  * } | { ok: false, email: string }}
  */
 export function resolveAsesorMaestra(email) {
-  const key = normalizeEmail(email)
+  const key = canonicalAsesorEmail(email)
   if (!key) return { ok: false, email: String(email ?? '') }
 
   const row = lookupAsesorBp(key)
@@ -67,7 +64,7 @@ export function rosterEmailsPorEquipoCapitalOpen() {
   const map = new Map()
   for (const a of asesoresBP.asesores ?? []) {
     if (a.estado && a.estado !== 'ACTIVO') continue
-    const key = normalizeEmail(a.email)
+    const key = canonicalAsesorEmail(a.email)
     if (!key) continue
     const resolved = resolveAsesorMaestra(key)
     if (!resolved.ok || !resolved.equipo_id) continue

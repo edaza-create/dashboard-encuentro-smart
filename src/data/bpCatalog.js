@@ -16,6 +16,7 @@ export const BP_CATALOG = [
   { slug: 'skala', display: 'Skala', label_origen: 'Equipo Rosicela Fernandez', plataforma: 'BP Skala' },
   { slug: 'avanti-invest', display: 'Avanti Invest', label_origen: 'Avanti Invest MC / Maria Carolina Pinto', plataforma: 'BP Avanti Invest MC' },
   { slug: 'vanema', display: 'Vanema', label_origen: 'Vanessa Chirinos / VANEMA', plataforma: 'BP Vanema Inversiones' },
+  { slug: 'vivvoen', display: 'Vivvoen', label_origen: 'Manuel Duran / Vivvoen', plataforma: 'BP Vivvoen' },
   { slug: 'irc-inversiones', display: 'IRC Inversiones', label_origen: 'Bastián Rodriguez / IRC', plataforma: 'BP IRC Inversiones Inmobiliarias' },
   { slug: 'trama-gestion', display: 'Trama Gestión', label_origen: 'Denyz Leyton / Tramagestion', plataforma: 'Trama Gestion' },
   { slug: 'sinapsis', display: 'Sinapsis', label_origen: 'Equipo Sinapsis / Leandro Rios y Francisco Reyes', plataforma: 'BP Sinapsis' },
@@ -27,6 +28,8 @@ export const BP_CATALOG = [
   { slug: 'domca', display: 'Domca', label_origen: 'Domca / Hermanos Dominguez', plataforma: 'BP Domca' },
   { slug: 'invest-u', display: 'Invest U', label_origen: 'Olmar Lugo / Invest U', plataforma: 'BP Invest U' },
   { slug: 'neumann-stanley', display: 'Neumann Stanley', label_origen: 'Neumann Stanley / Neuman Stanley Group', plataforma: 'BP Neumann-Stanley Group' },
+  { slug: 'inm-inv-fir', display: 'Inm e Inv FIR', label_origen: 'Fernando Ipinza / Inm e Inv FIR', plataforma: 'BP Inm e Inv FIR' },
+  { slug: 'nazar-property', display: 'Nazar Property', label_origen: 'Claudia Nazar / Nazar Property', plataforma: 'BP Nazar Property' },
 ]
 
 /** @type {Record<string, string>} */

@@ -15,11 +15,14 @@ export default function QRActivoPanel({ reunion, onClose, onCloseReunion }) {
   const qrRef = useRef(null)
   const url = `${window.location.origin}/asistencia?reunion=${reunion.id}`
   const countdown = useCountdown(reunion.closes_at)
-  const { conteos, totalAsistentes } = useReunionEnVivo(reunion.id)
+  const { conteos, registros, totalAsistentes } = useReunionEnVivo(reunion.id, { includeRegistros: true })
 
-  const breakdown = breakdownReunion(conteos, rosterMap)
-  const totalPresencial = conteos.filter((c) => c.modalidad === 'Presencial').reduce((s, c) => s + Number(c.total), 0)
-  const totalOnline = conteos.filter((c) => c.modalidad === 'Online').reduce((s, c) => s + Number(c.total), 0)
+  const source = registros.length ? registros : conteos
+  const { rows: breakdown } = breakdownReunion(source, rosterMap, {
+    fromRegistros: registros.length > 0,
+  })
+  const totalPresencial = breakdown.reduce((s, eq) => s + eq.presencial, 0)
+  const totalOnline = breakdown.reduce((s, eq) => s + eq.online, 0)
 
   const handleDownload = useCallback(() => {
     const canvas = qrRef.current?.querySelector('canvas')
@@ -89,7 +92,7 @@ export default function QRActivoPanel({ reunion, onClose, onCloseReunion }) {
               <div key={eq.equipo_id} className={`${styles.equipoRow} ${eq.ptsTotal > 0 ? styles.equipoRowGreen : ''}`}>
                 <span className={styles.equipoName}>{equipoLabel[eq.equipo_id] ?? `Equipo ${eq.equipo_id}`}</span>
                 <span className={styles.equipoCount}>
-                  {eq.online + eq.presencial}/{eq.rosterSize}
+                  <strong>{eq.asistentesTotal}</strong>/{eq.rosterSize}
                 </span>
                 {eq.ptsTotal > 0 && (
                   <span className={styles.ptsBadge}>+{eq.ptsTotal} pts</span>
