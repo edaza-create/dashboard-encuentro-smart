@@ -1,9 +1,29 @@
+import asesoresBpData from '../data/asesores-bp.json'
 import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams'
 import { brokerTieneMapeo } from './brokerReservaMatch'
 import { reservaMatchesBroker } from './brokerReservaMatch'
 import { equipoIdForReservasAsesor, equipoLabelForId } from './competenciaIndividualToEquipo'
 import { SCORING } from './competenciaCapitalOpenScore'
 import { ufMontoPlanillaReserva } from './ufNormalize'
+
+function bpSlugsEnCompetencia() {
+  const slugs = new Set()
+  for (const eq of EQUIPOS_CAPITAL_ONE) {
+    for (const b of eq.brokers) {
+      for (const s of b.bpSlugs || []) slugs.add(s)
+    }
+  }
+  return slugs
+}
+
+function equipoIdForBpSlug(slug) {
+  for (const eq of EQUIPOS_CAPITAL_ONE) {
+    for (const b of eq.brokers) {
+      if ((b.bpSlugs || []).includes(slug)) return String(eq.id)
+    }
+  }
+  return null
+}
 
 /** Todos los niveles jerárquicos que participan en la competencia. */
 export function allNombresPlataformaCompetencia() {
@@ -96,6 +116,32 @@ export function listAsesoresCompetenciaIndividual(reservas) {
       ufTotal: ufTotalReservasAsesor(reservasAsesor),
     }
   })
+  // Merge roster asesores who are in competencia BPs but have no reservas yet
+  const rosterSlugs = bpSlugsEnCompetencia()
+  const existingKeys = new Set(list.map((a) => a.key))
+  for (const asesor of asesoresBpData.asesores ?? []) {
+    if (asesor.estado !== 'ACTIVO') continue
+    if (!rosterSlugs.has(asesor.bp_slug)) continue
+    const key = asesor.nombre
+      ? `n:${asesor.nombre.trim().toLowerCase()}`
+      : `e:${asesor.email.trim().toLowerCase()}`
+    if (existingKeys.has(key)) continue
+    existingKeys.add(key)
+    const equipoId = equipoIdForBpSlug(asesor.bp_slug)
+    list.push({
+      key,
+      nombreAsesor: asesor.nombre || '',
+      email: asesor.email || '',
+      nivelJerarquia: '',
+      reservas: 0,
+      equipoId,
+      equipoLabel: equipoLabelForId(equipoId),
+      etiqueta: asesor.nombre || asesor.email || '—',
+      puntosReserva: 0,
+      ufTotal: 0,
+    })
+  }
+
   list.sort((a, b) => {
     if (b.puntosReserva !== a.puntosReserva) return b.puntosReserva - a.puntosReserva
     return a.etiqueta.localeCompare(b.etiqueta, 'es', { sensitivity: 'base' })

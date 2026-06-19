@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { supabaseConfigured } from '../data/supabaseClient'
 import { adminEmailsSet } from '../config/admins'
 import styles from './LoginGate.module.css'
 
 export default function LoginGate({ children }) {
   const { session, loading, signInWithOtp, verifyOtp } = useAuth()
+
+  // Sin Supabase configurado (dev local) se salta el gate
+  if (!supabaseConfigured) return children
   const [step, setStep] = useState('email')
   const [email, setEmail] = useState('')
   const [token, setToken] = useState('')

@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { BookOpen, RotateCcw, Save, UserCircle2 } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { BookOpen, ChevronDown, RotateCcw, Save, Search, UserCircle2 } from 'lucide-react'
 import CompetenciaRemoteSyncBanner from './CompetenciaRemoteSyncBanner'
 import { useCompetenciaIndividualManual } from '../hooks/useCompetenciaIndividualManual'
 import { useAuth } from '../context/AuthContext'
@@ -13,8 +13,13 @@ import { SCORING } from '../utils/competenciaCapitalOpenScore'
 import { formatUF } from '../utils/format'
 import styles from './CompetenciaCapitalOpenIndividualTab.module.css'
 
+const PAGE_SIZE = 20
+
 export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
   const { canEditCompetencia, adminLockActive, session } = useAuth()
+  const [search, setSearch] = useState('')
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+
   const asesoresBase = useMemo(() => listAsesoresCompetenciaIndividual(reservas), [reservas])
   const asesorKeys = useMemo(() => asesoresBase.map((a) => a.key), [asesoresBase])
 
@@ -32,6 +37,20 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
       .sort(compareRankingPorPuntosYUf)
   }, [asesoresBase, saved])
 
+  const filteredRows = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return rows
+    return rows.filter(
+      (r) =>
+        r.etiqueta.toLowerCase().includes(q) ||
+        r.email.toLowerCase().includes(q)
+    )
+  }, [rows, search])
+
+  const visibleRows = filteredRows.slice(0, visibleCount)
+  const hasMore = filteredRows.length > visibleCount
+  const remaining = filteredRows.length - visibleCount
+
   const totales = useMemo(() => {
     const r = rows.reduce(
       (acc, row) => {
@@ -47,6 +66,15 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
     r.autoReserva = r.res * SCORING.reservaPorRegistro
     return r
   }, [rows])
+
+  const handleSearch = (e) => {
+    setSearch(e.target.value)
+    setVisibleCount(PAGE_SIZE)
+  }
+
+  const handleShowMore = () => {
+    setVisibleCount((c) => c + PAGE_SIZE)
+  }
 
   const handleReset = () => {
     if (!canEditCompetencia) return
@@ -125,6 +153,23 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
         </button>
       </div>
 
+      <div className={styles.searchBar}>
+        <Search size={15} className={styles.searchIcon} aria-hidden />
+        <input
+          type="search"
+          placeholder="Buscar asesor por nombre o correo..."
+          value={search}
+          onChange={handleSearch}
+          className={styles.searchInput}
+          aria-label="Buscar asesor"
+        />
+        {search && (
+          <span className={styles.searchCount}>
+            {filteredRows.length} resultado{filteredRows.length !== 1 ? 's' : ''}
+          </span>
+        )}
+      </div>
+
       <div className={styles.summary}>
         <span>
           Asesores: <strong>{rows.length.toLocaleString('es-CL')}</strong>
@@ -157,12 +202,18 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
 
       {rows.length === 0 && (
         <p className={styles.empty}>
-          No hay reservas en la ventana actual con un BP mapeado a la competencia Capital Open.
+          No hay asesores registrados en los BPs de la competencia Capital Open.
+        </p>
+      )}
+
+      {rows.length > 0 && filteredRows.length === 0 && (
+        <p className={styles.empty}>
+          Sin resultados para <strong>"{search}"</strong>.
         </p>
       )}
 
       <div className={styles.cards}>
-        {rows.map((row) => {
+        {visibleRows.map((row) => {
           const d = draft[row.key] || { promesasCount: 0, escriturasCount: 0 }
           const s = saved[row.key] || { promesasCount: 0, escriturasCount: 0 }
           const pmSaved = puntosManualIndividual(s)
@@ -175,7 +226,9 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
                   <h3 className={styles.asName}>{row.etiqueta}</h3>
                   <div className={styles.asMeta}>
                     {row.email ? <span className={styles.asEmail}>{row.email}</span> : null}
-                    <span className={styles.asBp}>Nivel: {row.nivelJerarquia}</span>
+                    {row.nivelJerarquia ? (
+                      <span className={styles.asBp}>Nivel: {row.nivelJerarquia}</span>
+                    ) : null}
                     {row.equipoLabel ? (
                       <span className={styles.asEquipo}>Equipo: {row.equipoLabel}</span>
                     ) : null}
@@ -190,17 +243,17 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
                 </div>
               </div>
 
-              
-                
+              <div className={styles.breakdown}>
+                <div className={styles.breakLine}>
                   <span>Cartera UF ({row.reservas} reservas)</span>
                   <strong>{formatUF(Math.round(row.ufTotal))}</strong>
-                
+                </div>
                 <div className={styles.breakLine}>
                   <span>
                     Reservas ({row.reservas}) × {SCORING.reservaPorRegistro}
                   </span>
                   <strong>{row.puntosReserva.toLocaleString('es-CL')} pts</strong>
-                
+                </div>
                 <div className={styles.breakLine}>
                   <span>Promesas</span>
                   <strong>{pmSaved.promesas.toLocaleString('es-CL')} pts</strong>
@@ -264,6 +317,14 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
           )
         })}
       </div>
+
+      {hasMore && (
+        <button type="button" className={styles.showMoreBtn} onClick={handleShowMore}>
+          <ChevronDown size={16} aria-hidden />
+          Ver {Math.min(PAGE_SIZE, remaining)} más
+          <span className={styles.showMoreHint}>({remaining} restantes)</span>
+        </button>
+      )}
     </div>
   )
 }
