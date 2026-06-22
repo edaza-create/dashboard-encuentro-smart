@@ -54,12 +54,17 @@ export function reservasEnCompetencia(reservas) {
   return reservas.filter(reservaEnCompetencia)
 }
 
+function stripAccents(s) {
+  return s.normalize('NFD').replace(/[̀-ͯ]/g, '')
+}
+
 /**
  * Clave estable para persistir puntos manuales por asesor.
  * Prioridad: nombre de asesor normalizado → email → nivel jerárquico.
+ * Tildes removidas para que "Sebastián" y "Sebastian" generen la misma clave.
  */
 export function asesorStorageKey(r) {
-  const n = String(r.nombre_asesor ?? '').trim().toLowerCase()
+  const n = stripAccents(String(r.nombre_asesor ?? '').trim().toLowerCase())
   if (n) return `n:${n}`
   const e = canonicalAsesorEmail(r.user_email)
   if (e) return `e:${e}`
@@ -124,7 +129,7 @@ export function listAsesoresCompetenciaIndividual(reservas) {
     if (asesor.estado !== 'ACTIVO') continue
     if (!rosterSlugs.has(asesor.bp_slug)) continue
     const key = asesor.nombre
-      ? `n:${asesor.nombre.trim().toLowerCase()}`
+      ? `n:${stripAccents(asesor.nombre.trim().toLowerCase())}`
       : `e:${asesor.email.trim().toLowerCase()}`
     if (existingKeys.has(key)) continue
     existingKeys.add(key)
