@@ -214,8 +214,8 @@
     {
       "email": "amarschhausen@capitalinteligente.cl",
       "nombre": "Alice Marschhausen",
-      "estado": "ACTIVO",
-      "bp_slug": "capital-growth"
+      "estado": "ELIMINADO",
+      "bp_slug": "inm-inv-fir"
     },
     {
       "email": "amorillo@capitalinteligente.cl",
@@ -238,7 +238,7 @@
     {
       "email": "aquero@capitalinteligente.cl",
       "nombre": "Alex Antonio Quero Lotzen",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "trama-gestion"
     },
     {
@@ -334,7 +334,7 @@
     {
       "email": "callende@capitalinteligente.cl",
       "nombre": "Claudia Allende",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "servicios-integrales"
     },
     {
@@ -544,7 +544,7 @@
     {
       "email": "dberrueta@capitalinteligente.cl",
       "nombre": "David Berrueta Avendaño",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "jtf-invest"
     },
     {
@@ -814,7 +814,7 @@
     {
       "email": "fsilva@capitalinteligente.cl",
       "nombre": "Fernando Silva Figueroa",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "house-family"
     },
     {
@@ -898,7 +898,7 @@
     {
       "email": "hgallardo@capitalinteligente.cl",
       "nombre": "Hugo Arturo Gallardo Ravanal",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "sinapsis"
     },
     {
@@ -994,7 +994,7 @@
     {
       "email": "jescudero@capitalinteligente.cl",
       "nombre": "Jaime Ignacio Escudero Alvarado",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "trama-gestion"
     },
     {
@@ -1084,7 +1084,7 @@
     {
       "email": "kfuentes@capitalinteligente.cl",
       "nombre": "Karen Francisca fuentes Pérez",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "trama-gestion"
     },
     {
@@ -1222,7 +1222,7 @@
     {
       "email": "mfrez@capitalinteligente.cl",
       "nombre": "Marcelo Andres Frez Bustamante",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "house-family"
     },
     {
@@ -1570,7 +1570,7 @@
     {
       "email": "psandoval@capitalinteligente.cl",
       "nombre": "Paula Sandoval Flores",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "house-family"
     },
     {
@@ -1900,7 +1900,7 @@
     {
       "email": "vfernandezv@capitalinteligente.cl",
       "nombre": "Valeria Alejandra Fernandez Vallejos",
-      "estado": "ACTIVO",
+      "estado": "ELIMINADO",
       "bp_slug": "house-family"
     },
     {
@@ -1956,13 +1956,127 @@
       "nombre": "Yasna Valenzuela",
       "estado": "ACTIVO",
       "bp_slug": "cfm-inversiones"
+    },
+    {
+      "email": "lfuenzalida@capitalinteligente.cl",
+      "nombre": "Lency Jacqueline Fuenzalida Undurraga",
+      "estado": "ACTIVO",
+      "bp_slug": "trama-gestion"
+    },
+    {
+      "email": "msepulveda@capitalinteligente.cl",
+      "nombre": "Marcela Sepulveda Candia",
+      "estado": "ACTIVO",
+      "bp_slug": "trama-gestion"
+    },
+    {
+      "email": "mperezo@capitalinteligente.cl",
+      "nombre": "Matilde Perez",
+      "estado": "ACTIVO",
+      "bp_slug": "select-capital"
+    },
+    {
+      "email": "rmarquez@capitalinteligente.cl",
+      "nombre": "Richard Marquez",
+      "estado": "ACTIVO",
+      "bp_slug": "select-capital"
+    },
+    {
+      "email": "cgerbier@capitalinteligente.cl",
+      "nombre": "Christopher Gerbier",
+      "estado": "ACTIVO",
+      "bp_slug": "jtf-invest"
+    },
+    {
+      "email": "svillaroel@capitalinteligente.cl",
+      "nombre": "Scarlet Villarroel",
+      "estado": "ACTIVO",
+      "bp_slug": "prop-inversiones"
+    },
+    {
+      "email": "anunez@capitalinteligente.cl",
+      "nombre": "Ariel Ignacio Núñez Salinas",
+      "estado": "ACTIVO",
+      "bp_slug": "irc-inversiones"
+    },
+    {
+      "email": "mherrera@capitalinteligente.cl",
+      "nombre": "María Luz Herrera Guzmán",
+      "estado": "ACTIVO",
+      "bp_slug": "irc-inversiones"
+    },
+    {
+      "email": "darredondo@capitalinteligente.cl",
+      "nombre": "Diego Ignacio Arredondo Torres",
+      "estado": "ACTIVO",
+      "bp_slug": "mendoza"
+    },
+    {
+      "email": "mherrerab@capitalinteligente.cl",
+      "nombre": "Miguel Herrera Bascuñán",
+      "estado": "ACTIVO",
+      "bp_slug": "mendoza"
+    },
+    {
+      "email": "mbodadilla@capitalinteligente.cl",
+      "nombre": "Matias Bodadilla",
+      "estado": "ACTIVO",
+      "bp_slug": "cfm-inversiones"
+    },
+    {
+      "email": "mlegal@capitalinteligente.cl",
+      "nombre": "Marlene Leonor Legal Castro",
+      "estado": "ACTIVO",
+      "bp_slug": "sinapsis"
+    },
+    {
+      "email": "npinto@capitalinteligente.cl",
+      "nombre": "Natalia Pinto",
+      "estado": "ACTIVO",
+      "bp_slug": "sinapsis"
+    },
+    {
+      "email": "rquintana@capitalinteligente.cl",
+      "nombre": "Rodrigo Andrés Quintana Loyola",
+      "estado": "ACTIVO",
+      "bp_slug": "sinapsis"
+    },
+    {
+      "email": "djimenez@capitalinteligente.cl",
+      "nombre": "Daniela Jimenez",
+      "estado": "ACTIVO",
+      "bp_slug": "domca"
+    },
+    {
+      "email": "fdonoso@capitalinteligente.cl",
+      "nombre": "Felipe Donoso",
+      "estado": "ACTIVO",
+      "bp_slug": "domca"
+    },
+    {
+      "email": "calvarado@capitalinteligente.cl",
+      "nombre": "Cristofher Alvarado",
+      "estado": "ACTIVO",
+      "bp_slug": "skala"
+    },
+    {
+      "email": "jsuarez@capitalinteligente.cl",
+      "nombre": "Juan Jose Suarez Hernandez",
+      "estado": "ACTIVO",
+      "bp_slug": "vivvoen"
+    },
+    {
+      "email": "vivoen@capitalinteligente.cl",
+      "nombre": "Viwo en",
+      "estado": "ACTIVO",
+      "bp_slug": "vivvoen"
     }
   ],
   "stats": {
     "total_bps": 27,
-    "total_asesores": 303,
-    "activos": 275,
-    "eliminados": 28,
+    "total_asesores": 322,
+    "activos": 283,
+    "eliminados": 39,
     "conflictos_email": 0,
     "preservados_desde_json": 0
   }
