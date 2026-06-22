@@ -16,6 +16,13 @@ function defaultEntry() {
   return { promesasCount: 0, escriturasCount: 0 }
 }
 
+function migrateKey(k) {
+  // Normalize accents in n:… keys so old entries (e.g. "n:sebastián") merge
+  // with their normalized counterpart ("n:sebastian") after the asesorStorageKey fix.
+  if (!k.startsWith('n:')) return k
+  return 'n:' + k.slice(2).normalize('NFD').replace(/[̀-ͯ]/g, '')
+}
+
 function normalizeLoaded(raw) {
   const asesores = raw?.asesores
   if (!asesores || typeof asesores !== 'object') return {}
@@ -23,9 +30,15 @@ function normalizeLoaded(raw) {
   for (const id of Object.keys(asesores)) {
     const t = asesores[id]
     if (!t || typeof t !== 'object') continue
-    out[id] = {
-      promesasCount: Math.max(0, Math.min(9999, Math.floor(Number(t.promesasCount) || 0))),
-      escriturasCount: Math.max(0, Math.min(9999, Math.floor(Number(t.escriturasCount) || 0))),
+    const key = migrateKey(id)
+    const promesas = Math.max(0, Math.min(9999, Math.floor(Number(t.promesasCount) || 0)))
+    const escrituras = Math.max(0, Math.min(9999, Math.floor(Number(t.escriturasCount) || 0)))
+    if (out[key]) {
+      // Two old keys collapsed into same normalized key → keep the higher value
+      out[key].promesasCount = Math.max(out[key].promesasCount, promesas)
+      out[key].escriturasCount = Math.max(out[key].escriturasCount, escrituras)
+    } else {
+      out[key] = { promesasCount: promesas, escriturasCount: escrituras }
     }
   }
   return out
