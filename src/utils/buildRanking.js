@@ -44,7 +44,8 @@ function bpSlugForReserva(email, nombre) {
 function buildAsesorIndex() {
   const map = new Map();
   for (const a of asesoresBP.asesores) {
-    map.set(a.email.toLowerCase(), a);
+    const key = canonicalAsesorEmail(a.email);
+    if (key) map.set(key, a);
   }
   return map;
 }

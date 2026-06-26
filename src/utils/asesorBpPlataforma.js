@@ -12,7 +12,8 @@ const BP_SLUG_TO_PLATAFORMA = {
 
 const emailToAsesor = new Map()
 for (const a of asesoresBP.asesores) {
-  if (a?.email) emailToAsesor.set(a.email.toLowerCase(), a)
+  const key = canonicalAsesorEmail(a?.email)
+  if (key) emailToAsesor.set(key, a)
 }
 
 /**
