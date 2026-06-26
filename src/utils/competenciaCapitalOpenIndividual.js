@@ -1,8 +1,12 @@
 import asesoresBpData from '../data/asesores-bp.json'
+import {
+  MIEMBROS_EQUIPO_COMERCIAL_INTERNO,
+  NIVEL_PLATAFORMA_EQUIPO_INTERNO,
+} from '../data/equipoComercialInterno.js'
 import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams.js'
 import { brokerTieneMapeo } from './brokerReservaMatch.js'
 import { reservaMatchesBroker } from './brokerReservaMatch.js'
-import { equipoIdForReservasAsesor, equipoLabelForId } from './competenciaIndividualToEquipo.js'
+import { equipoIdForNivelPlataforma, equipoIdForReservasAsesor, equipoLabelForId } from './competenciaIndividualToEquipo.js'
 import { SCORING } from './competenciaCapitalOpenScore.js'
 import { ufMontoPlanillaReserva } from './ufNormalize.js'
 import { canonicalAsesorEmail } from './asesorEmail.js'
@@ -56,6 +60,18 @@ export function reservasEnCompetencia(reservas) {
 
 function stripAccents(s) {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '')
+}
+
+function asesorInternoYaEnLista(existingKeys, miembro) {
+  const nameKey = miembro.nombre
+    ? `n:${stripAccents(miembro.nombre.trim().toLowerCase())}`
+    : null
+  if (nameKey && existingKeys.has(nameKey)) return true
+  for (const em of miembro.emails ?? []) {
+    const ek = canonicalAsesorEmail(em)
+    if (ek && existingKeys.has(`e:${ek}`)) return true
+  }
+  return false
 }
 
 /**
@@ -143,6 +159,28 @@ export function listAsesoresCompetenciaIndividual(reservas) {
       equipoId,
       equipoLabel: equipoLabelForId(equipoId),
       etiqueta: asesor.nombre || asesor.email || '—',
+      puntosReserva: 0,
+      ufTotal: 0,
+    })
+  }
+
+  // Merge equipo comercial interno aunque no tengan reservas en el periodo
+  const equipoInternoId = equipoIdForNivelPlataforma(NIVEL_PLATAFORMA_EQUIPO_INTERNO)
+  for (const miembro of MIEMBROS_EQUIPO_COMERCIAL_INTERNO) {
+    if (asesorInternoYaEnLista(existingKeys, miembro)) continue
+    const key = miembro.nombre
+      ? `n:${stripAccents(miembro.nombre.trim().toLowerCase())}`
+      : `e:${canonicalAsesorEmail(miembro.emails[0])}`
+    existingKeys.add(key)
+    list.push({
+      key,
+      nombreAsesor: miembro.nombre || '',
+      email: canonicalAsesorEmail(miembro.emails[0]) ?? miembro.emails[0] ?? '',
+      nivelJerarquia: NIVEL_PLATAFORMA_EQUIPO_INTERNO,
+      reservas: 0,
+      equipoId: equipoInternoId,
+      equipoLabel: equipoLabelForId(equipoInternoId),
+      etiqueta: miembro.nombre || miembro.emails[0] || '—',
       puntosReserva: 0,
       ufTotal: 0,
     })

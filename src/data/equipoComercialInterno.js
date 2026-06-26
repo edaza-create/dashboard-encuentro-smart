@@ -11,12 +11,6 @@ export const BP_SLUG_EQUIPO_INTERNO = 'equipo-comercial-interno'
 /** @type {MiembroEquipoInterno[]} */
 export const MIEMBROS_EQUIPO_COMERCIAL_INTERNO = [
   {
-    id: 'matilde-perez',
-    nombre: 'Matilde Pérez',
-    emails: ['mperez@capitalinteligente.cl', 'matilde.perez@capitalinteligente.cl'],
-    aliases: ['Matilde Perez', 'Matilde Pérez'],
-  },
-  {
     id: 'angelica-lugo',
     nombre: 'Angélica Lugo',
     emails: ['alugo@capitalinteligente.cl', 'angelica.lugo@capitalinteligente.cl'],
@@ -51,16 +45,6 @@ export const MIEMBROS_EQUIPO_COMERCIAL_INTERNO = [
     nombre: 'Lissette Padilla',
     emails: ['lpadilla@capitalinteligente.cl', 'lissette.padilla@capitalinteligente.cl'],
     aliases: ['Lissette Padilla', 'Lisette Padilla'],
-  },
-  {
-    id: 'claudia-boccieri',
-    nombre: 'Claudia Boccieri',
-    emails: [
-      'cboccieri@capitalinteligente.cl',
-      'cbocchieri@capitalinteligente.cl',
-      'claudia.boccieri@capitalinteligente.cl',
-    ],
-    aliases: ['Claudia Boccieri', 'Claudia Bocchieri'],
   },
   {
     id: 'marcela-olguin',

@@ -374,6 +374,12 @@
       "bp_slug": "irc-inversiones"
     },
     {
+      "email": "cbocchieri@capitalinteligente.cl",
+      "nombre": "Claudia Boccieri",
+      "estado": "ACTIVO",
+      "bp_slug": "marisio-inversiones"
+    },
+    {
       "email": "cborquez@capitalinteligente.cl",
       "nombre": "Carlos Guillermo Bórquez Espinoza",
       "estado": "ACTIVO",
@@ -2074,8 +2080,8 @@
   ],
   "stats": {
     "total_bps": 27,
-    "total_asesores": 322,
-    "activos": 283,
+    "total_asesores": 323,
+    "activos": 284,
     "eliminados": 39,
     "conflictos_email": 0,
     "preservados_desde_json": 0

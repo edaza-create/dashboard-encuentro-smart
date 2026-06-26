@@ -1993,22 +1993,6 @@
       "equipo_id": "1",
       "equipo": "Team Williams"
     },
-    "mperez@capitalinteligente.cl": {
-      "asesor_id": "email:mperez@capitalinteligente.cl",
-      "email": "mperez@capitalinteligente.cl",
-      "nombre": "Matilde Pérez",
-      "subgrupo": "Equipo Comercial Interno",
-      "equipo_id": null,
-      "equipo": null
-    },
-    "matilde.perez@capitalinteligente.cl": {
-      "asesor_id": "email:matilde.perez@capitalinteligente.cl",
-      "email": "matilde.perez@capitalinteligente.cl",
-      "nombre": "Matilde Pérez",
-      "subgrupo": "Equipo Comercial Interno",
-      "equipo_id": null,
-      "equipo": null
-    },
     "alugo@capitalinteligente.cl": {
       "asesor_id": "email:alugo@capitalinteligente.cl",
       "email": "alugo@capitalinteligente.cl",
@@ -2101,30 +2085,6 @@
       "asesor_id": "email:lissette.padilla@capitalinteligente.cl",
       "email": "lissette.padilla@capitalinteligente.cl",
       "nombre": "Lissette Padilla",
-      "subgrupo": "Equipo Comercial Interno",
-      "equipo_id": null,
-      "equipo": null
-    },
-    "cboccieri@capitalinteligente.cl": {
-      "asesor_id": "email:cboccieri@capitalinteligente.cl",
-      "email": "cboccieri@capitalinteligente.cl",
-      "nombre": "Claudia Boccieri",
-      "subgrupo": "Equipo Comercial Interno",
-      "equipo_id": null,
-      "equipo": null
-    },
-    "cbocchieri@capitalinteligente.cl": {
-      "asesor_id": "email:cbocchieri@capitalinteligente.cl",
-      "email": "cbocchieri@capitalinteligente.cl",
-      "nombre": "Claudia Boccieri",
-      "subgrupo": "Equipo Comercial Interno",
-      "equipo_id": null,
-      "equipo": null
-    },
-    "claudia.boccieri@capitalinteligente.cl": {
-      "asesor_id": "email:claudia.boccieri@capitalinteligente.cl",
-      "email": "claudia.boccieri@capitalinteligente.cl",
-      "nombre": "Claudia Boccieri",
       "subgrupo": "Equipo Comercial Interno",
       "equipo_id": null,
       "equipo": null
