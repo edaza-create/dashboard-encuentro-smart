@@ -707,6 +707,65 @@
   white-space: nowrap;
 }
 
+/* ── modo suspenso (puntos + orden ocultos) ─────────────────────────────── */
+.rankHidden {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--rk-text-muted);
+}
+
+/* Grid sin la columna de puntos (3 cols en desktop). Selector con doble clase
+   para ganar en especificidad a los media queries de .rowGrid / .tableHead. */
+.rowNoScore .rowGrid {
+  grid-template-columns: 72px minmax(0, 1.35fr) minmax(0, 2fr);
+}
+.tableHead.tableHeadNoScore {
+  grid-template-columns: 72px minmax(0, 1.35fr) minmax(0, 2fr);
+}
+
+@media (max-width: 1100px) {
+  .rowNoScore .rowGrid,
+  .tableHead.tableHeadNoScore {
+    grid-template-columns: 64px minmax(0, 1.2fr) minmax(0, 1.8fr);
+  }
+}
+
+@media (max-width: 860px) {
+  .rowNoScore .rowGrid {
+    grid-template-columns: 56px 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .rowNoScore .rowGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.suspenso {
+  position: relative;
+  z-index: 1;
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: rgba(11, 15, 26, 0.38);
+  border: 1px solid rgba(204, 250, 63, 0.45);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.4;
+  max-width: 640px;
+  backdrop-filter: blur(6px);
+}
+.suspensoLock {
+  font-size: 20px;
+  line-height: 1;
+}
+
 /* ── states ─────────────────────────────────────────────────────────────── */
 .stateBox {
   position: relative;

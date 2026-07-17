@@ -33,6 +33,12 @@ const AVATAR_SIZE = 72;
 const eventoNombre = import.meta.env.VITE_EVENTO_NOMBRE ?? "Capital Open";
 const eventoSubtitulo = import.meta.env.VITE_EVENTO_SUBTITULO ?? "Cyber";
 
+// Modo suspenso: oculta puntos totales/desglose y el orden real del ranking
+// (reordena alfabéticamente y esconde posiciones/medallas) para no revelar
+// quién gana antes de la premiación. Reversible: VITE_RANKING_SUSPENSO=false.
+const MODO_SUSPENSO =
+  String(import.meta.env.VITE_RANKING_SUSPENSO ?? "false").toLowerCase() === "true";
+
 const TABS = [
   { key: "individual", label: "Individual" },
   { key: "bp", label: "Por equipo (BP)" }
@@ -115,7 +121,7 @@ export default function RankingPublicoPage() {
       }));
     }
     return asesores.map((a, i) => ({
-      key: a.email || a.nombre || String(i),
+      key: a.key || a.email || a.nombre || String(i),
       rank: i + 1,
       seed: a.email || a.nombre,
       nombre: a.nombre ?? a.email,
@@ -151,28 +157,52 @@ export default function RankingPublicoPage() {
     return parts.join(" + ");
   };
 
-  const listaTop =
-    tab === "individual" ? lista.slice(0, TOP_INDIVIDUAL) : lista;
+  // En modo suspenso reordenamos alfabéticamente para que el orden no delate
+  // quién va ganando; fuera de suspenso se respeta el orden por puntos del hook.
+  const listaVisible = useMemo(() => {
+    if (!MODO_SUSPENSO) return lista;
+    return [...lista].sort((a, b) =>
+      String(a.nombre ?? "").localeCompare(String(b.nombre ?? ""), "es", {
+        sensitivity: "base"
+      })
+    );
+  }, [lista]);
+
+  const listaTop = MODO_SUSPENSO
+    ? listaVisible
+    : tab === "individual"
+    ? listaVisible.slice(0, TOP_INDIVIDUAL)
+    : listaVisible;
   const listaRest =
-    tab === "individual" ? lista.slice(TOP_INDIVIDUAL) : [];
+    MODO_SUSPENSO || tab !== "individual"
+      ? []
+      : listaVisible.slice(TOP_INDIVIDUAL);
 
   const renderRow = (item) => {
-    const medalClass = medalRowClass(styles, item.rank);
+    const medalClass = MODO_SUSPENSO ? "" : medalRowClass(styles, item.rank);
     const showUf = tab === "individual";
 
     return (
       <article
         key={item.key}
         className={`${styles.row} ${medalClass} ${
-          showUf ? styles.rowWithUf : ""
-        }`}
+          MODO_SUSPENSO ? styles.rowNoScore : ""
+        } ${showUf ? styles.rowWithUf : ""}`}
       >
         <div className={styles.rowGrid}>
           <div className={styles.rankZone}>
-            <span className={styles.rankNum}>
-              {String(item.rank).padStart(2, "0")}
-            </span>
-            <span className={styles.rankLabel}>RANK</span>
+            {MODO_SUSPENSO ? (
+              <span className={styles.rankHidden} aria-label="Posición oculta">
+                ?
+              </span>
+            ) : (
+              <>
+                <span className={styles.rankNum}>
+                  {String(item.rank).padStart(2, "0")}
+                </span>
+                <span className={styles.rankLabel}>RANK</span>
+              </>
+            )}
           </div>
 
           <div className={styles.identityZone}>
@@ -186,10 +216,16 @@ export default function RankingPublicoPage() {
               />
             </div>
             <div className={styles.identityCopy}>
-              <span className={styles.seedTag}>
-                {tab === "bp" ? "TEAM" : "SEED"}{" "}
-                {String(item.rank).padStart(2, "0")}
-              </span>
+              {MODO_SUSPENSO ? (
+                <span className={styles.seedTag}>
+                  {tab === "bp" ? "EN JUEGO" : "EN CANCHA"}
+                </span>
+              ) : (
+                <span className={styles.seedTag}>
+                  {tab === "bp" ? "TEAM" : "SEED"}{" "}
+                  {String(item.rank).padStart(2, "0")}
+                </span>
+              )}
               <h2 className={styles.playerName} title={item.nombre}>
                 {item.nombre}
               </h2>
@@ -242,18 +278,20 @@ export default function RankingPublicoPage() {
             </div>
           </div>
 
-          <div className={styles.scoreZone}>
-            <span className={styles.scoreValue}>
-              {formatPts(item.totalPuntos)}
-            </span>
-            <span className={styles.scoreLabel}>PTS · TOTAL</span>
-            <span
-              className={styles.scoreBreakdown}
-              title="Reserva + promesas + escrituras (+ actividades en equipos)"
-            >
-              {ptsBreakdown(item)}
-            </span>
-          </div>
+          {!MODO_SUSPENSO && (
+            <div className={styles.scoreZone}>
+              <span className={styles.scoreValue}>
+                {formatPts(item.totalPuntos)}
+              </span>
+              <span className={styles.scoreLabel}>PTS · TOTAL</span>
+              <span
+                className={styles.scoreBreakdown}
+                title="Reserva + promesas + escrituras (+ actividades en equipos)"
+              >
+                {ptsBreakdown(item)}
+              </span>
+            </div>
+          )}
         </div>
 
         {tab === "bp" && brokersByTeamId.has(item.key) && (
@@ -345,8 +383,20 @@ export default function RankingPublicoPage() {
           <strong>Promesas</strong>: {SCORING.promesaPorRegistro} pts c/u ·{" "}
           <strong>Escrituras</strong>: {SCORING.escrituraPorRegistro} pts c/u.{" "}
           <strong>Cartera UF</strong> por asesor según sus reservas (mismo criterio que el dashboard).
-          El ranking se ordena por puntos totales.
+          {MODO_SUSPENSO
+            ? " Los puntos y las posiciones están ocultos: se revelan en la premiación."
+            : " El ranking se ordena por puntos totales."}
         </p>
+
+        {MODO_SUSPENSO ? (
+          <div className={styles.suspenso}>
+            <span className={styles.suspensoLock} aria-hidden="true">🔒</span>
+            <span>
+              <strong>Puntos ocultos.</strong> El marcador y las posiciones se
+              revelan en la premiación — sigue sumando.
+            </span>
+          </div>
+        ) : null}
 
         <div className={styles.controls}>
           <div className={styles.season}>
@@ -385,10 +435,10 @@ export default function RankingPublicoPage() {
             <div
               className={`${styles.tableHead} ${
                 tab === "individual" ? styles.tableWithUf : ""
-              }`}
+              } ${MODO_SUSPENSO ? styles.tableHeadNoScore : ""}`}
               aria-hidden="true"
             >
-              <div className={styles.headRank}>RK</div>
+              <div className={styles.headRank}>{MODO_SUSPENSO ? "" : "RK"}</div>
               <div className={styles.headIdentity}>{tab === "bp" ? "EQUIPO" : "ASESOR"}</div>
               <div className={styles.headMetrics}>
                 <span>RESERVAS</span>
@@ -396,7 +446,7 @@ export default function RankingPublicoPage() {
                 <span>ESCRITURAS</span>
                 {tab === "individual" ? <span>CARTERA UF</span> : null}
               </div>
-              <div className={styles.headScore}>PUNTOS</div>
+              {!MODO_SUSPENSO && <div className={styles.headScore}>PUNTOS</div>}
             </div>
 
             {lista.length === 0 ? (
