@@ -10,6 +10,10 @@
 [build.environment]
   PNPM_VERSION = "9.15.9"
   NODE_VERSION = "20"
+  # Modo suspenso del ranking publico /cyber: oculta puntos y orden para
+  # generar suspenso antes de la premiacion. Para revelar los resultados,
+  # cambiar a "false" (o eliminar) y redesplegar.
+  VITE_RANKING_SUSPENSO = "true"
 
 [[redirects]]
   from = "/*"
