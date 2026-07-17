@@ -716,19 +716,20 @@
   color: var(--rk-text-muted);
 }
 
-/* Grid sin la columna de puntos (3 cols en desktop). Selector con doble clase
-   para ganar en especificidad a los media queries de .rowGrid / .tableHead. */
+/* Modo suspenso: se ocultan puntos Y métricas, así que la fila queda en 2 cols
+   (rank + identidad). Selector con doble clase para ganar en especificidad a los
+   media queries de .rowGrid / .tableHead. */
 .rowNoScore .rowGrid {
-  grid-template-columns: 72px minmax(0, 1.35fr) minmax(0, 2fr);
+  grid-template-columns: 72px minmax(0, 1fr);
 }
 .tableHead.tableHeadNoScore {
-  grid-template-columns: 72px minmax(0, 1.35fr) minmax(0, 2fr);
+  grid-template-columns: 72px minmax(0, 1fr);
 }
 
 @media (max-width: 1100px) {
   .rowNoScore .rowGrid,
   .tableHead.tableHeadNoScore {
-    grid-template-columns: 64px minmax(0, 1.2fr) minmax(0, 1.8fr);
+    grid-template-columns: 64px minmax(0, 1fr);
   }
 }
 

@@ -33,9 +33,10 @@ const AVATAR_SIZE = 72;
 const eventoNombre = import.meta.env.VITE_EVENTO_NOMBRE ?? "Capital Open";
 const eventoSubtitulo = import.meta.env.VITE_EVENTO_SUBTITULO ?? "Cyber";
 
-// Modo suspenso: oculta puntos totales/desglose y el orden real del ranking
-// (reordena alfabéticamente y esconde posiciones/medallas) para no revelar
-// quién gana antes de la premiación. Reversible: VITE_RANKING_SUSPENSO=false.
+// Modo suspenso: oculta TODAS las cifras del ranking (puntos, reservas,
+// promesas, escrituras, cartera UF) y el orden real (reordena alfabéticamente,
+// sin posiciones ni medallas). Solo quedan avatar y nombre, para no revelar
+// nada antes de la premiación. Reversible: VITE_RANKING_SUSPENSO=false.
 const MODO_SUSPENSO =
   String(import.meta.env.VITE_RANKING_SUSPENSO ?? "false").toLowerCase() === "true";
 
@@ -107,7 +108,9 @@ export default function RankingPublicoPage() {
         rank: i + 1,
         seed: bp.slug,
         nombre: bp.display,
-        metaTop: `${bp.reservasCount} reserva${bp.reservasCount === 1 ? "" : "s"} en competencia`,
+        metaTop: MODO_SUSPENSO
+          ? null
+          : `${bp.reservasCount} reserva${bp.reservasCount === 1 ? "" : "s"} en competencia`,
         metaBottom: null,
         avatarSrc: null,
         reservasCount: bp.reservasCount,
@@ -243,40 +246,42 @@ export default function RankingPublicoPage() {
             </div>
           </div>
 
-          <div className={styles.metricsZone}>
-            <div
-              className={`${styles.metricsPanel} ${
-                showUf ? styles.metricsPanelWithUf : ""
-              }`}
-            >
-              <div className={styles.metricItem}>
-                <span className={styles.metricValue}>
-                  {item.reservasCount}
-                </span>
-                <span className={styles.metricLabel}>Reservas</span>
-              </div>
-              <div className={styles.metricItem}>
-                <span className={styles.metricValue}>
-                  {item.promesasCount}
-                </span>
-                <span className={styles.metricLabel}>Promesas</span>
-              </div>
-              <div className={styles.metricItem}>
-                <span className={styles.metricValue}>
-                  {item.escriturasCount}
-                </span>
-                <span className={styles.metricLabel}>Escrituras</span>
-              </div>
-              {showUf ? (
-                <div className={`${styles.metricItem} ${styles.metricItemUf}`}>
-                  <span className={styles.metricValueUf}>
-                    {formatUf(item.ufTotal)}
+          {!MODO_SUSPENSO && (
+            <div className={styles.metricsZone}>
+              <div
+                className={`${styles.metricsPanel} ${
+                  showUf ? styles.metricsPanelWithUf : ""
+                }`}
+              >
+                <div className={styles.metricItem}>
+                  <span className={styles.metricValue}>
+                    {item.reservasCount}
                   </span>
-                  <span className={styles.metricLabel}>Cartera UF</span>
+                  <span className={styles.metricLabel}>Reservas</span>
                 </div>
-              ) : null}
+                <div className={styles.metricItem}>
+                  <span className={styles.metricValue}>
+                    {item.promesasCount}
+                  </span>
+                  <span className={styles.metricLabel}>Promesas</span>
+                </div>
+                <div className={styles.metricItem}>
+                  <span className={styles.metricValue}>
+                    {item.escriturasCount}
+                  </span>
+                  <span className={styles.metricLabel}>Escrituras</span>
+                </div>
+                {showUf ? (
+                  <div className={`${styles.metricItem} ${styles.metricItemUf}`}>
+                    <span className={styles.metricValueUf}>
+                      {formatUf(item.ufTotal)}
+                    </span>
+                    <span className={styles.metricLabel}>Cartera UF</span>
+                  </div>
+                ) : null}
+              </div>
             </div>
-          </div>
+          )}
 
           {!MODO_SUSPENSO && (
             <div className={styles.scoreZone}>
@@ -384,7 +389,7 @@ export default function RankingPublicoPage() {
           <strong>Escrituras</strong>: {SCORING.escrituraPorRegistro} pts c/u.{" "}
           <strong>Cartera UF</strong> por asesor según sus reservas (mismo criterio que el dashboard).
           {MODO_SUSPENSO
-            ? " Los puntos y las posiciones están ocultos: se revelan en la premiación."
+            ? " Los resultados están ocultos: se revelan en la premiación."
             : " El ranking se ordena por puntos totales."}
         </p>
 
@@ -392,8 +397,9 @@ export default function RankingPublicoPage() {
           <div className={styles.suspenso}>
             <span className={styles.suspensoLock} aria-hidden="true">🔒</span>
             <span>
-              <strong>Puntos ocultos.</strong> El marcador y las posiciones se
-              revelan en la premiación — sigue sumando.
+              <strong>Resultados ocultos.</strong> Reservas, promesas,
+              escrituras, puntos y posiciones se revelan en la premiación —
+              sigue sumando.
             </span>
           </div>
         ) : null}
@@ -440,12 +446,14 @@ export default function RankingPublicoPage() {
             >
               <div className={styles.headRank}>{MODO_SUSPENSO ? "" : "RK"}</div>
               <div className={styles.headIdentity}>{tab === "bp" ? "EQUIPO" : "ASESOR"}</div>
-              <div className={styles.headMetrics}>
-                <span>RESERVAS</span>
-                <span>PROMESAS</span>
-                <span>ESCRITURAS</span>
-                {tab === "individual" ? <span>CARTERA UF</span> : null}
-              </div>
+              {!MODO_SUSPENSO && (
+                <div className={styles.headMetrics}>
+                  <span>RESERVAS</span>
+                  <span>PROMESAS</span>
+                  <span>ESCRITURAS</span>
+                  {tab === "individual" ? <span>CARTERA UF</span> : null}
+                </div>
+              )}
               {!MODO_SUSPENSO && <div className={styles.headScore}>PUNTOS</div>}
             </div>
 
