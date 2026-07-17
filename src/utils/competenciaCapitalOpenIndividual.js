@@ -74,6 +74,15 @@ function asesorInternoYaEnLista(existingKeys, miembro) {
   return false
 }
 
+/** True si alguno de los emails del miembro ya está representado en la lista. */
+function miembroEmailYaEnLista(existingEmails, miembro) {
+  for (const em of miembro.emails ?? []) {
+    const ek = canonicalAsesorEmail(em)
+    if (ek && existingEmails.has(ek)) return true
+  }
+  return false
+}
+
 /**
  * Clave estable para persistir puntos manuales por asesor.
  * Prioridad: nombre de asesor normalizado → email → nivel jerárquico.
@@ -141,6 +150,14 @@ export function listAsesoresCompetenciaIndividual(reservas) {
   // Merge roster asesores who are in competencia BPs but have no reservas yet
   const rosterSlugs = bpSlugsEnCompetencia()
   const existingKeys = new Set(list.map((a) => a.key))
+  // Dedup adicional por email: en reservas los asesores llegan con el nombre
+  // corto de la plataforma, pero el roster usa el nombre legal completo, así que
+  // la clave por nombre (`n:`) no coincide y el asesor se agregaría de nuevo como
+  // fila fantasma (0 reservas, email repetido → key duplicada en el ranking).
+  // Saltamos si el email ya está representado por una fila con reservas.
+  const existingEmails = new Set(
+    list.map((a) => canonicalAsesorEmail(a.email)).filter(Boolean),
+  )
   for (const asesor of asesoresBpData.asesores ?? []) {
     if (asesor.estado !== 'ACTIVO') continue
     if (!rosterSlugs.has(asesor.bp_slug)) continue
@@ -148,7 +165,10 @@ export function listAsesoresCompetenciaIndividual(reservas) {
       ? `n:${stripAccents(asesor.nombre.trim().toLowerCase())}`
       : `e:${asesor.email.trim().toLowerCase()}`
     if (existingKeys.has(key)) continue
+    const emailKey = canonicalAsesorEmail(asesor.email)
+    if (emailKey && existingEmails.has(emailKey)) continue
     existingKeys.add(key)
+    if (emailKey) existingEmails.add(emailKey)
     const equipoId = equipoIdForBpSlug(asesor.bp_slug)
     list.push({
       key,
@@ -168,10 +188,13 @@ export function listAsesoresCompetenciaIndividual(reservas) {
   const equipoInternoId = equipoIdForNivelPlataforma(NIVEL_PLATAFORMA_EQUIPO_INTERNO)
   for (const miembro of MIEMBROS_EQUIPO_COMERCIAL_INTERNO) {
     if (asesorInternoYaEnLista(existingKeys, miembro)) continue
+    if (miembroEmailYaEnLista(existingEmails, miembro)) continue
     const key = miembro.nombre
       ? `n:${stripAccents(miembro.nombre.trim().toLowerCase())}`
       : `e:${canonicalAsesorEmail(miembro.emails[0])}`
+    const emailKey = canonicalAsesorEmail(miembro.emails?.[0])
     existingKeys.add(key)
+    if (emailKey) existingEmails.add(emailKey)
     list.push({
       key,
       nombreAsesor: miembro.nombre || '',

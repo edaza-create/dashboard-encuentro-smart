@@ -73,6 +73,9 @@ export function buildRankingCompetencia(reservasPublicas) {
       const emailKey = canonicalAsesorEmail(a.email)
       const foto = emailKey ? fotos.get(emailKey) : null
       return {
+        // Clave estable y única en la lista (indexada por asesorStorageKey);
+        // sirve de React key robusto aunque dos filas compartieran email.
+        key: a.key,
         email: a.email,
         nombre: a.etiqueta,
         bp_display: a.nivelJerarquia,
