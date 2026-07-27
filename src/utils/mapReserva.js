@@ -93,6 +93,71 @@ export function mapReservaRow(row) {
   return enrichReservaEquipoInterno(mapped)
 }
 
+/**
+ * Mapea una fila del proxy de Atlas Engine al shape del dashboard.
+ *
+ * A diferencia de ored, Atlas SI informa el estado real de la reserva, asi que
+ * `revertida` refleja las caidas (event_kind === 'fallen') en vez de forzarse a
+ * false. El conteo de competencia las excluye.
+ *
+ * @param {import('../api/atlasClient.js').ReservaAtlas} row
+ */
+export function mapReservaAtlas(row) {
+  if (!row || typeof row !== 'object') return null
+
+  const email = canonicalAsesorEmail(row.asesor_email ?? '') ?? ''
+  const bp = lookupAsesorBp(email)
+  const montoUf = row.monto_uf == null ? 0 : Number(row.monto_uf)
+  const revertida = Boolean(row.revertida)
+
+  const mapped = {
+    id: String(row.reserva_id ?? ''),
+    nombre_cliente: '',
+    user_email: email,
+    estado: row.estado ?? '',
+    fecha_reserva: row.fecha ?? (row.ocurrido_en ? String(row.ocurrido_en).slice(0, 10) : null),
+    tipologia: normalizeTipologia(row.tipologia ?? ''),
+    orientacion: '',
+    piso: 0,
+    superficie_total: 0,
+    superficie_terraza: 0,
+    valor_lista_uf: montoUf,
+    descuento_porcentaje: 0,
+    valor_venta_uf: montoUf,
+    bonificacion_porcentaje: 0,
+    valor_promesa_uf: montoUf,
+    /** Atlas entrega UF limpias: no pasar por el normalizador de planilla. */
+    uf_ya_normalizada: true,
+    pie_porcentaje: 0,
+    pie_uf: 0,
+    credito_hipotecario_uf: 0,
+    monto_pago: 0,
+    tipo_entrega: '',
+    nivel_jerarquia_nombre: bp.nivel_jerarquia_nombre,
+    nombre_asesor: row.asesor_nombre ?? bp.nombre ?? '',
+    tipo_reserva: 'reserva',
+    revertida,
+    archivado: false,
+    event_kind: row.event_kind ?? '',
+    created_at: row.ocurrido_en ?? null,
+    proyecto: row.proyecto ?? '',
+    comuna: row.comuna ?? '',
+    unidad: '',
+    inmobiliaria: row.inmobiliaria ?? '',
+    cliente_rut: '',
+    cliente_telefono: '',
+    cliente_email: '',
+    profesion: '',
+    uf_valor_reserva: 0,
+    banco_origen: '',
+    numero_cuenta: '',
+    rut_origen: '',
+    nombre_completo_origen: '',
+  }
+
+  return enrichReservaEquipoInterno(mapped)
+}
+
 function tipologiaFromUnidad(unidad) {
   const s = String(unidad ?? '')
   const m = s.match(/\b(\d+D\+\d+B|Studio|Estudio|ESTUDIO)\b/i)
@@ -115,7 +180,9 @@ export function mapReservaPublica(row) {
     id: String(row.reserva_id ?? ''),
     nombre_cliente: '',
     user_email: email,
-    estado: 'Registrada',
+    // ored no informa el estado de la reserva. Se leen los campos por si el
+    // endpoint los agrega mas adelante; hoy llegan siempre undefined.
+    estado: row.estado ?? 'Registrada',
     fecha_reserva: fechaReserva,
     tipologia: tipologiaFromUnidad(row.unidad),
     orientacion: '',
@@ -135,8 +202,8 @@ export function mapReservaPublica(row) {
     nivel_jerarquia_nombre: bp.nivel_jerarquia_nombre,
     nombre_asesor: row.asesor_nombre ?? bp.nombre ?? '',
     tipo_reserva: 'reserva',
-    revertida: false,
-    archivado: false,
+    revertida: Boolean(row.revertida),
+    archivado: Boolean(row.archivado),
     created_at: row.ocurrido_en ?? null,
     proyecto: row.proyecto ?? '',
     comuna: '',

@@ -21,9 +21,19 @@ export function ufNormalizadoPlanilla(raw) {
   return Math.round(v * 100) / 100
 }
 
-/** UF a usar por reserva para totales: valor_promesa_uf si es distinto de 0; si no, valor_venta_uf. */
+/**
+ * UF a usar por reserva para totales: valor_promesa_uf si es distinto de 0; si no, valor_venta_uf.
+ *
+ * Las reservas con `uf_ya_normalizada` (origen Atlas Engine) traen el valor UF
+ * limpio y se usan tal cual: pasarlas por `ufNormalizadoPlanilla` dividiria por
+ * 10 cualquier propiedad de 10.000 UF o mas.
+ */
 export function ufMontoPlanillaReserva(r) {
   const prom = Number(r?.valor_promesa_uf)
   const raw = prom ? r.valor_promesa_uf : r.valor_venta_uf
+  if (r?.uf_ya_normalizada) {
+    const n = Number(raw)
+    return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0
+  }
   return ufNormalizadoPlanilla(raw)
 }

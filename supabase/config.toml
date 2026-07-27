@@ -3,3 +3,8 @@
 
 [functions.forms-asistencia]
 verify_jwt = false
+
+# Proxy de lectura a Atlas Engine. Publico (lo llama el navegador), pero la
+# credencial de Atlas vive como secreto del servidor: ver ATLAS_API_KEY.
+[functions.reservas-atlas]
+verify_jwt = false

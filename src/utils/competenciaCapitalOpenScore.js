@@ -2,6 +2,7 @@ import { EQUIPOS_CAPITAL_ONE } from '../data/competenciaCapitalOneTeams.js'
 import { reservaMatchesBroker } from './brokerReservaMatch.js'
 import { aggregateManualIndividualPorEquipo } from './competenciaIndividualToEquipo.js'
 import { compareRankingPorPuntosYUf } from './rankingCompare.js'
+import { esReservaVigente } from './reservaVigente.js'
 import { ufMontoPlanillaReserva } from './ufNormalize.js'
 
 /** Reglas oficiales de la competencia Capital Open. */
@@ -24,17 +25,23 @@ export function allNombresPlataformaForEquipo(equipo) {
   return names
 }
 
-/** Reservas en ventana cuyo broker está mapeado al equipo (cualquier BP del equipo). */
+/**
+ * Reservas en ventana cuyo broker está mapeado al equipo (cualquier BP del equipo).
+ * Excluye las caídas: una reserva revertida no suma puntos.
+ */
 export function cuentaReservasEquipo(reservas, equipo) {
   if (!reservas?.length || !equipo?.brokers?.length) return 0
-  return reservas.filter((r) => equipo.brokers.some((b) => reservaMatchesBroker(r, b))).length
+  return reservas.filter(
+    (r) => esReservaVigente(r) && equipo.brokers.some((b) => reservaMatchesBroker(r, b))
+  ).length
 }
 
-/** Suma UF de reservas del equipo (mismo criterio que cartera por asesor). */
+/** Suma UF de reservas vigentes del equipo (mismo criterio que cartera por asesor). */
 export function ufTotalReservasEquipo(reservas, equipo) {
   if (!reservas?.length || !equipo?.brokers?.length) return 0
   let sum = 0
   for (const r of reservas) {
+    if (!esReservaVigente(r)) continue
     if (!equipo.brokers.some((b) => reservaMatchesBroker(r, b))) continue
     sum += ufMontoPlanillaReserva(r)
   }

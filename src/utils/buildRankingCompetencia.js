@@ -21,9 +21,14 @@ import {
   SCORING,
 } from './competenciaCapitalOpenScore.js'
 import { loadIndividualManualSaved, loadTeamManualSaved } from './competenciaStorage.js'
+import { esReservaVigente } from './reservaVigente.js'
 import { canonicalAsesorEmail } from './asesorEmail.js'
 
-function buildFotoByEmail(reservasPublicas) {
+/**
+ * Mapa email → foto a partir de filas crudas de ored.
+ * Atlas no entrega avatares, asi que ored se sigue consultando solo para esto.
+ */
+export function buildFotoByEmail(reservasPublicas) {
   const map = new Map()
   for (const r of reservasPublicas ?? []) {
     const email = canonicalAsesorEmail(r.asesor_email)
@@ -36,20 +41,29 @@ function buildFotoByEmail(reservasPublicas) {
   return map
 }
 
+/** @param {{ user_email?: string, nombre_asesor?: string }} r reserva ya mapeada */
 function reservaTieneBpAsignado(r) {
-  const email = canonicalAsesorEmail(r.asesor_email)
+  const email = canonicalAsesorEmail(r.user_email)
   if (email && lookupAsesorBp(email).bp_slug) return true
-  if (miembroPorNombre(r.asesor_nombre)) return true
+  if (miembroPorNombre(r.nombre_asesor)) return true
   return false
 }
 
-function buildHuerfanos(reservasPublicas) {
+/** Asesores con reservas vigentes pero sin BP mapeado: senal de roster desactualizado. */
+function buildHuerfanos(reservas) {
   const porEmail = new Map()
-  for (const r of reservasPublicas ?? []) {
+  for (const r of reservas ?? []) {
+    if (!esReservaVigente(r)) continue
     if (reservaTieneBpAsignado(r)) continue
-    const email = canonicalAsesorEmail(r.asesor_email) ?? `nombre:${String(r.asesor_nombre ?? '').trim().toLowerCase()}`
+    const email =
+      canonicalAsesorEmail(r.user_email) ??
+      `nombre:${String(r.nombre_asesor ?? '').trim().toLowerCase()}`
     if (!porEmail.has(email)) {
-      porEmail.set(email, { email: canonicalAsesorEmail(r.asesor_email) ?? email, nombre: r.asesor_nombre ?? null, total: 0 })
+      porEmail.set(email, {
+        email: canonicalAsesorEmail(r.user_email) ?? email,
+        nombre: r.nombre_asesor ?? null,
+        total: 0,
+      })
     }
     porEmail.get(email).total += 1
   }
@@ -57,11 +71,19 @@ function buildHuerfanos(reservasPublicas) {
 }
 
 /**
+ * Construye el ranking de competencia.
+ *
+ * Acepta filas crudas de ored (compatibilidad) o reservas ya mapeadas de
+ * cualquier fuente. Con Atlas se pasan mapeadas y las fotos aparte, porque
+ * Atlas no entrega avatares.
+ *
  * @param {import('../api/rankingClient.js').ReservaPublica[]} reservasPublicas
+ * @param {{ reservas?: object[], fotos?: Map<string, {foto_url: string|null, foto_urls: object|null}> }} [options]
  */
-export function buildRankingCompetencia(reservasPublicas) {
-  const reservas = (reservasPublicas ?? []).map(mapReservaPublica).filter(Boolean)
-  const fotos = buildFotoByEmail(reservasPublicas)
+export function buildRankingCompetencia(reservasPublicas, options = {}) {
+  const reservas =
+    options.reservas ?? (reservasPublicas ?? []).map(mapReservaPublica).filter(Boolean)
+  const fotos = options.fotos ?? buildFotoByEmail(reservasPublicas)
   const indManual = loadIndividualManualSaved()
   const teamManual = loadTeamManualSaved()
 
@@ -120,7 +142,7 @@ export function buildRankingCompetencia(reservasPublicas) {
     }
   })
 
-  const huerfanos = buildHuerfanos(reservasPublicas)
+  const huerfanos = buildHuerfanos(reservas)
 
   return { asesores, bps, huerfanos, scoring: SCORING }
 }

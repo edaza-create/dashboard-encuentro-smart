@@ -1,4 +1,4 @@
-import asesoresBpData from '../data/asesores-bp.json'
+import asesoresBpData from '../data/asesores-bp.json' with { type: 'json' }
 import {
   MIEMBROS_EQUIPO_COMERCIAL_INTERNO,
   NIVEL_PLATAFORMA_EQUIPO_INTERNO,
@@ -8,6 +8,7 @@ import { brokerTieneMapeo } from './brokerReservaMatch.js'
 import { reservaMatchesBroker } from './brokerReservaMatch.js'
 import { equipoIdForNivelPlataforma, equipoIdForReservasAsesor, equipoLabelForId } from './competenciaIndividualToEquipo.js'
 import { SCORING } from './competenciaCapitalOpenScore.js'
+import { esReservaVigente } from './reservaVigente.js'
 import { ufMontoPlanillaReserva } from './ufNormalize.js'
 import { canonicalAsesorEmail } from './asesorEmail.js'
 
@@ -53,9 +54,13 @@ export function reservaEnCompetencia(r) {
   return false
 }
 
+/**
+ * Reservas que cuentan para la competencia: BP mapeado a un equipo Y vigentes.
+ * Las caidas (Atlas `event_kind: 'fallen'`) quedan fuera del puntaje.
+ */
 export function reservasEnCompetencia(reservas) {
   if (!reservas?.length) return []
-  return reservas.filter(reservaEnCompetencia)
+  return reservas.filter((r) => esReservaVigente(r) && reservaEnCompetencia(r))
 }
 
 function stripAccents(s) {

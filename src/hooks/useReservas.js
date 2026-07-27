@@ -1,21 +1,28 @@
 import { useState, useEffect, useCallback } from 'react'
 import mockData from '../data/reservas_mock.json'
+import { atlasProxyConfigured, fetchReservasAtlas } from '../api/atlasClient.js'
 import { fetchReservasRanking } from '../api/rankingClient.js'
 import { supabase, supabaseConfigured } from '../data/supabaseClient'
-import { mapReservaRow, mapReservaPublica } from '../utils/mapReserva'
+import { mapReservaRow, mapReservaAtlas, mapReservaPublica } from '../utils/mapReserva'
 
 const TABLE =
   import.meta.env.SUPABASE_RESERVAS_TABLE ||
   import.meta.env.VITE_SUPABASE_RESERVAS_TABLE ||
   'reservas'
 
-/** @type {'ored' | 'supabase' | 'mock'} */
+/**
+ * Fuente por defecto: Atlas Engine, la unica que informa si una reserva se cayo.
+ * Si el proxy no esta configurado se cae a ored (sin estado de reserva).
+ * @type {'atlas' | 'ored' | 'supabase' | 'mock'}
+ */
 const DATA_SOURCE =
   import.meta.env.VITE_DATA_SOURCE === 'supabase'
     ? 'supabase'
     : import.meta.env.VITE_DATA_SOURCE === 'mock'
       ? 'mock'
-      : 'ored'
+      : import.meta.env.VITE_DATA_SOURCE === 'ored'
+        ? 'ored'
+        : 'atlas'
 
 /** 0 = sin auto-refresh (solo carga inicial + botón Actualizar). */
 function readDashboardPollMs() {
@@ -72,6 +79,20 @@ export function useReservas() {
         }
       }
 
+      if (DATA_SOURCE === 'atlas' && atlasProxyConfigured()) {
+        try {
+          const resp = await fetchReservasAtlas()
+          const mapped = (resp.reservas || []).map(mapReservaAtlas).filter((r) => r && r.id)
+          setReservas(mapped)
+          setDataSource('atlas')
+          setIsLive(false)
+          setLastUpdated(resp.updated_at ? new Date(resp.updated_at) : new Date())
+          return
+        } catch (atlasErr) {
+          console.warn('[useReservas] Atlas no disponible, usando ored:', atlasErr.message)
+        }
+      }
+
       const resp = await fetchReservasRanking()
       const mapped = (resp.reservas || []).map(mapReservaPublica).filter((r) => r && r.id)
       setReservas(mapped)
@@ -107,7 +128,7 @@ export function useReservas() {
       }
     }
 
-    if (DATA_SOURCE === 'ored') {
+    if (DATA_SOURCE === 'ored' || DATA_SOURCE === 'atlas') {
       const pollMs = readDashboardPollMs()
       if (pollMs > 0) {
         const id = setInterval(load, pollMs)

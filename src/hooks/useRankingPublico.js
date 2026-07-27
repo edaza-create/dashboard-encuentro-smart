@@ -1,8 +1,52 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { atlasProxyConfigured, fetchReservasAtlas } from "../api/atlasClient.js";
 import { fetchReservasRanking } from "../api/rankingClient.js";
-import { buildRankingCompetencia } from "../utils/buildRankingCompetencia.js";
+import { buildFotoByEmail, buildRankingCompetencia } from "../utils/buildRankingCompetencia.js";
+import { mapReservaAtlas, mapReservaPublica } from "../utils/mapReserva.js";
 import { useCompetenciaManualRemoteSync } from "./useCompetenciaManualRemoteSync.js";
 import { subscribeCompetenciaManualUpdated } from "../utils/competenciaStorage.js";
+
+/**
+ * Carga las reservas del ranking.
+ *
+ * Atlas Engine es la fuente de reservas: es la unica que informa si una reserva
+ * se cayo. Como Atlas no entrega avatares, ored se sigue consultando en paralelo
+ * solo para el mapa email -> foto. Si Atlas falla, ored cubre todo (sin estado).
+ *
+ * @returns {Promise<{ reservas: object[], fotos: Map, updatedAt: string|null, periodo: object|null, origen: string }>}
+ */
+async function cargarReservasYFotos(options) {
+  const oredPromise = fetchReservasRanking(options).catch((err) => {
+    console.warn("[ranking] ored no disponible para fotos:", err.message);
+    return null;
+  });
+
+  if (atlasProxyConfigured()) {
+    try {
+      const atlas = await fetchReservasAtlas(options);
+      const ored = await oredPromise;
+      return {
+        reservas: (atlas.reservas || []).map(mapReservaAtlas).filter(Boolean),
+        fotos: buildFotoByEmail(ored?.reservas ?? []),
+        updatedAt: atlas.updated_at ?? null,
+        periodo: atlas.periodo ?? null,
+        origen: "atlas",
+      };
+    } catch (err) {
+      console.warn("[ranking] Atlas no disponible, usando ored:", err.message);
+    }
+  }
+
+  const ored = await oredPromise;
+  if (!ored) throw new Error("Sin fuente de reservas disponible");
+  return {
+    reservas: (ored.reservas || []).map(mapReservaPublica).filter(Boolean),
+    fotos: buildFotoByEmail(ored.reservas ?? []),
+    updatedAt: ored.updated_at ?? null,
+    periodo: ored.periodo ?? null,
+    origen: "ored",
+  };
+}
 
 const DEFAULT_POLL_MS = 30 * 60 * 1000; // 30 minutos
 
@@ -34,10 +78,14 @@ export function useRankingPublico(options = {}) {
   const [reloadKey, setReloadKey] = useState(0);
   const [manualVersion, setManualVersion] = useState(0);
   const reservasRef = useRef([]);
+  const fotosRef = useRef(new Map());
   const metaRef = useRef({ updatedAt: null, periodo: null });
 
   const applyRankingFromCache = useCallback(() => {
-    const ranking = buildRankingCompetencia(reservasRef.current);
+    const ranking = buildRankingCompetencia(null, {
+      reservas: reservasRef.current,
+      fotos: fotosRef.current,
+    });
     setState((s) => ({
       ...s,
       status: s.status === "loading" && reservasRef.current.length === 0 ? "loading" : "ready",
@@ -69,16 +117,21 @@ export function useRankingPublico(options = {}) {
         setState((s) => ({ ...s, status: "loading", error: null }));
       }
 
-      return fetchReservasRanking({ ...options, signal: ac.signal })
+      return cargarReservasYFotos({ ...options, signal: ac.signal })
         .then((resp) => {
-          reservasRef.current = resp.reservas ?? [];
-          metaRef.current = { updatedAt: resp.updated_at, periodo: resp.periodo };
-          const ranking = buildRankingCompetencia(reservasRef.current);
+          reservasRef.current = resp.reservas;
+          fotosRef.current = resp.fotos;
+          metaRef.current = { updatedAt: resp.updatedAt, periodo: resp.periodo };
+          const ranking = buildRankingCompetencia(null, {
+            reservas: resp.reservas,
+            fotos: resp.fotos,
+          });
           setState({
             status: "ready",
             error: null,
-            updatedAt: resp.updated_at,
+            updatedAt: resp.updatedAt,
             periodo: resp.periodo,
+            origen: resp.origen,
             asesores: ranking.asesores,
             bps: ranking.bps,
             huerfanos: ranking.huerfanos,

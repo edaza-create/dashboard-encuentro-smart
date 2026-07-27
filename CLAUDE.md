@@ -33,15 +33,40 @@ When adding features, keep this boundary clean:
 
 ## Data flow
 
+### Reservas come from Atlas Engine, avatars from ored (critical)
+
+**Atlas Engine is the primary source of reservas.** It is the only one that reports
+whether a reserva fell through (`event_kind: 'fallen'`), which the competition count
+must exclude. ored's public endpoint has no state field at all, so a cancelled reserva
+was indistinguishable from a live one and kept scoring points.
+
+Atlas does **not** return asesor photos, so ored is still queried **only** to build the
+email→avatar map. If Atlas is unavailable, both flows fall back to ored automatically
+(with the caveat that fallen reservas become invisible again).
+
+**The Atlas credential must never reach the client.** It grants read access to personal
+data (name, email, phone, RUT) of ~1.939 clients. Since `envPrefix` exposes every
+`VITE_*`/`SUPABASE_*` var in the public bundle and `/cyber` is unauthenticated, the key
+lives as a secret of the `reservas-atlas` Edge Function (`supabase/functions/reservas-atlas/`),
+which strips all client data before responding. See `docs/DEPLOY-reservas-atlas.md`.
+
+Two Atlas gotchas encoded in the mappers:
+- Use **`uf_valor_propiedad`** for the UF amount, not `uf_valor_reserva` — the latter is
+  documented as UF but averages ~40.000 (it's the deposit, likely in CLP). Using it
+  inflates the cartera ~11×.
+- Atlas rows carry `uf_ya_normalizada: true` so `ufMontoPlanillaReserva()` skips
+  `ufNormalizadoPlanilla()`, which exists to repair malformed planilla values and would
+  divide any property ≥10.000 UF by 10.
+
 ### Public `/cyber` flow
-1. `useRankingPublico` calls `fetchReservasRanking()` in `src/api/rankingClient.js`.
-2. That hits `GET {VITE_API_BASE_URL}/api/public/encuentro-smart/ranking?desde&hasta&limit` — defaults to `https://ored.cl`. The endpoint is cached server-side ~60s; no client polling.
-3. Raw reservas are aggregated by `buildRanking()` in `src/utils/buildRanking.js` into `{ asesores, bps, huerfanos }`.
+1. `useRankingPublico` calls `fetchReservasAtlas()` (`src/api/atlasClient.js`) for reservas and `fetchReservasRanking()` (`src/api/rankingClient.js`) for avatars, in parallel.
+2. Atlas goes through `GET {SUPABASE_URL}/functions/v1/reservas-atlas?desde&hasta`; ored hits `GET {VITE_API_BASE_URL}/api/public/encuentro-smart/ranking`. Both cache ~60s server-side.
+3. Rows are normalized by `mapReservaAtlas()` / `mapReservaPublica()`, then aggregated by `buildRankingCompetencia()` into `{ asesores, bps, huerfanos }`.
 4. The asesor→BP mapping comes from `src/data/asesores-bp.json` (generated, committed). Join key is **email lowercased**. Asesores with no BP match land in a `sin-bp` bucket and surface as "huérfanos" in the UI — that's the QA signal that the xlsx needs a resync.
 
 ### Internal dashboard flow
-1. `useReservas` picks its data source by `VITE_DATA_SOURCE` (`ored` default | `supabase` | `mock`).
-2. **Default `ored`**: fetches from the same public endpoint as `/cyber` via `fetchReservasRanking()` — no realtime, optional polling via `VITE_DASHBOARD_POLL_MS`.
+1. `useReservas` picks its data source by `VITE_DATA_SOURCE` (`atlas` default | `ored` | `supabase` | `mock`).
+2. **Default `atlas`**: fetches via the Edge Function proxy, falling back to ored if it fails — no realtime, optional polling via `VITE_DASHBOARD_POLL_MS`.
 3. **`supabase`**: reads from the reservas table (`SUPABASE_RESERVAS_TABLE` or `VITE_SUPABASE_RESERVAS_TABLE`, default `reservas`) and subscribes to `postgres_changes` for live updates. If Supabase is not configured, it **silently falls back to `src/data/reservas_mock.json`** — a misconfigured `.env` looks like real data. Check `supabaseConfigured` / `isLive` when debugging "wrong data" reports.
 4. **`mock`**: always uses `src/data/reservas_mock.json` — useful for offline dev.
 5. Rows are normalized via `src/utils/mapReserva.js` before reaching components.
