@@ -10,10 +10,28 @@
  * reservas y el resumen siguen mostrandolas, con su etiqueta de estado.
  */
 
-/** @param {{ revertida?: boolean, archivado?: boolean }} r */
+/**
+ * Estados de Brekto que representan una reserva caida.
+ *
+ * Ojo con la trampa: `Pendiente` NO es "a medio procesar", es la reserva viva
+ * (la UI de Brekto la muestra como "Reservado"). `Procesando` es un tramite en
+ * curso y tambien cuenta. Solo `Cancelado` y `Rechazado` son caidas.
+ *
+ * Ver docs/API-ranking-ored.md seccion 4.
+ */
+const ESTADOS_CAIDA = new Set(['cancelado', 'rechazado'])
+
+/** @param {string|null|undefined} estado */
+export function estadoEsCaida(estado) {
+  if (!estado) return false
+  return ESTADOS_CAIDA.has(String(estado).trim().toLowerCase())
+}
+
+/** @param {{ revertida?: boolean, archivado?: boolean, estado?: string }} r */
 export function esReservaVigente(r) {
   if (!r) return false
-  return !r.revertida && !r.archivado
+  if (r.revertida || r.archivado) return false
+  return !estadoEsCaida(r.estado)
 }
 
 /**

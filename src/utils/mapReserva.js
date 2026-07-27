@@ -1,5 +1,6 @@
 import { lookupAsesorBp } from './asesorBpPlataforma.js'
 import { enrichReservaEquipoInterno } from './equipoComercialInterno.js'
+import { estadoEsCaida } from './reservaVigente.js'
 import { canonicalAsesorEmail } from './asesorEmail.js'
 
 /**
@@ -62,7 +63,7 @@ export function mapReservaRow(row) {
       row.nombre_ejecutivo ??
       '',
     tipo_reserva: row.tipo_reserva ?? 'reserva',
-    revertida: Boolean(row.revertida),
+    revertida: Boolean(row.revertida) || estadoEsCaida(row.estado),
     archivado: Boolean(row.archivado),
     created_at: row.created_at ?? row.createdAt ?? null,
     proyecto: row.proyecto ?? row.proyecto_nombre ?? '',
@@ -202,7 +203,9 @@ export function mapReservaPublica(row) {
     nivel_jerarquia_nombre: bp.nivel_jerarquia_nombre,
     nombre_asesor: row.asesor_nombre ?? bp.nombre ?? '',
     tipo_reserva: 'reserva',
-    revertida: Boolean(row.revertida),
+    // ored expone el estado crudo de Brekto y no filtra: Cancelado y Rechazado
+    // son caidas y no deben puntuar. Ver docs/API-ranking-ored.md seccion 4.
+    revertida: Boolean(row.revertida) || estadoEsCaida(row.estado),
     archivado: Boolean(row.archivado),
     created_at: row.ocurrido_en ?? null,
     proyecto: row.proyecto ?? '',

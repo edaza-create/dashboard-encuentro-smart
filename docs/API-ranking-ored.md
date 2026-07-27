@@ -132,52 +132,68 @@ Promesas y escrituras **no vienen de esta API** — se cargan a mano en el dashb
 
 ---
 
-## 5. ⚠️ Brecha detectada: no se puede distinguir una reserva caída
+## 5. ✅ RESUELTO — el endpoint ya expone `estado`
 
-**Este es el punto que necesitamos resolver con el equipo de ored.**
+> Actualizado el **2026-07-27**. ORED agregó el campo `estado` al endpoint público
+> (migración 128). El campo 13 de la tabla de arriba es este.
 
-### El problema
+Antes el endpoint devolvía 12 campos y ninguno indicaba el estado, así que una
+reserva caída llegaba indistinguible de una vigente y seguía sumando puntos.
+Ahora sí se puede filtrar.
 
-El endpoint **no expone ningún campo de estado**. Los 12 campos son los listados arriba y entre ellos no hay `estado`, `revertida`, `archivado`, `anulada` ni equivalente.
+### Valores de `estado`
 
-Consecuencia: **una reserva vigente y una reserva caída llegan idénticas.** El dashboard no tiene forma de distinguirlas, así que las cuenta todas y asigna puntos por reservas que ya no existen.
+Es el estado **crudo de Brekto**, sin traducir. ORED lo expone tal cual y **no
+filtra**: cada consumidor decide qué cuenta.
 
-Esto se detectó porque en la plataforma ored las reservas caídas **sí** están marcadas, pero esa marca no sale por la API pública.
+| Valor | Significado | ¿Cuenta? |
+| --- | --- | --- |
+| `Pendiente` | Reserva **viva**. La UI de Brekto la muestra como "Reservado" | ✅ sí |
+| `Terminado` | Venta cerrada | ✅ sí |
+| `Procesando` | En trámite | ✅ sí |
+| `Toma Unidad` | Toma de unidad | ✅ sí |
+| `Cancelado` | **Caída** | ❌ no |
+| `Rechazado` | **Caída** | ❌ no |
 
-### Lo que necesitamos
+> ⚠️ **La trampa más común:** `Pendiente` no significa "a medio procesar" — es la
+> reserva viva. Las caídas son solo `Cancelado` y `Rechazado`.
 
-Cualquiera de estas dos opciones resuelve el problema:
+### Distribución real (ventana Cyber, verificada)
 
-**Opción A — filtrar en el backend (preferida).**
-Que el endpoint excluya las reservas caídas/revertidas/anuladas antes de responder. Cero cambios en el dashboard, y el ranking queda correcto de inmediato.
-
-**Opción B — exponer el estado.**
-Agregar el campo al objeto `reserva` para que el dashboard filtre. Basta con uno de estos:
-
-```jsonc
-{
-  "reserva_id": "…",
-  // …campos actuales…
-
-  "estado": "Registrada",   // string: el estado real de la reserva
-  "revertida": false        // boolean: true si se cayó
-}
+```
+Terminado 171 · Pendiente 117 · Cancelado 84 · Procesando 37 · Toma Unidad 7
+Total: 416   |   Caídas: 84 (20,2%)   |   Vigentes: 332
 ```
 
-Si se toma la Opción B, conviene documentar los valores posibles de `estado` para saber cuáles cuentan y cuáles no.
+### Cómo lo aplica el dashboard
 
-### Nota de compatibilidad
+`estadoEsCaida()` en `src/utils/reservaVigente.js` marca `Cancelado` y `Rechazado`;
+`mapReservaPublica()` traduce eso a `revertida`, y `esReservaVigente()` filtra el
+conteo en `reservasEnCompetencia()`, `cuentaReservasEquipo()` y
+`ufTotalReservasEquipo()`.
 
-Ambas opciones son **retrocompatibles**: agregar un campo no rompe al consumidor actual. El dashboard ya está preparado para leer `estado`, `revertida` y `archivado` si aparecen; hoy los recibe siempre vacíos y por eso los fuerza a "vigente".
+La tabla de reservas y el resumen **siguen mostrando** las caídas con su etiqueta:
+el filtro aplica solo al conteo y al puntaje.
 
-### Alcance del impacto
+Impacto medido al activarlo: **415 → 331** reservas de competencia y **1.260
+puntos fantasma** eliminados.
 
-Mientras esto no se resuelva, quedan afectados:
+---
 
-- El conteo de reservas por asesor y por equipo.
-- Los puntos de competencia (15 pts por cada reserva caída que sigue contando).
-- La cartera UF individual y por equipo.
-- El ranking público `/cyber`.
+## 5b. Endpoint privado: no usarlo desde el dashboard
+
+ORED también expone `GET /api/encuentro-smart/ranking-privado`, con los mismos
+datos más 4 campos de cliente (`nombre_cliente`, `cliente_email`, `cliente_rut`,
+`cliente_telefono`) y autenticación por API key.
+
+**El dashboard no debe consumirlo.** Razones, del propio handoff de ORED:
+
+- No tiene CORS ni responde `OPTIONS`: es máquina-a-máquina a propósito.
+- Llamarlo desde un frontend deja la key expuesta en las DevTools.
+- Trae PII que el ranking no necesita.
+
+El endpoint público ya entrega todo lo que el ranking requiere, incluido `estado`.
+No hace falta credencial alguna.
 
 ---
 
