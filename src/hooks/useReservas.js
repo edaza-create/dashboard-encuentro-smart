@@ -12,24 +12,25 @@ const TABLE =
   'reservas'
 
 /**
- * Fuente por defecto: ored, que es la fuente autoritativa del ranking y desde la
- * migracion 128 ya informa el estado de la reserva.
+ * Fuente por defecto: Atlas Engine.
  *
- * Atlas quedo como opcion (`VITE_DATA_SOURCE=atlas`), pero NO debe usarse para
- * la competencia: clasifica distinto. En la ventana Cyber ve 475 reservas y
- * marca 71 caidas, donde ored ve 416 y marca 84 — reservas que ored da por
- * canceladas Atlas las reporta como Pendiente, y terminan sumando puntos.
+ * Decision del negocio: los datos de reservas se toman de Atlas. ored queda
+ * reservado unicamente para las fotos de los asesores en el ranking publico.
  *
- * @type {'ored' | 'atlas' | 'supabase' | 'mock'}
+ * Ojo al comparar cifras: en la ventana Cyber Atlas ve 475 reservas y marca 71
+ * caidas, mientras ored ve 416 y marca 84. Las caidas se descuentan igual en
+ * ambos casos, pero cada fuente tiene su propia vision de cuales son.
+ *
+ * @type {'atlas' | 'ored' | 'supabase' | 'mock'}
  */
 const DATA_SOURCE =
   import.meta.env.VITE_DATA_SOURCE === 'supabase'
     ? 'supabase'
     : import.meta.env.VITE_DATA_SOURCE === 'mock'
       ? 'mock'
-      : import.meta.env.VITE_DATA_SOURCE === 'atlas'
-        ? 'atlas'
-        : 'ored'
+      : import.meta.env.VITE_DATA_SOURCE === 'ored'
+        ? 'ored'
+        : 'atlas'
 
 /** 0 = sin auto-refresh (solo carga inicial + botón Actualizar). */
 function readDashboardPollMs() {
@@ -86,34 +87,38 @@ export function useReservas() {
         }
       }
 
-      if (DATA_SOURCE === 'atlas' && atlasProxyConfigured()) {
-        try {
-          const resp = await fetchReservasAtlas()
-          const mapped = (resp.reservas || []).map(mapReservaAtlas).filter((r) => r && r.id)
-          setReservas(mapped)
-          setDataSource('atlas')
-          setIsLive(false)
-          setLastUpdated(resp.updated_at ? new Date(resp.updated_at) : new Date())
-          return
-        } catch (atlasErr) {
-          console.warn('[useReservas] Atlas no disponible, usando ored:', atlasErr.message)
-        }
-      }
-
-      // Endpoint privado: mismos datos + contacto del cliente. Solo responde a
-      // administradores con sesion; ante 401/403 se sigue con el publico.
+      // Proxy autenticado: mismas reservas + contacto del cliente. Requiere
+      // sesion; ante 401/403 se sigue con el proxy publico, sin datos de cliente.
       if (reservasPrivadoConfigured()) {
         try {
           const resp = await fetchReservasPrivado()
           const mapped = (resp.reservas || []).map(mapReservaPublica).filter((r) => r && r.id)
           setReservas(mapped)
-          setDataSource('ored-privado')
+          setDataSource(resp.origen ?? 'privado')
           setIsLive(false)
           setLastUpdated(resp.updated_at ? new Date(resp.updated_at) : new Date())
           return
         } catch (privErr) {
-          console.info('[useReservas] sin datos de cliente, usando endpoint publico:', privErr.message)
+          console.info('[useReservas] sin datos de cliente:', privErr.message)
         }
+      }
+
+      if (DATA_SOURCE === 'atlas') {
+        if (!atlasProxyConfigured()) {
+          throw new Error(
+            'Atlas no configurado: falta SUPABASE_URL o VITE_ATLAS_PROXY_URL. ' +
+              'Ver docs/DEPLOY-reservas-atlas.md'
+          )
+        }
+        // Sin fallback silencioso a ored: las dos fuentes clasifican distinto y
+        // mezclarlas daria cifras que no cuadran con la fuente elegida.
+        const resp = await fetchReservasAtlas()
+        const mapped = (resp.reservas || []).map(mapReservaAtlas).filter((r) => r && r.id)
+        setReservas(mapped)
+        setDataSource('atlas')
+        setIsLive(false)
+        setLastUpdated(resp.updated_at ? new Date(resp.updated_at) : new Date())
+        return
       }
 
       const resp = await fetchReservasRanking()

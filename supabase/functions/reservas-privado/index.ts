@@ -18,12 +18,13 @@
  * dashboard. IMPORTANTE: si esa lista queda vacia, el alta por OTP usa
  * `shouldCreateUser: true` y cualquier correo podria registrarse y ver la PII.
  *
- * Fuente de datos: usa ORED si su key esta configurada; si no, cae a Atlas.
- * Asi, al cargar ORED_API_KEY el cambio de fuente es automatico, sin desplegar.
+ * Fuente de datos: Atlas Engine, para que coincida con el resto del dashboard.
+ * ORED solo se usa si Atlas no esta configurado. Ojo al comparar cifras: cada
+ * fuente tiene su propia vision de que reservas estan caidas.
  *
  * Secretos (Supabase → Edge Functions → Secrets):
- *   ORED_API_KEY    key del endpoint privado de ORED   (preferida)
- *   ATLAS_API_KEY   key de Atlas Engine                (alternativa)
+ *   ATLAS_API_KEY   key de Atlas Engine                (preferida)
+ *   ORED_API_KEY    key del endpoint privado de ORED   (alternativa)
  *   ADMIN_EMAILS    restriccion extra por correo       (opcional)
  *
  * Ver docs/DEPLOY-reservas-privado.md
@@ -214,11 +215,11 @@ Deno.serve(async (req) => {
     return json(400, { error: 'desde debe ser menor o igual que hasta' })
   }
 
-  // 4. ORED si esta disponible; si no, Atlas.
+  // 4. Atlas si esta disponible; si no, ORED.
   try {
-    const data = oredKey
-      ? await desdeOred(oredKey, desde, hasta, url.searchParams.get('limit'))
-      : await desdeAtlas(atlasKey!, desde, hasta)
+    const data = atlasKey
+      ? await desdeAtlas(atlasKey, desde, hasta)
+      : await desdeOred(oredKey!, desde, hasta, url.searchParams.get('limit'))
 
     return json(200, {
       updated_at: new Date().toISOString(),

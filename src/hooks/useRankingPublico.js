@@ -2,49 +2,48 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { atlasProxyConfigured, fetchReservasAtlas } from "../api/atlasClient.js";
 import { fetchReservasRanking } from "../api/rankingClient.js";
 import { buildFotoByEmail, buildRankingCompetencia } from "../utils/buildRankingCompetencia.js";
-import { mapReservaAtlas, mapReservaPublica } from "../utils/mapReserva.js";
+import { mapReservaAtlas } from "../utils/mapReserva.js";
 import { useCompetenciaManualRemoteSync } from "./useCompetenciaManualRemoteSync.js";
 import { subscribeCompetenciaManualUpdated } from "../utils/competenciaStorage.js";
 
 /**
  * Carga las reservas del ranking.
  *
- * ored es la fuente: es la autoritativa del ranking, entrega los avatares y
- * desde la migracion 128 informa el estado de la reserva, asi que las caidas se
- * descuentan solas.
+ * Atlas Engine es la fuente de las reservas. ored se consulta en paralelo
+ * UNICAMENTE para el mapa email -> foto del asesor, porque Atlas no entrega
+ * avatares; sus reservas no se usan.
  *
- * Atlas queda como respaldo si ored no responde. NO se prefiere: clasifica
- * distinto (475 reservas y 71 caidas, contra 416 y 84 de ored) e infla el
- * puntaje. Ademas no trae fotos.
+ * Si ored falla, el ranking se muestra igual, sin fotos. Si Atlas falla, se
+ * propaga el error: no se sustituye con datos de ored, porque cada fuente tiene
+ * su propia vision de que reservas estan caidas y mezclarlas daria cifras que no
+ * cuadran.
  *
  * @returns {Promise<{ reservas: object[], fotos: Map, updatedAt: string|null, periodo: object|null, origen: string }>}
  */
 async function cargarReservasYFotos(options) {
-  try {
-    const ored = await fetchReservasRanking(options);
-    return {
-      reservas: (ored.reservas || []).map(mapReservaPublica).filter(Boolean),
-      fotos: buildFotoByEmail(ored.reservas ?? []),
-      updatedAt: ored.updated_at ?? null,
-      periodo: ored.periodo ?? null,
-      origen: "ored",
-    };
-  } catch (err) {
-    console.warn("[ranking] ored no disponible:", err.message);
+  // Solo para avatares. Se lanza en paralelo y nunca hace fallar el ranking.
+  const fotosPromise = fetchReservasRanking(options)
+    .then((ored) => buildFotoByEmail(ored?.reservas ?? []))
+    .catch((err) => {
+      console.warn("[ranking] ored no disponible para fotos:", err.message);
+      return new Map();
+    });
+
+  if (!atlasProxyConfigured()) {
+    await fotosPromise;
+    throw new Error(
+      "Atlas no configurado: falta SUPABASE_URL o VITE_ATLAS_PROXY_URL"
+    );
   }
 
-  if (atlasProxyConfigured()) {
-    const atlas = await fetchReservasAtlas(options);
-    return {
-      reservas: (atlas.reservas || []).map(mapReservaAtlas).filter(Boolean),
-      fotos: new Map(),
-      updatedAt: atlas.updated_at ?? null,
-      periodo: atlas.periodo ?? null,
-      origen: "atlas",
-    };
-  }
-
-  throw new Error("Sin fuente de reservas disponible");
+  const atlas = await fetchReservasAtlas(options);
+  return {
+    reservas: (atlas.reservas || []).map(mapReservaAtlas).filter(Boolean),
+    fotos: await fotosPromise,
+    updatedAt: atlas.updated_at ?? null,
+    periodo: atlas.periodo ?? null,
+    origen: "atlas",
+  };
 }
 
 const DEFAULT_POLL_MS = 30 * 60 * 1000; // 30 minutos
