@@ -28,3 +28,9 @@ Lista Asesores Activos*.xlsx
 .snapshots/
 .vercel
 exports/
+
+# Local Netlify folder
+.netlify
+
+# Estado local de la CLI de Supabase
+supabase/.temp/
