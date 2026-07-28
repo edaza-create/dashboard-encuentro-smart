@@ -5,7 +5,7 @@
  * - Los siguientes 2 dígitos (de la misma cadena) son los decimales (hasta 2).
  *
  * Ej.: 18_676_006 → "18676006" → 1867.60
- * Ej.: 31066 → "31066" → 3106.66
+ * Ej.: 31066 → "31066" → 3106.60  (solo hay un digito decimal, se rellena con 0)
  */
 export function ufNormalizadoPlanilla(raw) {
   if (raw === null || raw === undefined || raw === '') return 0
@@ -30,7 +30,7 @@ export function ufNormalizadoPlanilla(raw) {
  */
 export function ufMontoPlanillaReserva(r) {
   const prom = Number(r?.valor_promesa_uf)
-  const raw = prom ? r.valor_promesa_uf : r.valor_venta_uf
+  const raw = prom ? r.valor_promesa_uf : r?.valor_venta_uf
   if (r?.uf_ya_normalizada) {
     const n = Number(raw)
     return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0

@@ -202,8 +202,17 @@ export function mapReservaPublica(row) {
     valor_venta_uf: montoUf,
     bonificacion_porcentaje: 0,
     valor_promesa_uf: montoUf,
-    /** Atlas entrega UF limpias: saltarse el normalizador de planilla. */
-    uf_ya_normalizada: Boolean(row.uf_ya_normalizada),
+    /**
+     * Siempre true: este mapper solo recibe filas de API (`monto_uf` de ored o
+     * de Atlas ya normalizado por el proxy), y todas traen la UF limpia.
+     *
+     * `ufNormalizadoPlanilla()` existe para reparar valores malformados de la
+     * planilla xlsx —toma los primeros 4 digitos— y aplicado a estos datos
+     * dividiria por 10 cualquier propiedad de 10.000 UF o mas. Hoy no hay
+     * ninguna en la ventana, pero la primera que aparezca perderia el 90% de su
+     * valor sin avisar.
+     */
+    uf_ya_normalizada: true,
     pie_porcentaje: 0,
     pie_uf: 0,
     credito_hipotecario_uf: 0,
