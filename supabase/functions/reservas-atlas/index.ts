@@ -5,7 +5,7 @@
  *
  * Razon de existir: la credencial de Atlas da acceso a datos personales de
  * clientes (nombre, correo, telefono, RUT). El dashboard es una SPA sin
- * backend, asi que cualquier variable VITE_*/SUPABASE_* termina incrustada en
+ * backend, asi que cualquier variable VITE_ o SUPABASE_ termina incrustada en
  * el bundle publico. Esta funcion mantiene la clave del lado del servidor y
  * devuelve unicamente los campos que el ranking necesita — los datos de
  * cliente NUNCA salen de aqui.
