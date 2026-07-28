@@ -12,18 +12,24 @@ const TABLE =
   'reservas'
 
 /**
- * Fuente por defecto: Atlas Engine, la unica que informa si una reserva se cayo.
- * Si el proxy no esta configurado se cae a ored (sin estado de reserva).
- * @type {'atlas' | 'ored' | 'supabase' | 'mock'}
+ * Fuente por defecto: ored, que es la fuente autoritativa del ranking y desde la
+ * migracion 128 ya informa el estado de la reserva.
+ *
+ * Atlas quedo como opcion (`VITE_DATA_SOURCE=atlas`), pero NO debe usarse para
+ * la competencia: clasifica distinto. En la ventana Cyber ve 475 reservas y
+ * marca 71 caidas, donde ored ve 416 y marca 84 — reservas que ored da por
+ * canceladas Atlas las reporta como Pendiente, y terminan sumando puntos.
+ *
+ * @type {'ored' | 'atlas' | 'supabase' | 'mock'}
  */
 const DATA_SOURCE =
   import.meta.env.VITE_DATA_SOURCE === 'supabase'
     ? 'supabase'
     : import.meta.env.VITE_DATA_SOURCE === 'mock'
       ? 'mock'
-      : import.meta.env.VITE_DATA_SOURCE === 'ored'
-        ? 'ored'
-        : 'atlas'
+      : import.meta.env.VITE_DATA_SOURCE === 'atlas'
+        ? 'atlas'
+        : 'ored'
 
 /** 0 = sin auto-refresh (solo carga inicial + botón Actualizar). */
 function readDashboardPollMs() {

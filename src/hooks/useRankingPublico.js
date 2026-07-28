@@ -9,43 +9,42 @@ import { subscribeCompetenciaManualUpdated } from "../utils/competenciaStorage.j
 /**
  * Carga las reservas del ranking.
  *
- * Atlas Engine es la fuente de reservas: es la unica que informa si una reserva
- * se cayo. Como Atlas no entrega avatares, ored se sigue consultando en paralelo
- * solo para el mapa email -> foto. Si Atlas falla, ored cubre todo (sin estado).
+ * ored es la fuente: es la autoritativa del ranking, entrega los avatares y
+ * desde la migracion 128 informa el estado de la reserva, asi que las caidas se
+ * descuentan solas.
+ *
+ * Atlas queda como respaldo si ored no responde. NO se prefiere: clasifica
+ * distinto (475 reservas y 71 caidas, contra 416 y 84 de ored) e infla el
+ * puntaje. Ademas no trae fotos.
  *
  * @returns {Promise<{ reservas: object[], fotos: Map, updatedAt: string|null, periodo: object|null, origen: string }>}
  */
 async function cargarReservasYFotos(options) {
-  const oredPromise = fetchReservasRanking(options).catch((err) => {
-    console.warn("[ranking] ored no disponible para fotos:", err.message);
-    return null;
-  });
-
-  if (atlasProxyConfigured()) {
-    try {
-      const atlas = await fetchReservasAtlas(options);
-      const ored = await oredPromise;
-      return {
-        reservas: (atlas.reservas || []).map(mapReservaAtlas).filter(Boolean),
-        fotos: buildFotoByEmail(ored?.reservas ?? []),
-        updatedAt: atlas.updated_at ?? null,
-        periodo: atlas.periodo ?? null,
-        origen: "atlas",
-      };
-    } catch (err) {
-      console.warn("[ranking] Atlas no disponible, usando ored:", err.message);
-    }
+  try {
+    const ored = await fetchReservasRanking(options);
+    return {
+      reservas: (ored.reservas || []).map(mapReservaPublica).filter(Boolean),
+      fotos: buildFotoByEmail(ored.reservas ?? []),
+      updatedAt: ored.updated_at ?? null,
+      periodo: ored.periodo ?? null,
+      origen: "ored",
+    };
+  } catch (err) {
+    console.warn("[ranking] ored no disponible:", err.message);
   }
 
-  const ored = await oredPromise;
-  if (!ored) throw new Error("Sin fuente de reservas disponible");
-  return {
-    reservas: (ored.reservas || []).map(mapReservaPublica).filter(Boolean),
-    fotos: buildFotoByEmail(ored.reservas ?? []),
-    updatedAt: ored.updated_at ?? null,
-    periodo: ored.periodo ?? null,
-    origen: "ored",
-  };
+  if (atlasProxyConfigured()) {
+    const atlas = await fetchReservasAtlas(options);
+    return {
+      reservas: (atlas.reservas || []).map(mapReservaAtlas).filter(Boolean),
+      fotos: new Map(),
+      updatedAt: atlas.updated_at ?? null,
+      periodo: atlas.periodo ?? null,
+      origen: "atlas",
+    };
+  }
+
+  throw new Error("Sin fuente de reservas disponible");
 }
 
 const DEFAULT_POLL_MS = 30 * 60 * 1000; // 30 minutos
