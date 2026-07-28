@@ -8,3 +8,9 @@ verify_jwt = false
 # credencial de Atlas vive como secreto del servidor: ver ATLAS_API_KEY.
 [functions.reservas-atlas]
 verify_jwt = false
+
+# Proxy al endpoint privado de ORED: entrega datos de cliente (PII), asi que
+# EXIGE sesion valida. La funcion ademas valida el correo contra ADMIN_EMAILS.
+# No cambiar a false: dejaria RUTs y telefonos accesibles sin autenticacion.
+[functions.reservas-privado]
+verify_jwt = true

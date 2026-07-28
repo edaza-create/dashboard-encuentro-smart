@@ -140,6 +140,16 @@
   word-break: break-word;
 }
 
+/* Los datos de contacto llegan solo por el endpoint privado de ored. */
+.sinDatos {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--color-text-muted);
+  opacity: 0.75;
+}
+
 @media (max-width: 640px) {
   .body { grid-template-columns: 1fr; }
   .overlay { padding: 16px 8px; }

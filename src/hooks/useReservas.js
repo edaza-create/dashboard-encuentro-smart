@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import mockData from '../data/reservas_mock.json'
 import { atlasProxyConfigured, fetchReservasAtlas } from '../api/atlasClient.js'
 import { fetchReservasRanking } from '../api/rankingClient.js'
+import { fetchReservasPrivado, reservasPrivadoConfigured } from '../api/reservasPrivadoClient.js'
 import { supabase, supabaseConfigured } from '../data/supabaseClient'
 import { mapReservaRow, mapReservaAtlas, mapReservaPublica } from '../utils/mapReserva'
 
@@ -90,6 +91,22 @@ export function useReservas() {
           return
         } catch (atlasErr) {
           console.warn('[useReservas] Atlas no disponible, usando ored:', atlasErr.message)
+        }
+      }
+
+      // Endpoint privado: mismos datos + contacto del cliente. Solo responde a
+      // administradores con sesion; ante 401/403 se sigue con el publico.
+      if (reservasPrivadoConfigured()) {
+        try {
+          const resp = await fetchReservasPrivado()
+          const mapped = (resp.reservas || []).map(mapReservaPublica).filter((r) => r && r.id)
+          setReservas(mapped)
+          setDataSource('ored-privado')
+          setIsLive(false)
+          setLastUpdated(resp.updated_at ? new Date(resp.updated_at) : new Date())
+          return
+        } catch (privErr) {
+          console.info('[useReservas] sin datos de cliente, usando endpoint publico:', privErr.message)
         }
       }
 

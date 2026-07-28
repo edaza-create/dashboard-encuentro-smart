@@ -36,7 +36,7 @@ export default function ReservaModal({ reserva: r, onClose }) {
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <div className={styles.header}>
           <div>
-            <h2 className={styles.title}>{r.nombre_cliente}</h2>
+            <h2 className={styles.title}>{r.nombre_cliente || 'Reserva sin datos de cliente'}</h2>
             <div className={styles.meta}>
               <span className={`${styles.badge} ${styles[STATUS_COLORS[r.estado] || 'primary']}`}>
                 {r.revertida ? 'Revertida' : r.estado}
@@ -53,10 +53,19 @@ export default function ReservaModal({ reserva: r, onClose }) {
         <div className={styles.body}>
           <div className={styles.col}>
             <Section title="Datos del Cliente" icon={User}>
-              <Row label="RUT" value={r.cliente_rut} />
-              <Row label="Email" value={r.cliente_email} />
-              <Row label="Teléfono" value={r.cliente_telefono} />
-              <Row label="Profesión" value={r.profesion} />
+              {r.cliente_rut || r.cliente_email || r.cliente_telefono ? (
+                <>
+                  <Row label="RUT" value={r.cliente_rut} />
+                  <Row label="Email" value={r.cliente_email} />
+                  <Row label="Teléfono" value={r.cliente_telefono} />
+                  <Row label="Profesión" value={r.profesion} />
+                </>
+              ) : (
+                <p className={styles.sinDatos}>
+                  Los datos de contacto solo están disponibles para cuentas administradoras
+                  con sesión iniciada.
+                </p>
+              )}
             </Section>
 
             <Section title="Pago de Reserva" icon={CreditCard}>

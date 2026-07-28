@@ -100,6 +100,14 @@
   color: var(--color-text-muted);
 }
 
+/* Los datos de cliente solo llegan por el endpoint privado (admins con sesion). */
+.clientEmpty {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--color-text-muted);
+  opacity: 0.65;
+}
+
 .proyecto {
   font-weight: 500;
   color: var(--color-primary);

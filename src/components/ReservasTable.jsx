@@ -20,6 +20,27 @@ const SORT_OPTIONS = [
   { key: 'nivel_jerarquia_nombre', label: 'Broker/BP' },
 ]
 
+/**
+ * Celda de cliente. Los datos de contacto solo llegan desde el endpoint privado
+ * de ored (admins con sesion); desde el publico vienen vacios y se muestra un
+ * placeholder en vez de un avatar "?" con campos en blanco.
+ */
+function ClienteCell({ reserva }) {
+  const nombre = String(reserva.nombre_cliente ?? '').trim()
+  if (!nombre) {
+    return <span className={styles.clientEmpty}>Sin datos de cliente</span>
+  }
+  return (
+    <div className={styles.clientCell}>
+      <div className={styles.avatar}>{getInitials(nombre)}</div>
+      <div>
+        <div className={styles.clientName}>{nombre}</div>
+        {reserva.cliente_rut ? <div className={styles.clientSub}>{reserva.cliente_rut}</div> : null}
+      </div>
+    </div>
+  )
+}
+
 export default function ReservasTable({ reservas }) {
   const [sort, setSort] = useState({ key: 'fecha_reserva', dir: 'desc' })
   const [selected, setSelected] = useState(null)
@@ -71,10 +92,12 @@ export default function ReservasTable({ reservas }) {
           {sorted.map(r => (
             <button key={r.id} type="button" className={styles.mobileCard} onClick={() => setSelected(r)}>
               <div className={styles.mobileCardTop}>
-                <div className={styles.avatar}>{getInitials(r.nombre_cliente)}</div>
+                <div className={styles.avatar}>{getInitials(r.nombre_cliente || '·')}</div>
                 <div className={styles.mobileCardIdentity}>
-                  <span className={styles.mobileCardName}>{r.nombre_cliente}</span>
-                  <span className={styles.mobileCardSub}>{r.cliente_rut}</span>
+                  <span className={styles.mobileCardName}>
+                    {r.nombre_cliente || <span className={styles.clientEmpty}>Sin datos de cliente</span>}
+                  </span>
+                  {r.cliente_rut ? <span className={styles.mobileCardSub}>{r.cliente_rut}</span> : null}
                 </div>
                 <span className={`${styles.badge} ${styles[STATUS_COLORS[r.estado] || 'primary']}`}>
                   {r.revertida ? 'Revertida' : r.estado}
@@ -130,13 +153,7 @@ export default function ReservasTable({ reservas }) {
                 <tr key={r.id} className={styles.row} onClick={() => setSelected(r)}>
                   <td className={styles.td}>{formatDate(r.fecha_reserva)}</td>
                   <td className={styles.td}>
-                    <div className={styles.clientCell}>
-                      <div className={styles.avatar}>{getInitials(r.nombre_cliente)}</div>
-                      <div>
-                        <div className={styles.clientName}>{r.nombre_cliente}</div>
-                        <div className={styles.clientSub}>{r.cliente_rut}</div>
-                      </div>
-                    </div>
+                    <ClienteCell reserva={r} />
                   </td>
                   <td className={styles.td}><span className={styles.proyecto}>{r.proyecto}</span></td>
                   <td className={styles.td}>{r.unidad}</td>

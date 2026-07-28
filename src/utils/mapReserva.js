@@ -179,10 +179,10 @@ export function mapReservaPublica(row) {
 
   const mapped = {
     id: String(row.reserva_id ?? ''),
-    nombre_cliente: '',
+    // Solo el endpoint privado de ored entrega datos de cliente; desde el
+    // publico llegan undefined y quedan vacios.
+    nombre_cliente: row.nombre_cliente ?? '',
     user_email: email,
-    // ored no informa el estado de la reserva. Se leen los campos por si el
-    // endpoint los agrega mas adelante; hoy llegan siempre undefined.
     estado: row.estado ?? 'Registrada',
     fecha_reserva: fechaReserva,
     tipologia: tipologiaFromUnidad(row.unidad),
@@ -212,9 +212,9 @@ export function mapReservaPublica(row) {
     comuna: '',
     unidad: row.unidad != null ? String(row.unidad) : '',
     inmobiliaria: row.inmobiliaria ?? '',
-    cliente_rut: '',
-    cliente_telefono: '',
-    cliente_email: '',
+    cliente_rut: row.cliente_rut ?? '',
+    cliente_telefono: row.cliente_telefono ?? '',
+    cliente_email: row.cliente_email ?? '',
     profesion: '',
     uf_valor_reserva: 0,
     banco_origen: '',
