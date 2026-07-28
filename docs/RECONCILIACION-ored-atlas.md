@@ -1,21 +1,41 @@
 # Reconciliación ORED ↔ Atlas — ventana Cyber
 
-**Estado:** abierto. Bloquea el cambio de fuente del ranking a ORED.
+**Estado:** parcialmente resuelto. Sigue bloqueando el cambio de fuente a ORED.
 **Medido:** 2026-07-28, ventana 2026-05-15 → 2026-07-15 (por fecha de reserva).
 
 ## El problema en una línea
 
-Dos sistemas que deberían coincidir difieren en **79 reservas**, y ninguno de los
-dos es superconjunto del otro.
+Dos sistemas que deberían coincidir difieren, y ninguno de los dos es
+superconjunto del otro.
 
-| Caso | Cantidad | Qué significa |
-| --- | --- | --- |
-| `FALTA_EN_ATLAS` | 34 | ORED las tiene; Atlas nunca las ingirió |
-| `FALTA_EN_ORED` | 33 | Atlas las tiene; el endpoint público de ORED no las devuelve |
-| `ESTADO_DISCREPA` | 12 | ORED dice `Cancelado`, Atlas dice `Pendiente`/`created` |
+| Caso | Antes | Después del backfill | Qué significa |
+| --- | --- | --- | --- |
+| `ESTADO_DISCREPA` | 12 | **0** ✅ | ORED decía `Cancelado`, Atlas `Pendiente`/`created` |
+| `FALTA_EN_ATLAS` | 34 | **32** | ORED las tiene; Atlas nunca las ingirió |
+| `FALTA_EN_ORED` | 33 | **33** | Atlas las tiene; el endpoint público de ORED no las devuelve |
 
-Efecto en el ranking: ORED cuenta **332 vigentes**, Atlas cuenta **345**. Son 195
-puntos y movimientos de puesto según qué fuente se use.
+El 2026-07-28 se corrió `backfill_reservas_ored.py --estado Cancelado` sobre la
+base de Atlas: 84 escrituras, 14 dentro de la ventana Cyber. Eliminó los 180
+puntos fantasma y llevó a Atlas de 345 a **333 vigentes**.
+
+## La trampa: coincidir en el total no es coincidir
+
+Las dos fuentes ahora reportan **333 vigentes**, pero es por compensación: a Atlas
+le faltan 32 vigentes y a ORED le faltan otros 32, distintos.
+
+Al comparar asesor por asesor, **32 de 83 asesores tienen conteos diferentes**,
+con una diferencia absoluta acumulada de **50 reservas (750 puntos)**:
+
+```
+colivero      ORED 15  Atlas 20   (+5)
+vchirinos     ORED 23  Atlas 19   (-4)
+drojo         ORED  9  Atlas  5   (-4)
+fcortesa      ORED 18  Atlas 20   (+2)
+```
+
+`vchirinos` está en la parte alta de la tabla: un movimiento de 4 reservas son 60
+puntos y puede cambiar el podio. **Mirar solo el total agregado oculta esto** — es
+la razón por la que el cambio de fuente sigue bloqueado.
 
 ## Método (para que sea reproducible y discutible)
 
@@ -39,25 +59,34 @@ curl -s "https://upygbobjarduunbwzeva.supabase.co/functions/v1/reservas-atlas?de
 
 ---
 
-## Caso 1 — 34 reservas que Atlas no tiene
+## Caso 1 — 32 reservas que Atlas no tiene
 
 **Para el equipo de Atlas.** Reservas presentes en ORED y ausentes en Atlas
-incluso con ventana ancha: nunca se ingirieron. Sus estados en ORED:
+incluso con ventana ancha: nunca se ingirieron. Estados en ORED (las 2
+`Cancelado` ya se recuperaron con el backfill):
 
 ```
-Terminado 17 · Pendiente 8 · Procesando 6 · Cancelado 2 · Toma Unidad 1
+Terminado 17 · Pendiente 8 · Procesando 6 · Toma Unidad 1
 ```
 
 No son de un solo día ni de una sola inmobiliaria, así que no parece una caída
 puntual del webhook.
 
-**Remedio candidato:** `atlasengine/scripts/backfill_reservas_ored.py`, que lee el
-histórico de ORED y lo reprocesa con el mismo motor del webhook. Es idempotente
-por `(brekto_id, estado)`.
+**Las 6 `Procesando` no las cubre ninguna corrida del backfill**: ese estado no
+está en `_ESTADO_TO_EVENT_TYPE`, así que se saltan siempre. Hay que decidir a qué
+`event_type` mapean, o si deben quedar fuera a propósito.
+
+Las 26 restantes se recuperarían con la corrida completa, pero eso **sube** los
+vigentes de Atlas en vez de bajarlos, así que conviene coordinarlo antes de una
+premiación:
 
 ```bash
 python scripts/backfill_reservas_ored.py --dry-run     # primero, siempre
 ```
+
+Nota operativa: el script necesita Python ≤3.12 (con 3.14 falla el build de
+`pydantic-core`) y que la CLI de Supabase esté linkeada a ORED en
+`~/Documents/ored`.
 
 ## Caso 2 — 33 reservas que ORED no devuelve
 
@@ -75,10 +104,10 @@ Araucana 3, Imagina 2, Fundamenta 2). Estados en Atlas: 32 `Pendiente/created` y
 propósito? Si es deliberado, hay que documentarlo porque cambia el alcance de la
 competencia. Si no lo es, es un hueco de la vista.
 
-## Caso 3 — 12 reservas con estado contradictorio
+## Caso 3 — 12 reservas con estado contradictorio ✅ RESUELTO
 
-**Para el equipo de Atlas.** Todas en la misma dirección: ORED `Cancelado`, Atlas
-`Pendiente`/`created`. Atlas nunca recibió el `reservation.fallen`.
+Todas iban en la misma dirección: ORED `Cancelado`, Atlas `Pendiente`/`created`.
+Atlas nunca había recibido el `reservation.fallen`.
 
 ```
 brodriguez  ×3     lhuaraka   ×1     dmendez     ×1
@@ -86,8 +115,10 @@ calvarador  ×2     lpadilla   ×1     ylastra     ×1
 fgamboa     ×1     m.salinas  ×1     rfernandez  ×1
 ```
 
-Son 180 puntos que hoy siguen inflando el ranking. Mismo remedio que el caso 1:
-el backfill mapea `Cancelado / Rechazado → reservation.fallen`.
+Eran 180 puntos inflando el ranking. Resuelto el 2026-07-28 con
+`backfill_reservas_ored.py --estado Cancelado`: 84 escrituras totales, de las
+cuales 80 fueron el evento `fallen` faltante de reservas que Atlas ya tenía y 4
+reservas nuevas. Verificado: `ESTADO_DISCREPA` quedó en 0.
 
 ---
 
@@ -97,10 +128,14 @@ ORED es autoritativo sobre `estado` —Atlas se alimenta de ORED, así que solo 
 estar desactualizado, nunca más correcto— y desde la migración 128 ya expone el
 campo. Eso vuelve a ORED la fuente correcta para el ranking.
 
-Pero cambiar hoy no elimina el error, solo lo cambia de forma: se corrigen las 12
-mal contadas y se pierden las 33 que ORED no entrega. Con premiación cerca, la
-decisión fue **cerrar primero el hueco**; cuando ambas fuentes coincidan, el
-cambio de fuente deja de mover el ranking y se vuelve trivial.
+El backfill cerró la parte de Atlas que era corregible y ambas fuentes ya
+coinciden en 333 vigentes. Pero **esa coincidencia es de total, no de
+composición**: 32 asesores siguen con conteos distintos y 750 puntos separan una
+lectura de la otra. Mientras eso siga así, elegir fuente sigue eligiendo podio.
+
+Lo que falta es lo que no depende de nosotros: que ORED explique o entregue sus
+33, y decidir qué hacer con las 32 que Atlas no tiene (26 recuperables por
+backfill, 6 sin mapeo de estado).
 
 La especificación del cambio está lista y en pausa: `useRankingPublico.js` a ORED,
 `uf_ya_normalizada` en `mapReservaPublica`, `VITE_DATA_SOURCE=ored` en el interno.
