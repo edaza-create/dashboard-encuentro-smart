@@ -185,7 +185,11 @@ export function mapReservaPublica(row) {
     user_email: email,
     estado: row.estado ?? 'Registrada',
     fecha_reserva: fechaReserva,
-    tipologia: tipologiaFromUnidad(row.unidad),
+    // ored no trae tipologia como campo: se extrae del texto de `unidad`. El
+    // proxy privado, cuando la fuente es Atlas, si la manda explicita.
+    tipologia: row.tipologia
+      ? normalizeTipologia(row.tipologia)
+      : tipologiaFromUnidad(row.unidad),
     orientacion: '',
     piso: 0,
     superficie_total: 0,
@@ -195,6 +199,8 @@ export function mapReservaPublica(row) {
     valor_venta_uf: montoUf,
     bonificacion_porcentaje: 0,
     valor_promesa_uf: montoUf,
+    /** Atlas entrega UF limpias: saltarse el normalizador de planilla. */
+    uf_ya_normalizada: Boolean(row.uf_ya_normalizada),
     pie_porcentaje: 0,
     pie_uf: 0,
     credito_hipotecario_uf: 0,
@@ -209,7 +215,7 @@ export function mapReservaPublica(row) {
     archivado: Boolean(row.archivado),
     created_at: row.ocurrido_en ?? null,
     proyecto: row.proyecto ?? '',
-    comuna: '',
+    comuna: row.comuna ?? '',
     unidad: row.unidad != null ? String(row.unidad) : '',
     inmobiliaria: row.inmobiliaria ?? '',
     cliente_rut: row.cliente_rut ?? '',

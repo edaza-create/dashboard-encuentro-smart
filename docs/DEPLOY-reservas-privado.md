@@ -49,21 +49,49 @@ cuando está presente, restringe; cuando no, basta con la sesión.
 
 | Requisito | Cómo obtenerlo |
 | --- | --- |
-| `API_KEY` del endpoint privado de ORED | La entrega el equipo de ORED por canal seguro, aparte del documento de handoff |
+| Credencial de una fuente con datos de cliente | `ORED_API_KEY` (preferida) **o** `ATLAS_API_KEY` |
 | Proyecto de Supabase configurado | `SUPABASE_URL` y `SUPABASE_ANON_KEY` en `.env.local` |
 | `VITE_ADMIN_EMAILS` con el equipo | Correos que podrán iniciar sesión — ver la advertencia de arriba |
 
 Sin Supabase configurado esto no funciona: no hay sesión que validar.
 
+### Qué fuente usa
+
+La función prefiere **ORED** y cae a **Atlas** si la key de ORED no está definida:
+
+| Secretos cargados | Fuente | `origen` en la respuesta |
+| --- | --- | --- |
+| `ORED_API_KEY` | ORED privado | `ored-privado` |
+| Solo `ATLAS_API_KEY` | Atlas Engine | `atlas-privado` |
+| Ninguno | — | `500` |
+
+El cambio es automático: al cargar `ORED_API_KEY` la función pasa a ORED sin
+necesidad de redesplegar.
+
+> La key de ORED la entrega su equipo por canal seguro, aparte del documento de
+> handoff. Mientras no llegue, Atlas cubre la funcionalidad.
+
+**Ojo con los números si usas Atlas:** filtra por fecha de negocio y reporta 475
+reservas en la ventana Cyber, donde ORED reporta 416 (filtra por `ocurrido_en`).
+La tabla podría mostrar reservas que no aparecen en el conteo de competencia.
+
 ---
 
 ## 1. Cargar los secretos
+
+Con la key de ORED, si ya la tienes:
 
 ```bash
 supabase secrets set ORED_API_KEY='<api-key-de-ored>'
 ```
 
-O desde el panel: **Edge Functions → Secrets → New secret**.
+O con Atlas mientras tanto:
+
+```bash
+supabase secrets set ATLAS_API_KEY='<api-key-de-atlas>'
+```
+
+También desde el panel: **Edge Functions → Secrets → New secret**.
 
 La key no va en el repo ni en `.env.local`: todo lo que lleve prefijo `VITE_` o
 `SUPABASE_` termina en el bundle público.
