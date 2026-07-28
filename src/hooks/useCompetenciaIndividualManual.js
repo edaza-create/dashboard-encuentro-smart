@@ -12,8 +12,21 @@ import {
   writeIndividualManualLocal,
 } from '../utils/competenciaStorage.js'
 
+/**
+ * `reservasOverride`: null = usar el conteo automatico de la API. Un numero fija
+ * la cantidad de reservas del asesor, para corregir a mano cuando la fuente de
+ * datos no cuadra con la realidad del negocio.
+ */
 function defaultEntry() {
-  return { promesasCount: 0, escriturasCount: 0 }
+  return { promesasCount: 0, escriturasCount: 0, reservasOverride: null }
+}
+
+/** null si no hay ajuste; si lo hay, un entero acotado. */
+export function normalizeReservasOverride(v) {
+  if (v === null || v === undefined || v === '') return null
+  const n = Number(v)
+  if (!Number.isFinite(n)) return null
+  return Math.max(0, Math.min(9999, Math.floor(n)))
 }
 
 function migrateKey(k) {
@@ -33,12 +46,24 @@ function normalizeLoaded(raw) {
     const key = migrateKey(id)
     const promesas = Math.max(0, Math.min(9999, Math.floor(Number(t.promesasCount) || 0)))
     const escrituras = Math.max(0, Math.min(9999, Math.floor(Number(t.escriturasCount) || 0)))
+    const override = normalizeReservasOverride(t.reservasOverride)
     if (out[key]) {
       // Two old keys collapsed into same normalized key → keep the higher value
       out[key].promesasCount = Math.max(out[key].promesasCount, promesas)
       out[key].escriturasCount = Math.max(out[key].escriturasCount, escrituras)
+      // Un ajuste manual explicito gana sobre la ausencia de ajuste.
+      if (override !== null) {
+        out[key].reservasOverride =
+          out[key].reservasOverride === null
+            ? override
+            : Math.max(out[key].reservasOverride, override)
+      }
     } else {
-      out[key] = { promesasCount: promesas, escriturasCount: escrituras }
+      out[key] = {
+        promesasCount: promesas,
+        escriturasCount: escrituras,
+        reservasOverride: override,
+      }
     }
   }
   return out
@@ -46,7 +71,11 @@ function normalizeLoaded(raw) {
 
 function entryEquals(a, b) {
   if (!a || !b) return false
-  return a.promesasCount === b.promesasCount && a.escriturasCount === b.escriturasCount
+  return (
+    a.promesasCount === b.promesasCount &&
+    a.escriturasCount === b.escriturasCount &&
+    (a.reservasOverride ?? null) === (b.reservasOverride ?? null)
+  )
 }
 
 function mergeKeys(saved, draft, keys) {

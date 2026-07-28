@@ -134,6 +134,18 @@ export function loadTeamManualSaved() {
   }
 }
 
+/**
+ * null si no hay ajuste manual de reservas; si lo hay, un entero acotado.
+ * Duplica a proposito la normalizacion del hook: este modulo no puede importarlo
+ * sin crear un ciclo, y ambos leen el mismo campo persistido.
+ */
+function normalizeReservasOverrideRaw(v) {
+  if (v === null || v === undefined || v === '') return null
+  const n = Number(v)
+  if (!Number.isFinite(n)) return null
+  return Math.max(0, Math.min(9999, Math.floor(n)))
+}
+
 function loadIndividualManualFromRaw(raw) {
   try {
     const asesores = raw?.asesores
@@ -145,6 +157,9 @@ function loadIndividualManualFromRaw(raw) {
       out[id] = {
         promesasCount: Math.max(0, Math.min(9999, Math.floor(Number(t.promesasCount) || 0))),
         escriturasCount: Math.max(0, Math.min(9999, Math.floor(Number(t.escriturasCount) || 0))),
+        // Ajuste manual del conteo de reservas: null = usar el automatico.
+        // Sin esto, la pestana de equipos y /cyber ignorarian la correccion.
+        reservasOverride: normalizeReservasOverrideRaw(t.reservasOverride),
       }
     }
     return out

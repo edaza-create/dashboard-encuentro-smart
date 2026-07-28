@@ -10,12 +10,13 @@ import { mapReservaPublica } from './mapReserva.js'
 import {
   listAsesoresCompetenciaIndividual,
   puntosManualIndividual,
+  reservasEfectivas,
   totalIndividual,
 } from './competenciaCapitalOpenIndividual.js'
 import { compareRankingPorPuntosYUf } from './rankingCompare.js'
 import {
   equiposOrdenadosPorPuntos,
-  cuentaReservasEquipo,
+  cuentaReservasEquipoAjustada,
   manualEfectivoEquipo,
   puntosManualEquipo,
   SCORING,
@@ -94,6 +95,8 @@ export function buildRankingCompetencia(reservasPublicas, options = {}) {
       const pm = puntosManualIndividual(saved)
       const emailKey = canonicalAsesorEmail(a.email)
       const foto = emailKey ? fotos.get(emailKey) : null
+      // Respeta el ajuste manual de reservas si el asesor lo tiene.
+      const nRes = reservasEfectivas(saved, a.reservas)
       return {
         // Clave estable y única en la lista (indexada por asesorStorageKey);
         // sirve de React key robusto aunque dos filas compartieran email.
@@ -101,10 +104,10 @@ export function buildRankingCompetencia(reservasPublicas, options = {}) {
         email: a.email,
         nombre: a.etiqueta,
         bp_display: a.nivelJerarquia,
-        reservasCount: a.reservas,
+        reservasCount: nRes,
         promesasCount: saved.promesasCount,
         escriturasCount: saved.escriturasCount,
-        puntosReserva: a.puntosReserva,
+        puntosReserva: nRes * SCORING.reservaPorRegistro,
         puntosPromesas: pm.promesas,
         puntosEscrituras: pm.escrituras,
         totalPuntos: totalIndividual(saved, a.reservas),
@@ -124,7 +127,7 @@ export function buildRankingCompetencia(reservasPublicas, options = {}) {
     }
     const manual = manualEfectivoEquipo(reservas, equipo, teamOnly, indManual)
     const pm = puntosManualEquipo(manual)
-    const nRes = cuentaReservasEquipo(reservas, equipo)
+    const nRes = cuentaReservasEquipoAjustada(reservas, equipo, indManual)
     return {
       slug: id,
       display: equipo.label,

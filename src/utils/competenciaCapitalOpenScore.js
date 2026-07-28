@@ -48,8 +48,20 @@ export function ufTotalReservasEquipo(reservas, equipo) {
   return Math.round(sum * 100) / 100
 }
 
-export function puntosReservaAuto(reservas, equipo) {
-  return cuentaReservasEquipo(reservas, equipo) * SCORING.reservaPorRegistro
+/**
+ * Reservas del equipo tras aplicar los ajustes manuales de sus asesores.
+ * Mantiene la pestana de equipos coherente con la individual.
+ */
+export function cuentaReservasEquipoAjustada(reservas, equipo, individualManual = {}) {
+  const auto = cuentaReservasEquipo(reservas, equipo)
+  const delta =
+    aggregateManualIndividualPorEquipo(reservas, individualManual)[String(equipo.id)]
+      ?.reservasDelta ?? 0
+  return Math.max(0, auto + delta)
+}
+
+export function puntosReservaAuto(reservas, equipo, individualManual = {}) {
+  return cuentaReservasEquipoAjustada(reservas, equipo, individualManual) * SCORING.reservaPorRegistro
 }
 
 export function puntosManualEquipo(manual) {
@@ -78,7 +90,7 @@ export function manualEfectivoEquipo(reservas, equipo, teamManual, individualMan
 }
 
 export function totalPuntosEquipo(reservas, equipo, teamManual, individualManual = {}, asistenciaPuntos = 0) {
-  const auto = puntosReservaAuto(reservas, equipo)
+  const auto = puntosReservaAuto(reservas, equipo, individualManual)
   const m = puntosManualEquipo(manualEfectivoEquipo(reservas, equipo, teamManual, individualManual))
   return auto + m.promesas + m.escrituras + m.actividades + asistenciaPuntos
 }

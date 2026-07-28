@@ -52,13 +52,27 @@ export function equipoIdForReservasAsesor(reservasAsesor) {
 }
 
 /**
- * Suma promesas y escrituras de cada asesor al equipo que le corresponde por BP.
+ * Suma al equipo lo que se cargo a mano en cada asesor: promesas, escrituras y
+ * la diferencia que introduce un ajuste manual de reservas.
+ *
+ * `reservasDelta` es la correccion respecto del conteo automatico. Si un asesor
+ * cuenta 12 por API y se ajusta a 15, el equipo suma +3; si se ajusta a 10,
+ * suma -3. Asi la pestana de equipos no contradice a la individual.
+ *
+ * Limitacion conocida: solo cubre a los asesores que tienen reservas en la
+ * ventana. Un ajuste sobre alguien con 0 reservas automaticas se ve en la
+ * pestana individual pero no llega al equipo, porque no hay reserva de la cual
+ * deducir a que equipo pertenece.
+ *
  * @param {object[]} reservas
- * @param {Record<string, { promesasCount?: number, escriturasCount?: number }>} individualManual
+ * @param {Record<string, { promesasCount?: number, escriturasCount?: number, reservasOverride?: number|null }>} individualManual
  */
 export function aggregateManualIndividualPorEquipo(reservas, individualManual) {
   const out = Object.fromEntries(
-    EQUIPOS_CAPITAL_ONE.map((e) => [String(e.id), { promesasCount: 0, escriturasCount: 0 }])
+    EQUIPOS_CAPITAL_ONE.map((e) => [
+      String(e.id),
+      { promesasCount: 0, escriturasCount: 0, reservasDelta: 0 },
+    ])
   )
 
   const inComp = reservasEnCompetencia(reservas ?? [])
@@ -72,9 +86,17 @@ export function aggregateManualIndividualPorEquipo(reservas, individualManual) {
   for (const [key, reservasAsesor] of porAsesor) {
     const equipoId = equipoIdForReservasAsesor(reservasAsesor)
     if (!equipoId || !out[equipoId]) continue
-    const entry = individualManual?.[key] || { promesasCount: 0, escriturasCount: 0 }
+    const entry = individualManual?.[key] || {}
     out[equipoId].promesasCount += Math.max(0, Number(entry.promesasCount) || 0)
     out[equipoId].escriturasCount += Math.max(0, Number(entry.escriturasCount) || 0)
+
+    const override = entry.reservasOverride
+    if (override !== null && override !== undefined) {
+      const n = Number(override)
+      if (Number.isFinite(n) && n >= 0) {
+        out[equipoId].reservasDelta += Math.floor(n) - reservasAsesor.length
+      }
+    }
   }
 
   return out

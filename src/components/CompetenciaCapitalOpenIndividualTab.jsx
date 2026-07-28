@@ -1,11 +1,16 @@
 import { useMemo, useState } from 'react'
 import { BookOpen, ChevronDown, RotateCcw, Save, Search, UserCircle2 } from 'lucide-react'
 import CompetenciaRemoteSyncBanner from './CompetenciaRemoteSyncBanner'
-import { useCompetenciaIndividualManual } from '../hooks/useCompetenciaIndividualManual'
+import {
+  normalizeReservasOverride,
+  useCompetenciaIndividualManual,
+} from '../hooks/useCompetenciaIndividualManual'
 import { useAuth } from '../context/AuthContext'
 import {
   listAsesoresCompetenciaIndividual,
   puntosManualIndividual,
+  reservasEfectivas,
+  tieneAjusteReservas,
   totalIndividual,
 } from '../utils/competenciaCapitalOpenIndividual'
 import { compareRankingPorPuntosYUf } from '../utils/rankingCompare'
@@ -29,13 +34,23 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
   const rows = useMemo(() => {
     return [...asesoresBase]
       .map((a) => {
-        const s = saved[a.key] || { promesasCount: 0, escriturasCount: 0 }
+        const s = saved[a.key] || { promesasCount: 0, escriturasCount: 0, reservasOverride: null }
         const pm = puntosManualIndividual(s)
         const total = totalIndividual(s, a.reservas)
-        return { ...a, total, pm }
+        return {
+          ...a,
+          total,
+          pm,
+          /** Conteo que viene de la API, antes de cualquier ajuste. */
+          reservasAuto: a.reservas,
+          reservas: reservasEfectivas(s, a.reservas),
+          ajustada: tieneAjusteReservas(s),
+        }
       })
       .sort(compareRankingPorPuntosYUf)
   }, [asesoresBase, saved])
+
+  const ajustadas = useMemo(() => rows.filter((r) => r.ajustada).length, [rows])
 
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -80,7 +95,8 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
     if (!canEditCompetencia) return
     if (
       !window.confirm(
-        '¿Borrar todas las promesas y escrituras guardadas por asesor? Las reservas automáticas no se modifican.'
+        '¿Borrar lo cargado a mano por asesor: promesas, escrituras y los ajustes de reservas? ' +
+          'Los conteos vuelven a tomarse de la API.'
       )
     ) {
       return
@@ -127,6 +143,12 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
           <li>
             <strong>Escritura:</strong> {SCORING.escrituraPorRegistro} pts por cada escritura registrada
             manualmente en el desglose del asesor. Se suman al equipo según el BP del asesor.
+          </li>
+          <li>
+            <strong>Ajuste de reservas:</strong> el campo <em>Reservas</em> deja fijar el conteo a mano
+            cuando la fuente de datos no cuadra con la realidad. En blanco usa el conteo automático;
+            con un número, ese número manda y el asesor queda marcado como <em>ajustado</em>. La
+            corrección también se traslada al puntaje de su equipo.
           </li>
         </ul>
         <p className={styles.rulesNote}>
@@ -178,6 +200,14 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
         <span>
           Reservas competencia: <strong>{totales.res.toLocaleString('es-CL')}</strong>
         </span>
+        {ajustadas > 0 && (
+          <>
+            <span className={styles.summarySep}>·</span>
+            <span className={styles.summaryAjuste} title="Asesores con el conteo de reservas fijado a mano">
+              Ajustados: <strong>{ajustadas}</strong>
+            </span>
+          </>
+        )}
         <span className={styles.summarySep}>·</span>
         <span>
           Cartera UF: <strong>{formatUF(Math.round(totales.uf))}</strong>
@@ -214,8 +244,8 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
 
       <div className={styles.cards}>
         {visibleRows.map((row) => {
-          const d = draft[row.key] || { promesasCount: 0, escriturasCount: 0 }
-          const s = saved[row.key] || { promesasCount: 0, escriturasCount: 0 }
+          const d = draft[row.key] || { promesasCount: 0, escriturasCount: 0, reservasOverride: null }
+          const s = saved[row.key] || { promesasCount: 0, escriturasCount: 0, reservasOverride: null }
           const pmSaved = puntosManualIndividual(s)
           const dirty = isDirty(row.key)
 
@@ -223,7 +253,17 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
             <article key={row.key} className={styles.asCard}>
               <div className={styles.asHead}>
                 <div>
-                  <h3 className={styles.asName}>{row.etiqueta}</h3>
+                  <h3 className={styles.asName}>
+                    {row.etiqueta}
+                    {row.ajustada && (
+                      <span
+                        className={styles.ajusteBadge}
+                        title={`Conteo ajustado a mano. La API reporta ${row.reservasAuto}.`}
+                      >
+                        ajustado
+                      </span>
+                    )}
+                  </h3>
                   <div className={styles.asMeta}>
                     {row.email ? <span className={styles.asEmail}>{row.email}</span> : null}
                     {row.nivelJerarquia ? (
@@ -251,8 +291,13 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
                 <div className={styles.breakLine}>
                   <span>
                     Reservas ({row.reservas}) × {SCORING.reservaPorRegistro}
+                    {row.ajustada && (
+                      <em className={styles.ajusteNota}> · API reporta {row.reservasAuto}</em>
+                    )}
                   </span>
-                  <strong>{row.puntosReserva.toLocaleString('es-CL')} pts</strong>
+                  <strong>
+                    {(row.reservas * SCORING.reservaPorRegistro).toLocaleString('es-CL')} pts
+                  </strong>
                 </div>
                 <div className={styles.breakLine}>
                   <span>Promesas</span>
@@ -271,6 +316,27 @@ export default function CompetenciaCapitalOpenIndividualTab({ reservas = [] }) {
               )}
 
               <div className={styles.manualForm}>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>
+                    Reservas · {SCORING.reservaPorRegistro} pts c/u
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={9999}
+                    className={`${styles.inputNum} ${d.reservasOverride != null ? styles.inputNumAjustado : ''}`}
+                    // Vacio = sin ajuste: se usa el conteo automatico.
+                    placeholder={String(row.reservasAuto)}
+                    value={d.reservasOverride ?? ''}
+                    disabled={!canEditCompetencia}
+                    title={`Vacío usa el conteo automático (${row.reservasAuto}). Escribe un número para fijarlo a mano.`}
+                    onChange={(e) =>
+                      patchDraft(row.key, {
+                        reservasOverride: normalizeReservasOverride(e.target.value),
+                      })
+                    }
+                  />
+                </label>
                 <label className={styles.field}>
                   <span className={styles.fieldLabel}>Promesas · {SCORING.promesaPorRegistro} pts c/u</span>
                   <input

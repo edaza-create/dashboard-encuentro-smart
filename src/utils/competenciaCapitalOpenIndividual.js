@@ -228,8 +228,30 @@ export function puntosManualIndividual(entry) {
   return { promesas, escrituras }
 }
 
+/**
+ * Reservas que finalmente puntuan: el conteo automatico, salvo que haya un
+ * ajuste manual (`reservasOverride`), que lo reemplaza.
+ *
+ * El ajuste existe porque las fuentes de datos no siempre coinciden con la
+ * realidad del negocio; ver docs/RECONCILIACION-ored-atlas.md.
+ *
+ * @param {{ reservasOverride?: number|null }|null|undefined} entry
+ * @param {number} reservasAuto
+ */
+export function reservasEfectivas(entry, reservasAuto) {
+  const override = entry?.reservasOverride
+  if (override === null || override === undefined) return reservasAuto
+  const n = Number(override)
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : reservasAuto
+}
+
+/** true si el asesor tiene el conteo de reservas ajustado a mano. */
+export function tieneAjusteReservas(entry) {
+  return entry?.reservasOverride !== null && entry?.reservasOverride !== undefined
+}
+
 export function totalIndividual(entry, reservasCount) {
-  const auto = reservasCount * SCORING.reservaPorRegistro
+  const auto = reservasEfectivas(entry, reservasCount) * SCORING.reservaPorRegistro
   const m = puntosManualIndividual(entry)
   return auto + m.promesas + m.escrituras
 }

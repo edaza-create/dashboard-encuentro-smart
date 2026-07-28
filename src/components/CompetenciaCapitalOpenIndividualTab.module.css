@@ -229,6 +229,42 @@
   opacity: 0.45;
 }
 
+/* Ajuste manual del conteo de reservas */
+.summaryAjuste {
+  color: #b8860b;
+}
+
+.summaryAjuste strong {
+  color: #b8860b;
+}
+
+.ajusteBadge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+  color: #b8860b;
+  background: rgba(255, 206, 84, 0.16);
+  border: 1px solid rgba(255, 206, 84, 0.45);
+}
+
+.ajusteNota {
+  font-style: normal;
+  font-weight: 600;
+  color: #b8860b;
+}
+
+.inputNumAjustado {
+  border-color: rgba(255, 206, 84, 0.75);
+  background: rgba(255, 206, 84, 0.1);
+  font-weight: 800;
+}
+
 .empty {
   margin: 0;
   padding: 16px;

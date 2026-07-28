@@ -14,7 +14,7 @@ import { useAuth } from '../context/AuthContext'
 import { aggregateManualIndividualPorEquipo } from '../utils/competenciaIndividualToEquipo'
 import {
   SCORING,
-  cuentaReservasEquipo,
+  cuentaReservasEquipoAjustada,
   equiposOrdenadosPorPuntos,
   manualEfectivoEquipo,
   puntosManualEquipo,
@@ -134,8 +134,8 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
             const draft = draftTeams[id] || defaultDraftFallback()
             const fromInd = indPorEquipo[id] || { promesasCount: 0, escriturasCount: 0 }
             const efectivo = manualEfectivoEquipo(reservas, equipo, saved, indManual)
-            const nRes = cuentaReservasEquipo(reservas, equipo)
-            const ptsRes = puntosReservaAuto(reservas, equipo)
+            const nRes = cuentaReservasEquipoAjustada(reservas, equipo, indManual)
+            const ptsRes = puntosReservaAuto(reservas, equipo, indManual)
             const pm = puntosManualEquipo(efectivo)
             const ptsOnline = (saved.actividadOnlineCount || 0) * SCORING.actividadOnline
             const ptsPres = (saved.actividadPresencialCount || 0) * SCORING.actividadPresencial
