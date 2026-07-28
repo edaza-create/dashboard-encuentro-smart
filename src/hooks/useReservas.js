@@ -3,6 +3,7 @@ import mockData from '../data/reservas_mock.json'
 import { atlasProxyConfigured, fetchReservasAtlas } from '../api/atlasClient.js'
 import { fetchReservasRanking } from '../api/rankingClient.js'
 import { fetchReservasPrivado, reservasPrivadoConfigured } from '../api/reservasPrivadoClient.js'
+import { dedupeReservasPorEvento } from '../utils/dedupeReservas.js'
 import { supabase, supabaseConfigured } from '../data/supabaseClient'
 import { mapReservaRow, mapReservaAtlas, mapReservaPublica } from '../utils/mapReserva'
 
@@ -92,7 +93,9 @@ export function useReservas() {
       if (reservasPrivadoConfigured()) {
         try {
           const resp = await fetchReservasPrivado()
-          const mapped = (resp.reservas || []).map(mapReservaPublica).filter((r) => r && r.id)
+          const mapped = dedupeReservasPorEvento(
+            (resp.reservas || []).map(mapReservaPublica).filter((r) => r && r.id)
+          )
           setReservas(mapped)
           setDataSource(resp.origen ?? 'privado')
           setIsLive(false)
@@ -113,7 +116,9 @@ export function useReservas() {
         // Sin fallback silencioso a ored: las dos fuentes clasifican distinto y
         // mezclarlas daria cifras que no cuadran con la fuente elegida.
         const resp = await fetchReservasAtlas()
-        const mapped = (resp.reservas || []).map(mapReservaAtlas).filter((r) => r && r.id)
+        const mapped = dedupeReservasPorEvento(
+          (resp.reservas || []).map(mapReservaAtlas).filter((r) => r && r.id)
+        )
         setReservas(mapped)
         setDataSource('atlas')
         setIsLive(false)

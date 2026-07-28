@@ -36,6 +36,7 @@ type AtlasRow = Record<string, unknown>
 
 type ReservaPublica = {
   reserva_id: string
+  brekto_id: string | null
   estado: string
   event_kind: string
   revertida: boolean
@@ -93,6 +94,7 @@ function toPublica(row: AtlasRow): ReservaPublica | null {
   const revertida = eventKind === 'fallen'
   return {
     reserva_id: id,
+    brekto_id: str(row.brekto_id),
     estado: str(row.estado) ?? '',
     event_kind: eventKind,
     revertida,
@@ -108,6 +110,44 @@ function toPublica(row: AtlasRow): ReservaPublica | null {
     asesor_email: str(row.asesor_email)?.toLowerCase() ?? null,
     asesor_nombre: str(row.asesor_nombre),
   }
+}
+
+/**
+ * Atlas es event-based: emite UNA FILA POR EVENTO, no por reserva. Una reserva
+ * que se creo y despues se cayo aparece dos veces — como `created` y como
+ * `fallen`— y ambas comparten `brekto_id`.
+ *
+ * Sin deduplicar, filtrar solo las filas `fallen` deja viva la fila `created` de
+ * esa misma reserva, que sigue sumando puntos. En la ventana Cyber eso eran 59
+ * reservas caidas puntuando igual (885 puntos de mas).
+ *
+ * Regla: `fallen` es terminal. Si cualquier evento de la reserva dice que se
+ * cayo, la reserva esta caida sin importar que otros eventos tenga. Entre los
+ * demas gana el mas reciente por `ocurrido_en`.
+ */
+function dedupePorReserva(rows: ReservaPublica[]): ReservaPublica[] {
+  const porReserva = new Map<string, ReservaPublica>()
+
+  for (const row of rows) {
+    // brekto_id identifica la reserva; reserva_id identifica solo esta fila.
+    const clave = row.brekto_id ?? row.reserva_id
+    const previa = porReserva.get(clave)
+
+    if (!previa) {
+      porReserva.set(clave, row)
+      continue
+    }
+    if (previa.revertida) continue // ya es terminal
+    if (row.revertida) {
+      porReserva.set(clave, row)
+      continue
+    }
+    const tPrevia = Date.parse(previa.ocurrido_en ?? '') || 0
+    const tRow = Date.parse(row.ocurrido_en ?? '') || 0
+    if (tRow > tPrevia) porReserva.set(clave, row)
+  }
+
+  return [...porReserva.values()]
 }
 
 /** Cinturon de seguridad: aborta si algun campo personal se colara al shape. */
@@ -191,10 +231,12 @@ Deno.serve(async (req) => {
   try {
     const { items, total } = await fetchTodas(apiKey, params)
 
-    let reservas = items.map(toPublica).filter((r): r is ReservaPublica => r !== null)
+    const filas = items.map(toPublica).filter((r): r is ReservaPublica => r !== null)
+    let reservas = dedupePorReserva(filas)
     assertSinDatosPersonales(reservas)
 
     const caidas = reservas.filter((r) => r.revertida).length
+    const vigentes = reservas.length - caidas
     if (soloVigentes) reservas = reservas.filter((r) => r.vigente)
 
     const body = {
@@ -202,10 +244,12 @@ Deno.serve(async (req) => {
       periodo: { desde, hasta },
       origen: 'atlas-engine',
       conteo: {
-        total_atlas: total,
+        // `filas_atlas` son eventos; `reservas` es el conteo real tras deduplicar.
+        filas_atlas: total,
+        reservas: filas.length === 0 ? 0 : caidas + vigentes,
         devueltas: reservas.length,
         caidas,
-        vigentes: reservas.length - (soloVigentes ? 0 : caidas),
+        vigentes,
       },
       reservas,
     }

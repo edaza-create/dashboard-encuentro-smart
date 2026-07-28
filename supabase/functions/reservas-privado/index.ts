@@ -120,6 +120,7 @@ function atlasAOredShape(r: Record<string, unknown>) {
   }
   return {
     reserva_id: String(r.id ?? ''),
+    brekto_id: s(r.brekto_id),
     ocurrido_en: s(r.fecha_evento),
     fecha: s(r.fecha_reserva),
     hora: null,
@@ -143,6 +144,37 @@ function atlasAOredShape(r: Record<string, unknown>) {
     cliente_rut: s(r.cliente_rut),
     cliente_telefono: s(r.cliente_telefono),
   }
+}
+
+/**
+ * Atlas emite UNA FILA POR EVENTO, no por reserva: una reserva creada y luego
+ * caida aparece como `created` y como `fallen`, compartiendo `brekto_id`.
+ * Sin deduplicar, la fila viva de una reserva caida sigue sumando puntos.
+ *
+ * `fallen` es terminal; entre los demas eventos gana el mas reciente.
+ */
+function dedupePorReserva(rows: Record<string, unknown>[]) {
+  const porReserva = new Map<string, Record<string, unknown>>()
+
+  for (const row of rows) {
+    const clave = String(row.brekto_id ?? row.reserva_id ?? '')
+    const previa = porReserva.get(clave)
+
+    if (!previa) {
+      porReserva.set(clave, row)
+      continue
+    }
+    if (previa.revertida) continue
+    if (row.revertida) {
+      porReserva.set(clave, row)
+      continue
+    }
+    const tPrevia = Date.parse(String(previa.ocurrido_en ?? '')) || 0
+    const tRow = Date.parse(String(row.ocurrido_en ?? '')) || 0
+    if (tRow > tPrevia) porReserva.set(clave, row)
+  }
+
+  return [...porReserva.values()]
 }
 
 async function desdeAtlas(key: string, desde: string, hasta: string) {
@@ -174,7 +206,8 @@ async function desdeAtlas(key: string, desde: string, hasta: string) {
     if (offset >= total || !data.items?.length) break
   }
 
-  return { reservas: items.map(atlasAOredShape), total, origen: 'atlas-privado' }
+  const reservas = dedupePorReserva(items.map(atlasAOredShape))
+  return { reservas, total: reservas.length, origen: 'atlas-privado' }
 }
 
 // --- Handler ----------------------------------------------------------------

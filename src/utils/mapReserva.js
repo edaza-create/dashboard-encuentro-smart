@@ -113,6 +113,8 @@ export function mapReservaAtlas(row) {
 
   const mapped = {
     id: String(row.reserva_id ?? ''),
+    /** Identidad de la reserva en Brekto: Atlas emite una fila por evento. */
+    brekto_id: row.brekto_id ?? null,
     nombre_cliente: '',
     user_email: email,
     estado: row.estado ?? '',
@@ -179,6 +181,7 @@ export function mapReservaPublica(row) {
 
   const mapped = {
     id: String(row.reserva_id ?? ''),
+    brekto_id: row.brekto_id ?? null,
     // Solo el endpoint privado de ored entrega datos de cliente; desde el
     // publico llegan undefined y quedan vacios.
     nombre_cliente: row.nombre_cliente ?? '',

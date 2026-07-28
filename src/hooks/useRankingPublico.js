@@ -3,6 +3,7 @@ import { atlasProxyConfigured, fetchReservasAtlas } from "../api/atlasClient.js"
 import { fetchReservasRanking } from "../api/rankingClient.js";
 import { buildFotoByEmail, buildRankingCompetencia } from "../utils/buildRankingCompetencia.js";
 import { mapReservaAtlas } from "../utils/mapReserva.js";
+import { dedupeReservasPorEvento } from "../utils/dedupeReservas.js";
 import { useCompetenciaManualRemoteSync } from "./useCompetenciaManualRemoteSync.js";
 import { subscribeCompetenciaManualUpdated } from "../utils/competenciaStorage.js";
 
@@ -38,7 +39,9 @@ async function cargarReservasYFotos(options) {
 
   const atlas = await fetchReservasAtlas(options);
   return {
-    reservas: (atlas.reservas || []).map(mapReservaAtlas).filter(Boolean),
+    reservas: dedupeReservasPorEvento(
+      (atlas.reservas || []).map(mapReservaAtlas).filter(Boolean)
+    ),
     fotos: await fotosPromise,
     updatedAt: atlas.updated_at ?? null,
     periodo: atlas.periodo ?? null,
