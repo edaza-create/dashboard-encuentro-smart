@@ -184,13 +184,21 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
                   </div>
                   <div className={styles.breakLine}>
                     <span>
-                      Promesas ({fromInd.promesasCount} desde asesores) × {SCORING.promesaPorRegistro}
+                      Promesas ({efectivo.promesasCount}) × {SCORING.promesaPorRegistro}
+                      <em className={styles.origenNota}>
+                        {' '}· {efectivo.promesasDesdeAsesores} de asesores
+                        {efectivo.promesasExtraEquipo > 0 && ` + ${efectivo.promesasExtraEquipo} del equipo`}
+                      </em>
                     </span>
                     <strong>{pm.promesas.toLocaleString('es-CL')} pts</strong>
                   </div>
                   <div className={styles.breakLine}>
                     <span>
-                      Escrituras ({fromInd.escriturasCount} desde asesores) × {SCORING.escrituraPorRegistro}
+                      Escrituras ({efectivo.escriturasCount}) × {SCORING.escrituraPorRegistro}
+                      <em className={styles.origenNota}>
+                        {' '}· {efectivo.escriturasDesdeAsesores} de asesores
+                        {efectivo.escriturasExtraEquipo > 0 && ` + ${efectivo.escriturasExtraEquipo} del equipo`}
+                      </em>
                     </span>
                     <strong>{pm.escrituras.toLocaleString('es-CL')} pts</strong>
                   </div>
@@ -215,9 +223,48 @@ export default function CompetenciaCapitalOneTab({ reservas = [] }) {
 
                 <div className={styles.manualForm}>
                   <p className={styles.indRollupNote}>
-                    Promesas y escrituras: {fromInd.promesasCount} / {fromInd.escriturasCount} registros
-                    sumados desde competencia individual.
+                    Desde competencia individual: {fromInd.promesasCount} promesas y{' '}
+                    {fromInd.escriturasCount} escrituras. Los campos de abajo <strong>se suman</strong> a
+                    eso, para lo que no está atribuido a un asesor puntual.
                   </p>
+                  <div className={styles.teamCounters}>
+                    <label className={styles.field}>
+                      <span className={styles.fieldLabel}>
+                        + Promesas equipo · {SCORING.promesaPorRegistro} pts c/u
+                      </span>
+                      <input
+                        type="number"
+                        min={0}
+                        max={9999}
+                        className={styles.inputNum}
+                        value={draft.promesasCount ?? 0}
+                        disabled={!canEditCompetencia}
+                        onChange={(e) =>
+                          patchDraft(equipo.id, {
+                            promesasCount: Math.max(0, Math.min(9999, parseInt(e.target.value, 10) || 0)),
+                          })
+                        }
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      <span className={styles.fieldLabel}>
+                        + Escrituras equipo · {SCORING.escrituraPorRegistro} pts c/u
+                      </span>
+                      <input
+                        type="number"
+                        min={0}
+                        max={9999}
+                        className={styles.inputNum}
+                        value={draft.escriturasCount ?? 0}
+                        disabled={!canEditCompetencia}
+                        onChange={(e) =>
+                          patchDraft(equipo.id, {
+                            escriturasCount: Math.max(0, Math.min(9999, parseInt(e.target.value, 10) || 0)),
+                          })
+                        }
+                      />
+                    </label>
+                  </div>
                   <label className={styles.checkRow}>
                     <input
                       type="checkbox"

@@ -80,6 +80,10 @@ function normalizeLoaded(raw) {
 function isTeamDirty(draft, saved, id) {
   const d = draft[id] || defaultDraftEntry()
   if (d.registrarOnline || d.registrarPresencial) return true
+  const s = saved[id] || defaultSavedEntry()
+  // Promesas y escrituras extra del equipo: se comparan contra lo guardado.
+  if ((d.promesasCount ?? 0) !== (s.promesasCount ?? 0)) return true
+  if ((d.escriturasCount ?? 0) !== (s.escriturasCount ?? 0)) return true
   return false
 }
 
@@ -176,8 +180,10 @@ export function useCompetenciaManualPoints() {
       return {
         ...s,
         [id]: {
-          promesasCount: 0,
-          escriturasCount: 0,
+          // Promesas y escrituras cargadas directo al equipo: se suman a las
+          // que llegan desde los asesores, no las reemplazan.
+          promesasCount: Math.max(0, Math.min(9999, Math.floor(Number(draft.promesasCount) || 0))),
+          escriturasCount: Math.max(0, Math.min(9999, Math.floor(Number(draft.escriturasCount) || 0))),
           actividadOnlineCount: Math.min(
             999,
             (prev.actividadOnlineCount || 0) + (draft.registrarOnline ? 1 : 0)
@@ -192,8 +198,10 @@ export function useCompetenciaManualPoints() {
     setDraftTeams((d) => ({
       ...d,
       [id]: {
-        promesasCount: 0,
-        escriturasCount: 0,
+        // Los contadores quedan reflejando lo recien guardado; solo se limpian
+        // los checkboxes, que son incrementales por naturaleza.
+        promesasCount: Math.max(0, Math.min(9999, Math.floor(Number(draft.promesasCount) || 0))),
+        escriturasCount: Math.max(0, Math.min(9999, Math.floor(Number(draft.escriturasCount) || 0))),
         registrarOnline: false,
         registrarPresencial: false,
       },

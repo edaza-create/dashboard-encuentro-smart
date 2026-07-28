@@ -74,16 +74,29 @@ export function puntosManualEquipo(manual) {
   return { promesas, escrituras, actividades }
 }
 
-/** Promesas/escrituras del equipo = suma de asesores; actividades solo desde manual de equipo. */
+/**
+ * Promesas y escrituras efectivas del equipo: lo que suman sus asesores MAS lo
+ * que se carga directo al equipo. Las actividades siempre son de equipo.
+ *
+ * El extra por equipo sirve para registrar promesas o escrituras que no estan
+ * atribuidas a un asesor puntual, sin tener que inventar a quien asignarlas.
+ */
 export function manualEfectivoEquipo(reservas, equipo, teamManual, individualManual = {}) {
   const id = String(equipo.id)
   const fromIndividual = aggregateManualIndividualPorEquipo(reservas, individualManual)[id] || {
     promesasCount: 0,
     escriturasCount: 0,
   }
+  const extraPromesas = Math.max(0, Number(teamManual?.promesasCount) || 0)
+  const extraEscrituras = Math.max(0, Number(teamManual?.escriturasCount) || 0)
   return {
-    promesasCount: fromIndividual.promesasCount,
-    escriturasCount: fromIndividual.escriturasCount,
+    promesasCount: fromIndividual.promesasCount + extraPromesas,
+    escriturasCount: fromIndividual.escriturasCount + extraEscrituras,
+    /** Desglose, para que la UI pueda mostrar de donde sale cada parte. */
+    promesasDesdeAsesores: fromIndividual.promesasCount,
+    escriturasDesdeAsesores: fromIndividual.escriturasCount,
+    promesasExtraEquipo: extraPromesas,
+    escriturasExtraEquipo: extraEscrituras,
     actividadOnlineCount: teamManual?.actividadOnlineCount ?? 0,
     actividadPresencialCount: teamManual?.actividadPresencialCount ?? 0,
   }

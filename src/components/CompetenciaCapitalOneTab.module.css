@@ -513,6 +513,18 @@
   background: rgba(15, 23, 42, 0.04);
 }
 
+/* Promesas y escrituras cargadas directo al equipo */
+.teamCounters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+
+.origenNota {
+  font-style: normal;
+  opacity: 0.7;
+}
+
 .manualForm {
   display: flex;
   flex-direction: column;
