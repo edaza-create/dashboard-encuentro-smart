@@ -11,15 +11,29 @@
  */
 
 /**
- * Estados de Brekto que representan una reserva caida.
+ * Estados que representan una reserva caida y por lo tanto no puntuan.
+ *
+ * `Cancelado` y `Rechazado` son los documentados por ORED. Se incluyen tambien
+ * las variantes de "revertida" y "anulada" —con sus formas masculina y
+ * femenina— porque son etiquetas que aparecen en Brekto y en la UI del
+ * dashboard; asi cuentan como caida venga el dato como venga.
  *
  * Ojo con la trampa: `Pendiente` NO es "a medio procesar", es la reserva viva
  * (la UI de Brekto la muestra como "Reservado"). `Procesando` es un tramite en
- * curso y tambien cuenta. Solo `Cancelado` y `Rechazado` son caidas.
+ * curso y tambien cuenta.
  *
  * Ver docs/API-ranking-ored.md seccion 4.
  */
-const ESTADOS_CAIDA = new Set(['cancelado', 'rechazado'])
+const ESTADOS_CAIDA = new Set([
+  'cancelado',
+  'cancelada',
+  'rechazado',
+  'rechazada',
+  'revertido',
+  'revertida',
+  'anulado',
+  'anulada',
+])
 
 /** @param {string|null|undefined} estado */
 export function estadoEsCaida(estado) {
