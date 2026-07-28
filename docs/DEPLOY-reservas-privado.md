@@ -17,15 +17,31 @@ Ese endpoint **no se puede llamar desde el navegador**. Del handoff de ORED:
 Por eso la llamada pasa por la Edge Function `reservas-privado`, que:
 
 1. Exige **sesión de Supabase válida** (`verify_jwt = true`).
-2. Valida además que el correo esté en **`ADMIN_EMAILS`**.
-3. Recién entonces consulta a ORED con la key, que vive como secreto del servidor.
-4. Responde con `Cache-Control: no-store` — la respuesta lleva PII.
+2. Consulta a ORED con la key, que vive como secreto del servidor.
+3. Responde con `Cache-Control: no-store` — la respuesta lleva PII.
 
-Un usuario sin sesión recibe `401`; uno autenticado pero no administrador, `403`.
-En ambos casos el dashboard cae al endpoint público y muestra "Sin datos de cliente".
+Un usuario sin sesión recibe `401` y el dashboard cae al endpoint público,
+mostrando "Sin datos de cliente". Cualquier cuenta que logre iniciar sesión ve los
+datos.
 
 > ⚠️ **No cambiar `verify_jwt` a `false`** en `supabase/config.toml`. Dejaría RUTs y
 > teléfonos accesibles sin autenticación.
+
+### Quién puede iniciar sesión — configurar esto es obligatorio
+
+Como el acceso a la PII depende solo de tener sesión, **quién puede crearse una
+sesión pasa a ser el control de seguridad real**.
+
+Eso lo define `VITE_ADMIN_EMAILS` en el `LoginGate`. Si esa lista queda **vacía**,
+el alta por OTP usa `shouldCreateUser: true`: cualquier correo del mundo podría
+registrarse, entrar al dashboard y ver RUTs y teléfonos de clientes.
+
+**Define siempre `VITE_ADMIN_EMAILS`** con los correos del equipo antes de activar
+esta función.
+
+Si además quieres que solo un subconjunto de quienes entran al dashboard vea los
+datos de cliente, define el secreto opcional `ADMIN_EMAILS` en la Edge Function:
+cuando está presente, restringe; cuando no, basta con la sesión.
 
 ---
 
@@ -35,7 +51,7 @@ En ambos casos el dashboard cae al endpoint público y muestra "Sin datos de cli
 | --- | --- |
 | `API_KEY` del endpoint privado de ORED | La entrega el equipo de ORED por canal seguro, aparte del documento de handoff |
 | Proyecto de Supabase configurado | `SUPABASE_URL` y `SUPABASE_ANON_KEY` en `.env.local` |
-| Lista de administradores | Los correos que podrán ver datos de cliente |
+| `VITE_ADMIN_EMAILS` con el equipo | Correos que podrán iniciar sesión — ver la advertencia de arriba |
 
 Sin Supabase configurado esto no funciona: no hay sesión que validar.
 
@@ -47,14 +63,16 @@ Sin Supabase configurado esto no funciona: no hay sesión que validar.
 supabase secrets set ORED_API_KEY='<api-key-de-ored>'
 ```
 
+O desde el panel: **Edge Functions → Secrets → New secret**.
+
+La key no va en el repo ni en `.env.local`: todo lo que lleve prefijo `VITE_` o
+`SUPABASE_` termina en el bundle público.
+
+Opcional, solo si quieres restringir más allá de tener sesión:
+
 ```bash
 supabase secrets set ADMIN_EMAILS='uno@capitalinteligente.cl,dos@capitalinteligente.cl'
 ```
-
-O desde el panel: **Edge Functions → Secrets → New secret**.
-
-Ninguna de las dos va en el repo ni en `.env.local`: todo lo que lleve prefijo
-`VITE_` o `SUPABASE_` termina en el bundle público.
 
 ## 2. Desplegar
 
@@ -72,10 +90,8 @@ SUPABASE_ANON_KEY=eyJhbGci...
 VITE_ADMIN_EMAILS=uno@capitalinteligente.cl,dos@capitalinteligente.cl
 ```
 
-`VITE_ADMIN_EMAILS` controla quién puede iniciar sesión en el dashboard.
-`ADMIN_EMAILS` (el secreto) controla quién ve datos de cliente. Conviene que
-coincidan, pero son listas independientes a propósito: se puede dar acceso al
-dashboard sin dar acceso a la PII.
+`VITE_ADMIN_EMAILS` es el control de acceso efectivo: define quién puede iniciar
+sesión y, por lo tanto, quién ve los datos de cliente. **No lo dejes vacío.**
 
 Reinicia el dev server: Vite solo lee el `.env` al arrancar.
 
@@ -87,9 +103,9 @@ Sin sesión debe responder `401`:
 curl -i "https://<PROJECT>.supabase.co/functions/v1/reservas-privado?desde=2026-05-15T00:00:00-04:00&hasta=2026-07-15T23:59:59-04:00"
 ```
 
-En el dashboard: inicia sesión con un correo de la lista y entra a **Reservas**.
-La columna Cliente debe pasar de "Sin datos de cliente" a mostrar nombre y RUT, y
-el modal debe traer correo y teléfono.
+En el dashboard: inicia sesión y entra a **Reservas**. La columna Cliente debe
+pasar de "Sin datos de cliente" a mostrar nombre y RUT, y el modal debe traer
+correo y teléfono.
 
 ---
 
@@ -98,8 +114,9 @@ el modal debe traer correo y teléfono.
 | Situación | Resultado |
 | --- | --- |
 | Sin Supabase configurado | Endpoint público. "Sin datos de cliente" |
-| Con sesión, correo no administrador | `403` → público. "Sin datos de cliente" |
-| Con sesión, correo administrador | Datos de cliente visibles |
+| Sin sesión iniciada | `401` → público. "Sin datos de cliente" |
+| Con sesión iniciada | Datos de cliente visibles |
+| Con `ADMIN_EMAILS` definido y correo fuera de la lista | `403` → público |
 | ORED rechaza la key | `502` → público, sin romper la vista |
 
 El fallback es silencioso por diseño: la pestaña Reservas nunca queda vacía por un

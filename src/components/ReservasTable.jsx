@@ -21,8 +21,8 @@ const SORT_OPTIONS = [
 ]
 
 /**
- * Celda de cliente. Los datos de contacto solo llegan desde el endpoint privado
- * de ored (admins con sesion); desde el publico vienen vacios y se muestra un
+ * Celda de cliente. Los datos de contacto llegan desde el endpoint privado de
+ * ored, que exige sesion iniciada; sin sesion vienen vacios y se muestra un
  * placeholder en vez de un avatar "?" con campos en blanco.
  */
 function ClienteCell({ reserva }) {

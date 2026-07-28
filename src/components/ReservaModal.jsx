@@ -62,8 +62,7 @@ export default function ReservaModal({ reserva: r, onClose }) {
                 </>
               ) : (
                 <p className={styles.sinDatos}>
-                  Los datos de contacto solo están disponibles para cuentas administradoras
-                  con sesión iniciada.
+                  Los datos de contacto están disponibles al iniciar sesión en el dashboard.
                 </p>
               )}
             </Section>

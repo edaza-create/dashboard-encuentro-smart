@@ -8,17 +8,20 @@
  *  - El endpoint privado de ORED no tiene CORS y es maquina-a-maquina a proposito.
  *    Llamarlo desde el navegador expondria la API key en las DevTools.
  *  - La respuesta lleva PII, asi que este proxy NO puede ser publico: exige sesion
- *    de Supabase Y que el correo este en la lista de administradores.
+ *    de Supabase valida.
  *
  * Diferencia con `reservas-atlas`: aquella es publica y descarta los datos de
- * cliente; esta los entrega, pero solo a administradores autenticados.
+ * cliente; esta los entrega a cualquier cuenta con sesion iniciada.
  *
- * Secretos requeridos (Supabase → Edge Functions → Secrets):
- *   ORED_API_KEY    key del endpoint privado de ORED
- *   ADMIN_EMAILS    correos autorizados, separados por coma
+ * Quien puede iniciar sesion lo controla `VITE_ADMIN_EMAILS` en el LoginGate del
+ * dashboard. IMPORTANTE: si esa lista queda vacia, el alta por OTP usa
+ * `shouldCreateUser: true` y cualquier correo podria registrarse y ver la PII.
+ *
+ * Secretos (Supabase → Edge Functions → Secrets):
+ *   ORED_API_KEY    key del endpoint privado de ORED  (requerido)
+ *   ADMIN_EMAILS    restriccion extra por correo      (opcional)
  *
  * `verify_jwt = true` en config.toml: Supabase valida el JWT antes de invocar.
- * Aca ademas se resuelve el usuario y se compara su correo con ADMIN_EMAILS.
  *
  * Ver docs/DEPLOY-reservas-privado.md
  */
@@ -81,16 +84,15 @@ Deno.serve(async (req) => {
     return json(500, { error: 'ORED_API_KEY no configurado en los secretos de la funcion' })
   }
 
-  // 1. Sesion valida
+  // 1. Sesion valida: basta con estar autenticado en el dashboard.
   const email = await emailDeLaSesion(req)
   if (!email) return json(401, { error: 'Se requiere sesion iniciada' })
 
-  // 2. Correo autorizado
+  // 2. Restriccion opcional por correo. Si ADMIN_EMAILS no esta definido,
+  //    cualquier cuenta con sesion accede — quien puede entrar al dashboard lo
+  //    controla VITE_ADMIN_EMAILS en el LoginGate.
   const admins = parseAdminEmails(Deno.env.get('ADMIN_EMAILS'))
-  if (admins.size === 0) {
-    return json(500, { error: 'ADMIN_EMAILS no configurado: nadie tiene acceso' })
-  }
-  if (!admins.has(email)) {
+  if (admins.size > 0 && !admins.has(email)) {
     return json(403, { error: 'Tu cuenta no tiene acceso a datos de cliente' })
   }
 
